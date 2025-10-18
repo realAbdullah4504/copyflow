@@ -1,4 +1,4 @@
-import { Submission } from '@/types';
+import type { Submission } from '@/types';
 
 let mockSubmissions: Submission[] = [
   {

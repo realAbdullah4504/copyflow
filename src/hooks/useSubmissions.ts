@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { submissionService } from '@/services/submissionService';
-import { Submission } from '@/types';
+import type { Submission } from '@/types';
 
 export function useSubmissions() {
   const { data: submissions = [], isLoading } = useQuery({

@@ -1,4 +1,4 @@
-import { AttendanceRecord } from '@/types';
+import type { AttendanceRecord } from "@/types";
 
 const mockAttendance: AttendanceRecord[] = [
   {
