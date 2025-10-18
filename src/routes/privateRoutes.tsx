@@ -1,33 +1,26 @@
 import type { RouteObject } from "react-router-dom";
-import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { AdminPage, SecretaryPage, TeacherPage } from "@/pages/dashboard";
+import { DashboardLayout } from "@/layouts";
 export const privateRoutes: RouteObject[] = [
   {
-    path: "/admin",
-    element: <ProtectedRoute />,
+    path: "/",
+    element: (
+      <ProtectedRoute>
+        <DashboardLayout />
+      </ProtectedRoute>
+    ),
     children: [
       {
-        path: "index",
+        path: "admin",
         element: <AdminPage />,
       },
-    ],
-  },
-  {
-    path: "/teacher",
-    element: <ProtectedRoute />,
-    children: [
       {
-        path: "index",
+        path: "teacher",
         element: <TeacherPage />,
       },
-    ],
-  },
-  {
-    path: "/secretary",
-    element: <ProtectedRoute />,
-    children: [
       {
-        path: "index",
+        path: "secretary",
         element: <SecretaryPage />,
       },
     ],
