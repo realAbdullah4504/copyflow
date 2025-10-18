@@ -1,8 +1,8 @@
 // src/routes/index.jsx
 import { createBrowserRouter, Navigate } from "react-router-dom";
 import App from "@/App";
-import LoginPage from "@/pages/auth/login";
 import { AuthLayout } from "@/layouts";
+import { LoginPage } from "@/pages/auth";
 
 export const router = createBrowserRouter([
   {
