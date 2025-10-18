@@ -4,7 +4,7 @@ import { AdminPage, SecretaryPage, TeacherPage } from "@/pages/dashboard";
 import { DashboardLayout } from "@/layouts";
 export const privateRoutes: RouteObject[] = [
   {
-    path: "/",
+    path: "/dashboard",
     element: (
       <ProtectedRoute>
         <DashboardLayout />

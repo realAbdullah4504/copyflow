@@ -31,7 +31,7 @@ export function useAuth() {
     user: user || null,
     isLoading,
     isAuthenticated: !!user,
-    login: loginMutation.mutateAsync,
+    login: loginMutation.mutate,
     logout: logoutMutation.mutateAsync,
     isLoggingIn: loginMutation.isPending,
     loginError: loginMutation.error,
