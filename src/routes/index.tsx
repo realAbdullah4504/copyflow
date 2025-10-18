@@ -1,10 +1,20 @@
-import { createBrowserRouter } from "react-router-dom";
+// src/routes/index.jsx
+import { createBrowserRouter, Navigate } from "react-router-dom";
+import App from "@/App";
+import LoginPage from "@/pages/auth/login";
+import { AuthLayout } from "@/layouts";
 
-const routes = [
+export const router = createBrowserRouter([
   {
     path: "/",
-    component: () => <div>Home</div>,
+    element: <App />,
   },
-];
-
-export const router = createBrowserRouter(routes);
+  {
+    path: "/auth",
+    element: <AuthLayout />,
+    children: [
+      { index: true, element: <Navigate to="login" replace /> },
+      { path: "login", element: <LoginPage /> },
+    ],
+  },
+]);
