@@ -1,19 +1,5 @@
-// src/routes/index.jsx
-import { createBrowserRouter, Navigate } from "react-router-dom";
-import { AuthLayout } from "@/layouts";
-import { LoginPage } from "@/pages/auth";
+import { createBrowserRouter } from "react-router-dom";
+import { appRoutes } from "./appRoutes";
+import { privateRoutes } from "./privateRoutes";
 
-export const router = createBrowserRouter([
-  {
-    path: "/",
-    element: <Navigate to="/auth/login" />,
-  },
-  {
-    path: "/auth",
-    element: <AuthLayout />,
-    children: [
-      { index: true, element: <Navigate to="login" replace /> },
-      { path: "login", element: <LoginPage /> },
-    ],
-  },
-]);
+export const router = createBrowserRouter([...appRoutes,...privateRoutes]);

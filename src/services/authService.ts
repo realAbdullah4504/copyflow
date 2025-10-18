@@ -1,4 +1,4 @@
-import type { User } from "@/types";
+import type { User } from "@/types/user";
 
 const mockUsers: User[] = [
   {
@@ -27,35 +27,51 @@ const mockUsers: User[] = [
   }
 ];
 
+type LoginResponse = {
+  user: User;
+  token: string;
+};
+
+type LoginCredentials = {
+  email: string;
+  password: string;
+};
+
 export const authService = {
-  login: async (email: string, password: string): Promise<User> => {
+  login: async (credentials: LoginCredentials): Promise<LoginResponse> => {
     await new Promise(resolve => setTimeout(resolve, 500));
 
-    const user = mockUsers.find(u => u.email === email);
+    const user = mockUsers.find(u => u.email === credentials.email);
     if (!user) {
       throw new Error('Invalid credentials');
     }
 
-    return user;
+    // In a real app, this would be returned from the server
+    const token = `mock-jwt-token-${user.id}`;
+    
+    return { user, token };
   },
 
   logout: async (): Promise<void> => {
     await new Promise(resolve => setTimeout(resolve, 200));
   },
 
-  getCurrentUser: (): User | null => {
+  getCurrentUser: async (): Promise<User | null> => {
+    await new Promise(resolve => setTimeout(resolve, 100));
     if (typeof window === 'undefined') return null;
     const userData = localStorage.getItem('currentUser');
     return userData ? JSON.parse(userData) : null;
   },
 
-  setCurrentUser: (user: User): void => {
+  setCurrentUser: (data: { user: User; token: string }): void => {
     if (typeof window === 'undefined') return;
-    localStorage.setItem('currentUser', JSON.stringify(user));
+    localStorage.setItem('currentUser', JSON.stringify(data.user));
+    localStorage.setItem('token', data.token);
   },
 
   clearCurrentUser: (): void => {
     if (typeof window === 'undefined') return;
     localStorage.removeItem('currentUser');
+    localStorage.removeItem('token');
   }
 };
