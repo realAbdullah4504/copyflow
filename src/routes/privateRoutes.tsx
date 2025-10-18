@@ -1,7 +1,7 @@
 import type { RouteObject } from "react-router-dom";
-import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { ProtectedRoute } from "@/components/guards/ProtectedRoute";
 import { AdminPage, SecretaryPage, TeacherPage } from "@/pages/dashboard";
-import { DashboardLayout } from "@/layouts";
+import { DashboardLayout } from "@/components/layouts";
 export const privateRoutes: RouteObject[] = [
   {
     path: "/dashboard",

@@ -1,9 +1,9 @@
-import { AuthLayout } from "@/layouts";
+import { AuthLayout } from "@/components/layouts";
 import { Navigate } from "react-router-dom";
 import { LoginPage } from "@/pages/auth";
 import { Unauthorized } from "@/pages/errors/Unauthorized";
 import { NotFound } from "@/pages/errors/NotFound";
-import RootRedirect from "@/components/RootRedirect";
+import RootRedirect from "@/components/guards/RootRedirect";
 
 export const appRoutes = [
   {
