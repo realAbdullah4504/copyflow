@@ -1,0 +1,36 @@
+Why use a config/ folder?
+
+Keeps your configuration centralized & easily reviewable
+
+Separates what the app is (its settings) from how it works (its logic)
+
+Makes it easier to change values/settings without digging into business logic
+
+Helps with environment-specific overrides (you might load a different config for production vs dev)
+
+
+🧮 What goes in helpers/ (or utils/)
+
+The helpers/ or utils/ folder is for reusable logic — functions, sometimes classes, that perform work you’ll call from many places. They are more about how things happen.
+
+Typical contents of helpers/
+
+Pure functions (formatting a date, slugifying a string, deep-clone object)
+
+Validation functions (emailValidator, passwordStrengthChecker)
+
+Conversion/adaptation logic (map API output to UI model)
+
+Type guards / utility types (in TS world)
+
+Maybe small wrappers for external libs (e.g., a wrapper around fetch with retry logic)
+
+Why separate them?
+
+Encourages code reuse across your app
+
+Keeps business logic out of config and UI components
+
+Makes testing easier (you can unit test helpers without UI)
+
+Makes your folder structure clearer: config vs logic vs UI/feature
