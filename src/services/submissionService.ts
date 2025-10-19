@@ -110,7 +110,8 @@ let mockSubmissions: Submission[] = [
 ];
 
 export const submissionService = {
-  getSubmissions: async (): Promise<Submission[]> => {)
+  getSubmissions: async (): Promise<Submission[]> => {
+    const { data: submissions, error } = await supabase.from('submissions').select('*');
     if (error) throw error;
     await new Promise(resolve => setTimeout(resolve, 300));
     return [...mockSubmissions].sort((a, b) =>
