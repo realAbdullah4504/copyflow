@@ -12,7 +12,7 @@ type NavItem = {
 const navItems: NavItem[] = [
   {
     title: "Dashboard",
-    href: "/dashboard",
+    href: "/dashboard/admin",
     icon: (
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -35,7 +35,7 @@ const navItems: NavItem[] = [
   },
   {
     title: "Users",
-    href: "/users",
+    href: "/dashboard/admin/users",
     icon: (
       <svg
         xmlns="http://www.w3.org/2000/svg"

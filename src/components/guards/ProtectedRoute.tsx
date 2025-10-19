@@ -30,9 +30,10 @@ export const ProtectedRoute = ({
 
   // Get allowed roles from route config if not explicitly provided
   const routeAllowedRoles = isPublic
-    ? undefined
-    : allowedRoles || getAllowedRolesForPath(path);
-
+  ? undefined
+  : allowedRoles || getAllowedRolesForPath(path);
+  
+  console.log(routeAllowedRoles)
   // Show loading state
   if (isLoading) {
     return (

@@ -1,7 +1,11 @@
 import type { RouteObject } from "react-router-dom";
 import { ProtectedRoute } from "@/components/guards/ProtectedRoute";
-import { AdminPage, SecretaryPage, TeacherPage } from "@/pages/dashboard";
 import { DashboardLayout } from "@/components/layouts";
+import { AdminPage } from "@/pages/dashboard";
+import Users from "@/pages/dashboard/admin/Users";
+import Settings from "@/pages/dashboard/admin/Settings";
+import { Navigate } from "react-router-dom";
+
 export const privateRoutes: RouteObject[] = [
   {
     path: "/dashboard",
@@ -11,18 +15,43 @@ export const privateRoutes: RouteObject[] = [
       </ProtectedRoute>
     ),
     children: [
+      // Admin Routes
+      { index: true, element: <Navigate to="admin" replace /> },
       {
         path: "admin",
-        element: <AdminPage />,
+        children: [
+          { index: true, element: <AdminPage /> },
+          { path: "users", element: <Users /> },
+          { path: "settings", element: <Settings /> },
+        ],
       },
-      {
-        path: "teacher",
-        element: <TeacherPage />,
-      },
-      {
-        path: "secretary",
-        element: <SecretaryPage />,
-      },
+      // Teacher Routes
+      // {
+      //   path: "teacher",
+      //   children: [
+      //     { index: true, element: <TeacherPage /> },
+      //     { path: "classes", element: <TeacherClassesPage /> },
+      //     { path: "attendance", element: <TeacherAttendancePage /> },
+      //   ],
+      // },
+      // // Secretary Routes
+      // {
+      //   path: "secretary",
+      //   children: [
+      //     { index: true, element: <SecretaryPage /> },
+      //     { path: "reports", element: <SecretaryReportsPage /> },
+      //     { path: "documents", element: <SecretaryDocumentsPage /> },
+      //   ],
+      // },
+      // // Principal Routes
+      // {
+      //   path: "principal",
+      //   children: [
+      //     { index: true, element: <PrincipalPage /> },
+      //     { path: "overview", element: <PrincipalOverviewPage /> },
+      //     { path: "reports", element: <PrincipalReportsPage /> },
+      //   ],
+      // },
     ],
   },
 ];
