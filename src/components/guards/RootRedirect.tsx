@@ -1,13 +1,15 @@
 import { useAuth } from "@/hooks/useAuth";
 import { Navigate } from "react-router-dom";
+import { FullPageSpinner } from "../ui/loading-spinner";
 
 const RootRedirect = () => {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user,isLoading } = useAuth();
 
+  if(isLoading) return <FullPageSpinner />;
   if (!isAuthenticated) return <Navigate to="/auth/login" />;
 
   // Redirect to dashboard based on role
-  switch (user.role) {
+  switch (user?.role) {
     case "admin":
       return <Navigate to="/dashboard/admin" />;
     case "teacher":
