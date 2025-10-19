@@ -1,4 +1,4 @@
-import type { User } from "@/types/user";
+import type { User, LoginResponse, LoginCredentials } from '@/types';
 
 const mockUsers: User[] = [
   {
@@ -26,16 +26,6 @@ const mockUsers: User[] = [
     role: 'admin'
   }
 ];
-
-type LoginResponse = {
-  user: User;
-  token: string;
-};
-
-type LoginCredentials = {
-  email: string;
-  password: string;
-};
 
 export const authService = {
   login: async (credentials: LoginCredentials): Promise<LoginResponse> => {

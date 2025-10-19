@@ -1,12 +1,5 @@
 import { ROLES } from './roles';
-import type { UserRole } from '@/types/user';
-
-type RouteRoleConfig = {
-  path: string;
-  roles: UserRole[];
-  exact?: boolean; // If true, only match exact path
-  children?: RouteRoleConfig[];
-};
+import type { UserRole, RouteRoleConfig } from '@/types';
 
 export const routeRoles: RouteRoleConfig[] = [
   {

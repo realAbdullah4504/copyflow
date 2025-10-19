@@ -1,3 +1,7 @@
+/**
+ * Attendance domain types
+ * Core business entities related to attendance tracking
+ */
 
 export interface AttendanceRecord {
   id: string;

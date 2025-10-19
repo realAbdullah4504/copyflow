@@ -1,3 +1,8 @@
+/**
+ * Submission domain types
+ * Core business entities related to print submissions
+ */
+
 export type SubmissionStatus = 'pending' | 'printed' | 'censored' | 'flagged';
 
 export type FileType = 'worksheet' | 'exam' | 'handout' | 'lesson_plan' | 'other';
