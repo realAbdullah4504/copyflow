@@ -19,7 +19,6 @@ export const ProtectedRoute = ({
   ? undefined
   : allowedRoles || getAllowedRolesForPath(path);
   
-  console.log(routeAllowedRoles)
   // Show loading state
   if (isLoading) {
     return (
