@@ -1,74 +1,148 @@
-# React + TypeScript + Vite
+# CopyFlow
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern, professional React application built with TypeScript, Vite, and Supabase.
 
-Currently, two official plugins are available:
+## 🚀 Tech Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **React 19** - UI library
+- **TypeScript** - Type safety
+- **Vite** - Build tool & dev server
+- **TailwindCSS v4** - Styling
+- **shadcn/ui** - UI component library
+- **React Query (TanStack Query)** - Data fetching & caching
+- **Zustand** - State management
+- **React Router v7** - Routing
+- **Supabase** - Backend & authentication
+- **Zod** - Schema validation
 
-## React Compiler
+## 📁 Project Structure
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+The project follows professional folder structure standards:
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```
+src/
+├── components/      # Reusable UI components
+├── pages/          # Route-level page components
+├── hooks/          # Custom React hooks
+├── services/       # API services
+├── store/          # Global state (Zustand)
+├── routes/         # Route configuration
+├── types/          # TypeScript definitions
+├── styles/         # Global styles
+├── utils/          # Utility functions
+├── config/         # App configuration
+└── lib/            # Third-party library configs
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+For detailed information, see **[FOLDER_STRUCTURE.md](./FOLDER_STRUCTURE.md)**.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## 🛠️ Getting Started
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### Prerequisites
+
+- Node.js 18+ 
+- npm or yarn
+
+### Installation
+
+```bash
+# Install dependencies
+npm install
+
+# Set up environment variables
+# Copy .env.example to .env and fill in your values
+cp .env.example .env
+
+# Start development server
+npm run dev
 ```
-# copyflow
+
+### Available Scripts
+
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run preview` - Preview production build
+- `npm run lint` - Run ESLint
+- `npm run generate:barrels` - Generate barrel exports
+
+## 📚 Documentation
+
+- **[FOLDER_STRUCTURE.md](./FOLDER_STRUCTURE.md)** - Complete folder structure guide
+- **[docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md)** - Architecture principles
+- **[REORGANIZATION_SUMMARY.md](./REORGANIZATION_SUMMARY.md)** - Recent structure changes
+- **[NEXT_STEPS.md](./NEXT_STEPS.md)** - Setup and cleanup instructions
+
+## 🎯 Features
+
+- ✅ Role-based authentication (Admin, Secretary, Teacher)
+- ✅ Protected routes with route guards
+- ✅ Modern UI with shadcn/ui components
+- ✅ Dark mode support
+- ✅ Responsive design
+- ✅ Type-safe API calls
+- ✅ Global state management
+- ✅ Error boundaries
+- ✅ Professional folder structure
+
+## 🔧 Configuration
+
+The app uses centralized configuration in the `src/config/` folder:
+
+- `env.ts` - Environment variables
+- `roles.ts` - User role definitions
+- `routeRoles.ts` - Route access control
+
+## 🧰 Utilities
+
+Reusable utility functions are available in `src/utils/`:
+
+```typescript
+import { isValidEmail, formatDate, truncateText } from '@/utils';
+
+// Validation
+if (isValidEmail(email)) { /* ... */ }
+
+// Formatting
+const date = formatDate(new Date());
+```
+
+See **[src/utils/README.md](./src/utils/README.md)** for more details.
+
+## 🎨 Styling
+
+- **TailwindCSS v4** for utility-first styling
+- **shadcn/ui** for pre-built accessible components
+- Custom theme configuration in `src/styles/index.css`
+- Dark mode support via `next-themes`
+
+## 📦 Build & Deploy
+
+```bash
+# Production build
+npm run build
+
+# Preview production build locally
+npm run preview
+```
+
+The build output will be in the `dist/` folder.
+
+## 🤝 Contributing
+
+1. Follow the established folder structure
+2. Use TypeScript for type safety
+3. Write reusable utility functions in `src/utils/`
+4. Keep components focused and single-purpose
+5. Add proper TypeScript types in `src/types/`
+
+## 📄 License
+
+[Your License Here]
+
+## 🔗 Links
+
+- [Vite Documentation](https://vitejs.dev/)
+- [React Documentation](https://react.dev/)
+- [TailwindCSS Documentation](https://tailwindcss.com/)
+- [shadcn/ui Documentation](https://ui.shadcn.com/)
+- [Supabase Documentation](https://supabase.com/docs)

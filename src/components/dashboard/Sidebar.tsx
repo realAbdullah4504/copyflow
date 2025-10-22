@@ -42,7 +42,8 @@ export default function Sidebar({
                   variant={isActive ? "secondary" : "ghost"}
                   className={cn(
                     "w-full justify-start",
-                    isActive && "bg-slate-200 text-slate-900"
+                    isActive && "bg-slate-200 text-slate-900",
+                    "cursor-pointer"
                   )}
                 >
                   <Icon className="mr-3 h-5 w-5" />

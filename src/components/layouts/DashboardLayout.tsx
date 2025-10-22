@@ -10,7 +10,7 @@ const DashboardLayout = () => {
   const titleMap: Record<string, string> = {
   "/dashboard/admin": "Admin Overview",
   "/dashboard/admin/users": "Users",
-  "/dashboard/admin/submissions": "Submissions",
+  "/dashboard/admin/submissions": "All Submissions",
 };
 
 const location = useLocation();

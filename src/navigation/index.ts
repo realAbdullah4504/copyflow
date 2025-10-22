@@ -1,4 +1,4 @@
-import { BarChart3, ClipboardCheck, FileText, Inbox } from "lucide-react";
+import { ChartBar as BarChart3, ClipboardCheck, FileText, Inbox } from "lucide-react";
 import type { NavItem } from "@/types/navigation";
 
 
