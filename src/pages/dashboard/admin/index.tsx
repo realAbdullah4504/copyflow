@@ -1,9 +1,3 @@
-import AdminDashboard from "@/components/admin";
-
-const AdminPage = () => {
-  return (
-    <AdminDashboard/>
-  );
-};
-
-export default AdminPage;
+export {default as AdminDashboardPage} from "./AdminDashboardPage";
+export {default as SettingsPage} from "./SettingsPage";
+export {default as UsersPage} from "./UsersPage";

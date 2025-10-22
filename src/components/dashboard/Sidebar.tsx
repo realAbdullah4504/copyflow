@@ -2,7 +2,7 @@ import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { Icon } from "@/components/icons";
-import { navItems } from "@/config/navigation";
+import { navItems } from "@/navigation";
 
 export const Sidebar = () => {
   const location = useLocation();

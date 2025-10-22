@@ -7,6 +7,12 @@ export const navItems: NavItem[] = [
     icon: "dashboard-icon",
   },
   {
+    title: "Settings",
+    href: "/dashboard/admin/settings",
+    icon: "settings-icon",
+    roles: ["admin"],
+  },
+  {
     title: "Users",
     href: "/dashboard/admin/users",
     icon: "users-icon",
