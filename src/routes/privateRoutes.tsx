@@ -1,9 +1,7 @@
 import type { RouteObject } from "react-router-dom";
 import { ProtectedRoute } from "@/components/guards/ProtectedRoute";
 import { DashboardLayout } from "@/components/layouts";
-import { AdminPage } from "@/pages/dashboard";
-import Users from "@/pages/dashboard/admin/Users";
-import Settings from "@/pages/dashboard/admin/Settings";
+import { AdminPage, Settings, Users } from "@/pages/dashboard";
 import { Navigate } from "react-router-dom";
 
 export const privateRoutes: RouteObject[] = [

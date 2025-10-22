@@ -10,7 +10,7 @@ export const routeRoles: RouteRoleConfig[] = [
         path: 'admin',
         roles: [ROLES.ADMIN],
         children: [
-          { path: 'users', roles: [ROLES.TEACHER] },
+          { path: 'users', roles: [ROLES.ADMIN] },
           { path: 'settings', roles: [ROLES.ADMIN] },
         ],
       },
