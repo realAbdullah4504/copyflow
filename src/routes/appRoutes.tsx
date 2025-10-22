@@ -3,7 +3,7 @@ import { Navigate } from "react-router-dom";
 import { LoginPage } from "@/pages/auth";
 import { Unauthorized } from "@/pages/errors/Unauthorized";
 import { NotFound } from "@/pages/errors/NotFound";
-import RootRedirect from "@/components/guards/RootRedirect";
+import { RootRedirect } from "@/components/guards";
 
 export const appRoutes = [
   {

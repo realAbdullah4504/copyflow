@@ -1,41 +1,73 @@
-import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { useAuth } from "@/hooks/useAuth";
-import { Icon } from "@/components/icons";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { LogOut } from "lucide-react";
 import { navItems } from "@/navigation";
+import { Link, useLocation } from "react-router-dom";
 
-export const Sidebar = () => {
+interface SidebarProps {
+  userRole: UserRole;
+  userName: string;
+  onLogout: () => void;
+}
+
+export default function Sidebar({
+  userRole,
+  userName,
+  onLogout,
+}: SidebarProps) {
   const location = useLocation();
-  const { user } = useAuth();
+  const pathname = location.pathname;
 
-  const filteredNavItems = navItems.filter(
-    (item) => !item.roles || (user?.role && item.roles.includes(user.role))
+  const filteredNavItems = navItems.filter((item) =>
+    item.roles?.includes(userRole)
   );
 
   return (
-    <aside className="hidden w-64 border-r md:block">
-      <div className="flex h-full flex-col gap-2">
-        <div className="flex h-16 items-center border-b px-6">
-          <h2 className="text-lg font-semibold">CopyFlow</h2>
-        </div>
-        <nav className="flex-1 space-y-1 p-2">
-          {filteredNavItems.map((item) => (
-            <Link
-              key={item.href}
-              to={item.href}
-              className={cn(
-                "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground",
-                location.pathname === item.href
-                  ? "bg-accent text-accent-foreground"
-                  : "text-muted-foreground"
-              )}
-            >
-              <Icon name={item.icon} />
-              {item.title}
-            </Link>
-          ))}
-        </nav>
+    <div className="flex h-full w-64 flex-col border-r bg-slate-50">
+      <div className="border-b p-6">
+        <h1 className="text-2xl font-bold text-slate-900">CopyFlow</h1>
+        <p className="text-sm text-slate-600 mt-1">School Workflow</p>
       </div>
-    </aside>
+
+      <ScrollArea className="flex-1 px-3 py-4">
+        <nav className="space-y-1">
+          {filteredNavItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = pathname === item.href;
+
+            return (
+              <Link key={item.href} to={item.href}>
+                <Button
+                  variant={isActive ? "secondary" : "ghost"}
+                  className={cn(
+                    "w-full justify-start",
+                    isActive && "bg-slate-200 text-slate-900"
+                  )}
+                >
+                  <Icon className="mr-3 h-5 w-5" />
+                  {item.title}
+                </Button>
+              </Link>
+            );
+          })}
+        </nav>
+      </ScrollArea>
+
+      <div className="border-t p-4">
+        <div className="mb-3 px-2">
+          <p className="text-sm font-medium text-slate-900">{userName}</p>
+          <p className="text-xs text-slate-600 capitalize">{userRole}</p>
+        </div>
+        <Button
+          variant="outline"
+          className="w-full justify-start"
+          onClick={onLogout}
+        >
+          <LogOut className="mr-3 h-5 w-5" />
+          Logout
+        </Button>
+      </div>
+    </div>
   );
-};
+}

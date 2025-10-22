@@ -20,5 +20,4 @@ export interface ProtectedRouteProps {
    * Optional: Set to true to skip role checking (only check authentication)
    */
   public?: boolean;
-  children: React.ReactNode;
 }

@@ -1,37 +1,41 @@
 import type { RouteObject } from "react-router-dom";
-import { ProtectedRoute } from "@/components/guards/ProtectedRoute";
 import { DashboardLayout } from "@/components/layouts";
-import { AdminPage, Settings, Users } from "@/pages/dashboard";
-import { Navigate } from "react-router-dom";
+import {
+  AdminDashboard,
+  AdminSubmissions,
+  AdminSettings,
+  Users,
+  TeacherPage,
+} from "@/pages/dashboard";
+import { ProtectedRoute, RootRedirect } from "@/components/guards";
 
 export const privateRoutes: RouteObject[] = [
   {
     path: "/dashboard",
-    element: (
-      <ProtectedRoute>
-        <DashboardLayout />
-      </ProtectedRoute>
-    ),
+    element: <ProtectedRoute />,
     children: [
       // Admin Routes
-      { index: true, element: <Navigate to="admin" replace /> },
+      { index: true, element: <RootRedirect /> },
       {
         path: "admin",
+        element: <DashboardLayout/>,
         children: [
-          { index: true, element: <AdminPage /> },
+          { index: true, element: <AdminDashboard /> },
           { path: "users", element: <Users /> },
-          { path: "settings", element: <Settings /> },
+          { path: "settings", element: <AdminSettings /> },
+          { path: "submissions", element: <AdminSubmissions /> },
         ],
       },
       // Teacher Routes
-      // {
-      //   path: "teacher",
-      //   children: [
-      //     { index: true, element: <TeacherPage /> },
-      //     { path: "classes", element: <TeacherClassesPage /> },
-      //     { path: "attendance", element: <TeacherAttendancePage /> },
-      //   ],
-      // },
+      {
+        path: "teacher",
+        element: <DashboardLayout/>,
+        children: [
+          { index: true, element: <TeacherPage /> },
+          // { path: "classes", element: <TeacherClassesPage /> },
+          // { path: "attendance", element: <TeacherAttendancePage /> },
+        ],
+      },
       // // Secretary Routes
       // {
       //   path: "secretary",

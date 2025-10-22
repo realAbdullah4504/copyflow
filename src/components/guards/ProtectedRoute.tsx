@@ -1,14 +1,13 @@
-import { Navigate, useLocation } from "react-router-dom";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Loader2 } from "lucide-react";
 import { hasPermission } from "@/config/roles";
 import { getAllowedRolesForPath } from "@/config/routeRoles";
 import type { UserRole, ProtectedRouteProps } from "@/types";
 
-export const ProtectedRoute = ({
+const ProtectedRoute = ({
   allowedRoles,
   public: isPublic = false,
-  children,
 }: ProtectedRouteProps) => {
   const { isAuthenticated, isLoading, user } = useAuth();
   const location = useLocation();
@@ -35,7 +34,7 @@ export const ProtectedRoute = ({
 
   // If route is public or has no role restrictions, allow access
   if (isPublic || !routeAllowedRoles) {
-    return children;
+    return <Outlet/>;
   }
 
   // Check if user has any of the required roles
@@ -54,5 +53,7 @@ export const ProtectedRoute = ({
     return <Navigate to="/unauthorized" replace />;
   }
 
-  return children;
+  return <Outlet />;
 };
+
+export default ProtectedRoute;

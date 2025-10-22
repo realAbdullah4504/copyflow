@@ -1,24 +1,57 @@
-import { useAuth } from "@/hooks/useAuth";
-import { Button } from "@/components/ui/button";
+'use client';
 
-export const Header = () => {
-  const { user, logout } = useAuth();
+import { Bell } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+
+interface HeaderProps {
+  title: string;
+  userName: string;
+  onLogout: () => void;
+}
+
+export default function Header({ title, userName, onLogout }: HeaderProps) {
+  const initials = userName
+    .split(' ')
+    .map(n => n[0])
+    .join('')
+    .toUpperCase();
 
   return (
-    <header className="sticky top-0 z-10 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 items-center justify-between px-4">
-        <h1 className="text-xl font-semibold">
-          {user?.role ? `${user.role.charAt(0).toUpperCase() + user.role.slice(1)} Dashboard` : 'Dashboard'}
-        </h1>
+    <header className="border-b bg-white">
+      <div className="flex h-16 items-center justify-between px-6">
+        <h2 className="text-2xl font-semibold text-slate-900">{title}</h2>
+
         <div className="flex items-center gap-4">
-          <span className="text-sm text-muted-foreground">
-            {user?.email}
-          </span>
-          <Button variant="outline" size="sm" onClick={logout}>
-            Logout
+          <Button variant="ghost" size="icon" className="relative">
+            <Bell className="h-5 w-5" />
+            <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-red-500" />
           </Button>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                <Avatar>
+                  <AvatarFallback className="bg-slate-200 text-slate-700">
+                    {initials}
+                  </AvatarFallback>
+                </Avatar>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={onLogout}>
+                Logout
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
     </header>
   );
-};
+}

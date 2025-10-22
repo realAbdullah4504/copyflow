@@ -3,11 +3,9 @@
  * Types related to navigation and routing UI
  */
 
-export type IconName = 'dashboard-icon' | 'users-icon' | 'settings-icon';
-
 export interface NavItem {
   title: string;
   href: string;
-  icon: IconName;
+  icon: React.ComponentType<{ className?: string }>;
   roles?: string[];
 }
