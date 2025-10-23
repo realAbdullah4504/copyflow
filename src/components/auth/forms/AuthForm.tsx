@@ -3,7 +3,7 @@ import { useForm, FormProvider, type FieldValues } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2 } from "lucide-react";
-import FormField from "./FormField";
+import FormField from "../fields/FormField";
 import type { AuthFormConfig, AuthFieldConfig } from "@/types/forms";
 
 interface AuthFormProps<T extends FieldValues> {

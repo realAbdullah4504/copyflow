@@ -4,8 +4,8 @@ import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { Divider } from "@/components/ui/divider"; // You'll need to create this
 import { DemoAccountButton } from "./DemoAccountButton"; // Extract this from current LoginForm
-import AuthForm from "./AuthForm";
-import { AUTH_FIELDS } from "./fields";
+import AuthForm from "./forms/AuthForm";
+import { AUTH_FIELDS } from "./forms/fields";
 
 type LoginInputs = {
   email: string;
