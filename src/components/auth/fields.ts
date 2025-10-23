@@ -1,4 +1,4 @@
-import type { AuthFieldsConfig } from "@/types/auth.types";
+import type { AuthFieldsConfig } from "@/types/forms";
 
 export const AUTH_FIELDS: AuthFieldsConfig = {
   LOGIN: {

@@ -1,7 +1,7 @@
 import type { FieldValues, useForm } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import type { AuthFieldConfig } from "@/types/auth.types";
+import type { AuthFieldConfig } from "@/types/forms";
 
 const FormField = <T extends FieldValues>({
   field,

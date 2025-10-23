@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2 } from "lucide-react";
 import FormField from "./FormField";
-import type { AuthFormConfig, AuthFieldConfig } from "@/types/auth.types";
+import type { AuthFormConfig, AuthFieldConfig } from "@/types/forms";
 
 interface AuthFormProps<T extends FieldValues> {
   config: AuthFormConfig<T>;

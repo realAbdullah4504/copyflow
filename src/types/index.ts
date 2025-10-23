@@ -15,11 +15,11 @@ export * from "./domain";
 // API types (request/response)
 export * from "./api";
 
-// UI types (components, navigation)
-export * from "./ui";
-
 // Configuration types
 export * from "./config";
+
+// Form types
+export * from "./forms";
 
 // Store types (state management)
 export * from "./store";
