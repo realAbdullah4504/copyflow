@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import { Bell } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Bell } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 interface HeaderProps {
   title: string;
@@ -18,9 +18,9 @@ interface HeaderProps {
 
 export default function Header({ title, userName, onLogout }: HeaderProps) {
   const initials = userName
-    .split(' ')
-    .map(n => n[0])
-    .join('')
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
     .toUpperCase();
 
   return (
@@ -36,7 +36,10 @@ export default function Header({ title, userName, onLogout }: HeaderProps) {
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+              <Button
+                variant="ghost"
+                className="relative h-10 w-10 rounded-full"
+              >
                 <Avatar>
                   <AvatarFallback className="bg-slate-200 text-slate-700">
                     {initials}
@@ -45,9 +48,7 @@ export default function Header({ title, userName, onLogout }: HeaderProps) {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={onLogout}>
-                Logout
-              </DropdownMenuItem>
+              <DropdownMenuItem onClick={onLogout}>Logout</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

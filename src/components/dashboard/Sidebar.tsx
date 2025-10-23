@@ -61,7 +61,7 @@ export default function Sidebar({
         </div>
         <Button
           variant="outline"
-          className="w-full justify-start cursor-pointer"
+          className="w-full justify-start"
           onClick={onLogout}
         >
           <LogOut className="mr-3 h-5 w-5" />
