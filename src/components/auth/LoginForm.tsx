@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { Divider } from "@/components/ui/divider"; // You'll need to create this
 import { DemoAccountButton } from "./DemoAccountButton"; // Extract this from current LoginForm
 import AuthForm from "./AuthForm";
+import { AUTH_FIELDS } from "./fields";
 
 type LoginInputs = {
   email: string;
@@ -23,6 +24,7 @@ const demoAccounts = [
 
 const LoginForm = () => {
   const { login, isLoggingIn, loginError } = useAuth();
+  const config=AUTH_FIELDS.LOGIN;
   const navigate = useNavigate();
 
   const form = useForm<LoginInputs>({
@@ -50,10 +52,11 @@ const LoginForm = () => {
     setValue("password", "password", { shouldValidate: true });
   };
 
+  
   return (
     <>
       <AuthForm
-        mode="login"
+        config={config}
         form={form}
         onSubmit={onSubmit}
         isSubmitting={isLoggingIn}

@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import AuthForm from "./AuthForm";
+import { AUTH_FIELDS } from "./fields";
 
 type SignupInputs = {
   name: string;
@@ -22,6 +23,8 @@ const SignupForm = () => {
     },
     mode: "onSubmit",
   });
+
+  const config=AUTH_FIELDS.SIGNUP;
 
   const onSubmit = async (data: SignupInputs): Promise<void> => {
     // Replace with your actual signup API call
@@ -45,7 +48,7 @@ const SignupForm = () => {
 
   return (
     <AuthForm
-      mode="signup"
+      config={config}
       form={form}
       onSubmit={onSubmit}
       isSubmitting={false} // Set to true during form submission

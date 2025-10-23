@@ -1,144 +1,54 @@
-// src/components/auth/AuthForm.tsx
+
+import { useForm, FormProvider, type FieldValues } from "react-hook-form";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2 } from "lucide-react";
-import type {
-  UseFormReturn,
-  FieldValues,
-  Path,
-  FieldError,
-} from "react-hook-form";
-
-type AuthMode = "login" | "signup";
-
-type AuthFormFields = {
-  email: string;
-  password: string;
-  name?: string;
-  confirmPassword?: string;
-};
+import FormField from "./FormField";
+import type { AuthFormConfig, AuthFieldConfig } from "@/types/auth.types";
 
 interface AuthFormProps<T extends FieldValues> {
-  mode: AuthMode;
+  config: AuthFormConfig<T>;
   onSubmit: (data: T) => void;
   isSubmitting: boolean;
   error?: string;
+  form: ReturnType<typeof useForm<T>>;
   children?: React.ReactNode;
-  form: UseFormReturn<T>;
 }
 
-const AuthForm = <T extends AuthFormFields>({
-  mode,
+const AuthForm = <T extends FieldValues>({
+  config,
   onSubmit,
   isSubmitting,
   error,
-  children,
   form,
+  children,
 }: AuthFormProps<T>) => {
-  const {
-    register,
-    formState: { errors },
-    handleSubmit,
-    watch,
-  } = form;
-
-  const password = watch ? watch("password" as Path<T>) : "";
+  const { handleSubmit } = form;
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
-      <div className="space-y-1">
-        <Label htmlFor="email">Email</Label>
-        <Input
-          id="email"
-          type="email"
-          placeholder="you@school.edu"
-          aria-invalid={!!errors.email}
-          aria-describedby={errors.email ? "email-error" : undefined}
-          {...register("email" as Path<T>, {
-            required: "Email is required",
-            pattern: {
-              value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-              message: "Invalid email address",
-            },
-          })}
-          disabled={isSubmitting}
-        />
-        {errors.email && (
-          <p id="email-error" className="text-xs text-red-600">
-            {(errors.email as FieldError)?.message}
-          </p>
+    <FormProvider {...form}>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
+        {config.fields.map((field: AuthFieldConfig<T>) => (
+          <FormField key={String(field.name)} field={field} form={form} />
+        ))}
+
+        {error && (
+          <Alert variant="destructive">
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
         )}
-      </div>
 
-      <div className="space-y-1">
-        <Label htmlFor="password">Password</Label>
-        <Input
-          id="password"
-          type="password"
-          placeholder="••••••••"
-          aria-invalid={!!errors.password}
-          aria-describedby={errors.password ? "password-error" : undefined}
-          {...register("password" as Path<T>, {
-            required: "Password is required",
-            minLength: {
-              value: 6,
-              message: "Password must be at least 6 characters",
-            },
-          })}
-          disabled={isSubmitting}
-        />
-        {errors.password && (
-          <p id="password-error" className="text-xs text-red-600">
-            {(errors.password as FieldError)?.message}
-          </p>
-        )}
-      </div>
+        <Button type="submit" disabled={isSubmitting} className="w-full">
+          {isSubmitting ? (
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          ) : null}
+          {config.submitButtonText}
+        </Button>
 
-      {mode === "signup" && (
-        <div className="space-y-1">
-          <Label htmlFor="confirmPassword">Confirm Password</Label>
-          <Input
-            id="confirmPassword"
-            type="password"
-            placeholder="••••••••"
-            aria-invalid={!!errors.confirmPassword}
-            aria-describedby={
-              errors.confirmPassword ? "confirm-password-error" : undefined
-            }
-            {...register("confirmPassword" as Path<T>, {
-              validate: (value) =>
-                value === password || "Passwords do not match",
-            })}
-            disabled={isSubmitting}
-          />
-          {errors.confirmPassword && (
-            <p id="confirm-password-error" className="text-xs text-red-600">
-              {(errors.confirmPassword as FieldError)?.message}
-            </p>
-          )}
-        </div>
-      )}
-
-      {error && (
-        <Alert variant="destructive">
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
-      )}
-
-      <Button
-        type="submit"
-        className="w-full flex items-center justify-center gap-2"
-        disabled={isSubmitting}
-        aria-busy={isSubmitting}
-      >
-        {isSubmitting && <Loader2 className="h-5 w-5 animate-spin" />}
-        {mode === "login" ? "Sign In" : "Create Account"}
-      </Button>
-
-      {children}
-    </form>
+        {config.footer && <div className="mt-4">{config.footer}</div>}
+        {children}
+      </form>
+    </FormProvider>
   );
 };
 
