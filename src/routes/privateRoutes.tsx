@@ -6,19 +6,23 @@ import {
   AdminSettings,
   Users,
   TeacherPage,
+  SecretaryPage,
 } from "@/pages/dashboard";
 import { ProtectedRoute, RootRedirect } from "@/components/guards";
 
 export const privateRoutes: RouteObject[] = [
   {
     path: "/dashboard",
-    element: <ProtectedRoute />,
+    element: (
+      <ProtectedRoute>
+        <DashboardLayout />
+      </ProtectedRoute>
+    ),
     children: [
       // Admin Routes
       { index: true, element: <RootRedirect /> },
       {
         path: "admin",
-        element: <DashboardLayout/>,
         children: [
           { index: true, element: <AdminDashboard /> },
           { path: "users", element: <Users /> },
@@ -29,22 +33,21 @@ export const privateRoutes: RouteObject[] = [
       // Teacher Routes
       {
         path: "teacher",
-        element: <DashboardLayout/>,
         children: [
           { index: true, element: <TeacherPage /> },
           // { path: "classes", element: <TeacherClassesPage /> },
           // { path: "attendance", element: <TeacherAttendancePage /> },
         ],
       },
-      // // Secretary Routes
-      // {
-      //   path: "secretary",
-      //   children: [
-      //     { index: true, element: <SecretaryPage /> },
-      //     { path: "reports", element: <SecretaryReportsPage /> },
-      //     { path: "documents", element: <SecretaryDocumentsPage /> },
-      //   ],
-      // },
+      // Secretary Routes
+      {
+        path: "secretary",
+        children: [
+          { index: true, element: <SecretaryPage /> },
+          // { path: "reports", element: <SecretaryReportsPage /> },
+          // { path: "documents", element: <SecretaryDocumentsPage /> },
+        ],
+      },
       // // Principal Routes
       // {
       //   path: "principal",

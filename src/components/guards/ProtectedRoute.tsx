@@ -16,11 +16,14 @@ export interface ProtectedRouteProps {
    * Optional: Set to true to skip role checking (only check authentication)
    */
   public?: boolean;
+
+  children?: React.ReactNode;
 }
 
 const ProtectedRoute = ({
   allowedRoles,
   public: isPublic = false,
+  children,
 }: ProtectedRouteProps) => {
   const { isAuthenticated, isLoading, user } = useAuth();
   const location = useLocation();
@@ -47,7 +50,7 @@ const ProtectedRoute = ({
 
   // If route is public or has no role restrictions, allow access
   if (isPublic || !routeAllowedRoles) {
-    return <Outlet />;
+    return children;
   }
 
   // Check if user has any of the required roles
@@ -66,7 +69,7 @@ const ProtectedRoute = ({
     return <Navigate to="/unauthorized" replace />;
   }
 
-  return <Outlet />;
+  return children;
 };
 
 export default ProtectedRoute;

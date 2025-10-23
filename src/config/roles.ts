@@ -1,4 +1,4 @@
-import type { UserRole } from '@/types/user';
+import type { UserRole } from "@/types";
 
 // Define all available roles
 export const ROLES = {
@@ -22,3 +22,4 @@ const roleHierarchy: Record<Role, Role[]> = {
 export const hasPermission = (userRole: Role, requiredRole: Role): boolean => {
   return roleHierarchy[userRole]?.includes(requiredRole) || false;
 };
+

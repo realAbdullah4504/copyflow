@@ -39,3 +39,7 @@ export const NAV_ITEMS: NavItem[] = [
     roles: [ROLES.ADMIN],
   },
 ];
+
+export const getNavForRole = (role: string): NavItem[] => {
+  return NAV_ITEMS.filter((item) => item.roles?.includes(role));
+};

@@ -4,7 +4,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { LogOut } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import type { UserRole } from "@/types";
-import { NAV_ITEMS } from "@/config/navigation";
+import { getNavForRole } from "@/config/navigation";
 
 interface SidebarProps {
   userRole: UserRole;
@@ -20,9 +20,7 @@ export default function Sidebar({
   const location = useLocation();
   const pathname = location.pathname;
 
-  const filteredNavItems = NAV_ITEMS.filter((item) =>
-    item.roles?.includes(userRole)
-  );
+  const navLinks = getNavForRole(userRole);
 
   return (
     <div className="flex h-full w-64 flex-col border-r bg-slate-50">
@@ -33,7 +31,7 @@ export default function Sidebar({
 
       <ScrollArea className="flex-1 px-3 py-4">
         <nav className="space-y-1">
-          {filteredNavItems.map((item) => {
+          {navLinks.map((item) => {
             const Icon = item.icon;
             const isActive = pathname === item.href;
 
