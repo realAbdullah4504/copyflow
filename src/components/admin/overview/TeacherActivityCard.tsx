@@ -5,7 +5,7 @@ interface TeacherActivityCardProps {
   teacherActivity: { name: string; count: number }[];
 }
 
-export const TeacherActivityCard = ({ teacherActivity }: TeacherActivityCardProps) => (
+const TeacherActivityCard = ({ teacherActivity }: TeacherActivityCardProps) => (
   <Card className="p-6">
     <div className="flex items-center gap-2 mb-4">
       <Users className="h-5 w-5 text-slate-600" />
@@ -24,3 +24,5 @@ export const TeacherActivityCard = ({ teacherActivity }: TeacherActivityCardProp
     </div>
   </Card>
 );
+
+export default TeacherActivityCard;

@@ -1,9 +1,10 @@
-import { cn } from "@/lib/utils";
+import { cn } from "@/utils";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { LogOut } from "lucide-react";
 import { navItems } from "@/navigation";
 import { Link, useLocation } from "react-router-dom";
+import type { UserRole } from "@/types";
 
 interface SidebarProps {
   userRole: UserRole;
@@ -62,7 +63,7 @@ export default function Sidebar({
         </div>
         <Button
           variant="outline"
-          className="w-full justify-start"
+          className="w-full justify-start cursor-pointer"
           onClick={onLogout}
         >
           <LogOut className="mr-3 h-5 w-5" />

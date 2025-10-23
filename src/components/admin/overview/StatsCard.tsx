@@ -8,7 +8,7 @@ interface StatCardProps {
   value: number;
 }
 
-export const StatCard = ({ icon: Icon, iconBg, label, value }: StatCardProps) => (
+const StatCard = ({ icon: Icon, iconBg, label, value }: StatCardProps) => (
   <Card className="p-6">
     <div className="flex items-center gap-4">
       <div className={`p-3 rounded-lg ${iconBg}`}>
@@ -21,3 +21,5 @@ export const StatCard = ({ icon: Icon, iconBg, label, value }: StatCardProps) =>
     </div>
   </Card>
 );
+
+export default StatCard;

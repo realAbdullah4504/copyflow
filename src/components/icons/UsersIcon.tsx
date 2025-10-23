@@ -1,4 +1,6 @@
-import type { IconProps } from "@/types";
+interface IconProps {
+  className?: string;
+}
 
 const UsersIcon = ({ className }: IconProps) => {
   return (

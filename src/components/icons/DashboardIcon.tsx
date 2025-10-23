@@ -1,5 +1,7 @@
-import type { IconProps } from '@/types';
 
+interface IconProps {
+  className?: string;
+}
 const DashboardIcon = ({ className }: IconProps) => {
   return (
     <svg

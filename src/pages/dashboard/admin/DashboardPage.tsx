@@ -1,11 +1,13 @@
 import { useSubmissions } from "@/hooks/useSubmissions";
 import { useTodayAttendance } from "@/hooks/useAttendance";
-import { StatCard } from "@/components/admin/dashboard/StatsCard";
-import { AttendanceCard } from "@/components/admin/dashboard/AttendenceCard";
-import { TeacherActivityCard } from "@/components/admin/dashboard/TeacherActivityCard";
-import { adminStatCards } from "@/constants/admin/cards";
 import { DataTable } from "@/components/common/DataTable";
 import { adminColumns } from "@/constants/admin/submissionColumns";
+import {
+  StatsCard,
+  TeacherActivityCard,
+  AttendenceCard
+} from "@/components/admin/overview";
+import { ADMIN_STAT_DATA } from "@/constants/admin/cards";
 
 export default function AdminDashboardPage() {
   const { submissions, isLoading: submissionsLoading } = useSubmissions();
@@ -52,8 +54,8 @@ export default function AdminDashboardPage() {
   return (
     <div className="space-y-6">
       <div className="grid gap-4 md:grid-cols-4">
-        {adminStatCards.map((card) => (
-          <StatCard
+        {ADMIN_STAT_DATA.map((card) => (
+          <StatsCard
             key={card.label}
             icon={card.icon}
             iconBg={card.iconBg}
@@ -64,7 +66,7 @@ export default function AdminDashboardPage() {
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
-        <AttendanceCard
+        <AttendenceCard
           attendanceRate={attendanceRate}
           totalPresent={totalPresent}
           totalStudents={totalStudents}

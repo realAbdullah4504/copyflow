@@ -3,7 +3,20 @@ import { useAuth } from "@/hooks/useAuth";
 import { Loader2 } from "lucide-react";
 import { hasPermission } from "@/config/roles";
 import { getAllowedRolesForPath } from "@/config/routeRoles";
-import type { UserRole, ProtectedRouteProps } from "@/types";
+import type { UserRole } from "@/types";
+
+export interface ProtectedRouteProps {
+  /**
+   * Optional: Explicitly specify allowed roles for this route
+   * If not provided, will try to determine from route configuration
+   */
+  allowedRoles?: UserRole[];
+
+  /**
+   * Optional: Set to true to skip role checking (only check authentication)
+   */
+  public?: boolean;
+}
 
 const ProtectedRoute = ({
   allowedRoles,
@@ -15,9 +28,9 @@ const ProtectedRoute = ({
 
   // Get allowed roles from route config if not explicitly provided
   const routeAllowedRoles = isPublic
-  ? undefined
-  : allowedRoles || getAllowedRolesForPath(path);
-  
+    ? undefined
+    : allowedRoles || getAllowedRolesForPath(path);
+
   // Show loading state
   if (isLoading) {
     return (
@@ -34,7 +47,7 @@ const ProtectedRoute = ({
 
   // If route is public or has no role restrictions, allow access
   if (isPublic || !routeAllowedRoles) {
-    return <Outlet/>;
+    return <Outlet />;
   }
 
   // Check if user has any of the required roles

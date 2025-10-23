@@ -1,6 +1,6 @@
 import { FileText, Clock, CheckCircle, AlertCircle } from "lucide-react";
 
-export const adminStatCards = [
+export const ADMIN_STAT_DATA = [
   {
     icon: FileText,
     iconBg: "bg-blue-100 text-blue-600",

@@ -10,7 +10,7 @@ This folder contains reusable utility functions and helpers that can be used thr
 ## Usage
 
 ```typescript
-import { isValidEmail, formatDate } from '@/utils';
+import { isValidEmail, formatDate } from '"@/utils"';
 
 // Validation
 if (isValidEmail(email)) {

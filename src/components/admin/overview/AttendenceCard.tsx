@@ -9,7 +9,7 @@ interface AttendanceCardProps {
   late: number;
 }
 
-export const AttendanceCard = ({ attendanceRate, totalPresent, totalStudents, absent, late }: AttendanceCardProps) => (
+const AttendanceCard = ({ attendanceRate, totalPresent, totalStudents, absent, late }: AttendanceCardProps) => (
   <Card className="p-6">
     <div className="flex items-center gap-2 mb-4">
       <TrendingUp className="h-5 w-5 text-slate-600" />
@@ -37,3 +37,5 @@ export const AttendanceCard = ({ attendanceRate, totalPresent, totalStudents, ab
     </div>
   </Card>
 );
+
+export default AttendanceCard;

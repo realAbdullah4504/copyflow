@@ -97,7 +97,7 @@ The app uses centralized configuration in the `src/config/` folder:
 Reusable utility functions are available in `src/utils/`:
 
 ```typescript
-import { isValidEmail, formatDate, truncateText } from '@/utils';
+import { isValidEmail, formatDate, truncateText } from '"@/utils"';
 
 // Validation
 if (isValidEmail(email)) { /* ... */ }
