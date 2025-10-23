@@ -1,13 +1,13 @@
 import { useSubmissions } from "@/hooks/useSubmissions";
 import { useTodayAttendance } from "@/hooks/useAttendance";
-import { DataTable } from "@/components/common/DataTable";
-import { adminColumns } from "@/constants/admin/submissionColumns";
+import { DataTable } from "@/components/common";
+import { SUBMISSION_COLUMNS } from "@/constants/submissions";
 import {
   StatsCard,
   TeacherActivityCard,
-  AttendenceCard
+  AttendenceCard,
 } from "@/components/admin/overview";
-import { ADMIN_STAT_DATA } from "@/constants/admin/cards";
+import { ADMIN_STAT_DATA } from "@/constants/admin/statsCards";
 
 export default function AdminDashboardPage() {
   const { submissions, isLoading: submissionsLoading } = useSubmissions();
@@ -79,7 +79,7 @@ export default function AdminDashboardPage() {
       <DataTable
         data={recentSubmissions}
         isLoading={submissionsLoading}
-        columns={adminColumns}
+        columns={SUBMISSION_COLUMNS.ADMIN}
         maxRows={5}
         title="Recent Submissions"
       />
