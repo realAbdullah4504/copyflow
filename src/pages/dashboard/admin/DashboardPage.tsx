@@ -1,13 +1,13 @@
 import { useSubmissions } from "@/hooks/useSubmissions";
 import { useTodayAttendance } from "@/hooks/useAttendance";
 import { DataTable } from "@/components/common";
-import { SUBMISSION_COLUMNS } from "@/constants/submissions";
 import {
   StatsCard,
   TeacherActivityCard,
   AttendenceCard,
 } from "@/components/admin/overview";
 import { ADMIN_STAT_DATA } from "@/constants/admin/statsCards";
+import { SUBMISSION_COLUMNS } from "@/components/submissions/columns/columnsDef";
 
 export default function AdminDashboardPage() {
   const { submissions, isLoading: submissionsLoading } = useSubmissions();
