@@ -1,6 +1,6 @@
 import { FileText } from "lucide-react";
 import { Outlet } from "react-router-dom";
-import { Card, CardHeader, CardContent } from "@/components/ui/card";
+import { Card, CardHeader} from "@/components/ui/card";
 
 const AuthLayout = () => {
   return (
