@@ -1,8 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import AuthForm from "./forms/AuthForm";
-import { AUTH_FIELDS } from "./forms/fields";
+import AuthForm from "./AuthForm";
+import { AUTH_FIELDS } from "../fields/config";
 
 type SignupInputs = {
   name: string;
