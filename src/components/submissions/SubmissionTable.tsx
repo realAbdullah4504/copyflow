@@ -1,11 +1,10 @@
-import React from "react";
 import { DataTable } from "../common";
 import type { Submission } from "@/types";
-import type { Column } from "../common/DataTable";
+import type { ColumnDef } from "@tanstack/react-table";
 
 interface SubmissionTableProps {
   data: Submission[];
-  columns: Column<Submission>[];
+  columns: ColumnDef<Submission>[];
   isLoading?: boolean;
 }
 

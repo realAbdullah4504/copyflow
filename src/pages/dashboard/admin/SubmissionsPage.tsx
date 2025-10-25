@@ -1,6 +1,5 @@
-import { SubmissionTable } from "@/components/submissions";
+import { SUBMISSION_COLUMNS, SubmissionTable } from "@/components/submissions";
 import { useSubmissions } from "@/hooks/useSubmissions";
-import { SUBMISSION_COLUMNS } from "@/components/submissions/columns/columnsDef";
 import { PageHeader } from "@/components/common";
 
 const AdminSubmissionsPage = () => {

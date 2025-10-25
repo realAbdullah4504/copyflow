@@ -1,4 +1,10 @@
 import {
+  useReactTable,
+  getCoreRowModel,
+  flexRender,
+  type ColumnDef,
+} from "@tanstack/react-table";
+import {
   Table,
   TableBody,
   TableCell,
@@ -8,18 +14,11 @@ import {
 } from "@/components/ui/table";
 import { Card } from "@/components/ui/card";
 
-export interface Column<T> {
-  key: keyof T;
-  label: string;
-  format?: (value: any, row?: T) => React.ReactNode; // optional formatter
-}
-
-interface DataTableProps<T> {
+interface DataTableProps<T extends object> {
   data: T[];
-  columns: Column<T>[];
+  columns: ColumnDef<T>[];
   isLoading?: boolean;
   maxRows?: number;
-  title?: string;
 }
 
 const DataTable = <T extends { id: string | number }>({
@@ -28,19 +27,31 @@ const DataTable = <T extends { id: string | number }>({
   isLoading = false,
   maxRows,
 }: DataTableProps<T>) => {
-  const displayedData = maxRows ? data.slice(0, maxRows) : data;
+  const table = useReactTable({
+    data: maxRows ? data.slice(0, maxRows) : data,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+  });
 
   return (
     <Card className="p-6">
       <div className="rounded-md border">
         <Table>
           <TableHeader>
-            <TableRow>
-              {columns.map((col) => (
-                <TableHead key={String(col.key)}>{col.label}</TableHead>
-              ))}
-            </TableRow>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id}>
+                {headerGroup.headers.map((header) => (
+                  <TableHead key={header.id}>
+                    {flexRender(
+                      header.column.columnDef.header,
+                      header.getContext()
+                    )}
+                  </TableHead>
+                ))}
+              </TableRow>
+            ))}
           </TableHeader>
+
           <TableBody>
             {isLoading ? (
               <TableRow>
@@ -51,7 +62,7 @@ const DataTable = <T extends { id: string | number }>({
                   Loading...
                 </TableCell>
               </TableRow>
-            ) : displayedData.length === 0 ? (
+            ) : table.getRowModel().rows.length === 0 ? (
               <TableRow>
                 <TableCell
                   colSpan={columns.length}
@@ -61,13 +72,14 @@ const DataTable = <T extends { id: string | number }>({
                 </TableCell>
               </TableRow>
             ) : (
-              displayedData.map((row) => (
+              table.getRowModel().rows.map((row) => (
                 <TableRow key={row.id}>
-                  {columns.map((col) => (
-                    <TableCell key={String(col.key)}>
-                      {col.format
-                        ? col.format(row[col.key], row)
-                        : row[col.key]}
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell key={cell.id}>
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
                     </TableCell>
                   ))}
                 </TableRow>

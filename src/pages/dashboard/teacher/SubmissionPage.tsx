@@ -1,12 +1,11 @@
 import React from "react";
+import { Plus } from "lucide-react";
 import { useSubmissionsByTeacher } from "@/hooks/useSubmissions";
 import { useAuth } from "@/hooks/useAuth";
-import { SubmissionTable } from "@/components/submissions";
-import { SUBMISSION_COLUMNS } from "@/components/submissions/columns/columnsDef";
-import { Button } from "@/components/ui/button";
+import { SUBMISSION_COLUMNS, SubmissionTable } from "@/components/submissions";
 import NewSubmissionModal from "@/components/submissions/NewSubmissionModal";
-import { Plus } from "lucide-react";
 import { PageHeader } from "@/components/common";
+import { Button } from "@/components/ui/button";
 
 const SubmissionPage = () => {
   const { user } = useAuth();
