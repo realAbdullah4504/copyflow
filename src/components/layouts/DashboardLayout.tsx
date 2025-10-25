@@ -1,20 +1,13 @@
 import { useAuth } from "@/hooks/useAuth";
 import { useEffect } from "react";
-import { Outlet, useNavigate, useLocation } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 import { Sidebar, Header } from "@/components/dashboard";
+import BreadcrumbNavigation from "@/components/common/BreadcrumbNavigation";
 
 const DashboardLayout = () => {
   const { user, logout, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
-  const titleMap: Record<string, string> = {
-  "/dashboard/admin": "Admin Overview",
-  "/dashboard/admin/users": "Users",
-  "/dashboard/admin/submissions": "AllSubmissions",
-};
-
-const location = useLocation();
-const title = titleMap[location.pathname] || "Dashboard";
 
 
   useEffect(() => {
@@ -41,7 +34,7 @@ const title = titleMap[location.pathname] || "Dashboard";
       />
 
       <div className="flex flex-1 flex-col overflow-hidden">
-        <Header title={title} userName={user.name} onLogout={handleLogout} />
+        <Header title={<BreadcrumbNavigation />} userName={user.name} onLogout={handleLogout} />
 
         <main className="flex-1 overflow-y-auto bg-slate-100 p-6">
           <Outlet />

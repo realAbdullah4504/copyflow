@@ -10,8 +10,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
+import { ReactNode } from 'react';
+
 interface HeaderProps {
-  title: string;
+  title: ReactNode;
   userName: string;
   onLogout: () => void;
 }
@@ -26,7 +28,9 @@ export default function Header({ title, userName, onLogout }: HeaderProps) {
   return (
     <header className="border-b bg-white">
       <div className="flex h-16 items-center justify-between px-6">
-        <h2 className="text-2xl font-semibold text-slate-900">{title}</h2>
+        <div className="flex items-center">
+          <h2 className="text-2xl font-semibold text-slate-900">{title}</h2>
+        </div>
 
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="icon" className="relative">
