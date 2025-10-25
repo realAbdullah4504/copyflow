@@ -18,4 +18,19 @@ export const SUBMISSION_COLUMNS: Record<string, Column<Submission>[]> = {
       format: (v: string) => new Date(v).toLocaleString(),
     },
   ],
+  TEACHER: [
+    { key: "subject", label: "Subject" },
+    { key: "grade", label: "Grade" },
+    {
+      key: "fileType",
+      label: "Type",
+      format: (v: string) => v.replace("_", " "),
+    },
+    { key: "status", label: "Status" },
+    {
+      key: "createdAt",
+      label: "Created",
+      format: (v: string) => new Date(v).toLocaleString(),
+    },
+  ],
 };

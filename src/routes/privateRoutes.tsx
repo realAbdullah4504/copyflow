@@ -6,6 +6,7 @@ import {
   AdminSettings,
   Users,
   TeacherPage,
+  TeacherSubmissionsPage,
   SecretaryPage,
 } from "@/pages/dashboard";
 import { ProtectedRoute, RootRedirect } from "@/components/guards";
@@ -36,6 +37,7 @@ export const privateRoutes: RouteObject[] = [
         children: [
           { index: true, element: <TeacherPage /> },
           // { path: "classes", element: <TeacherClassesPage /> },
+          { path: "submissions", element: <TeacherSubmissionsPage /> },
           // { path: "attendance", element: <TeacherAttendancePage /> },
         ],
       },

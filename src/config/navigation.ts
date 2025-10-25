@@ -9,8 +9,14 @@ import { ROLES } from "./roles";
 
 export const NAV_ITEMS: NavItem[] = [
   {
-    title: "My Submissions",
+    title: "Dashboard",
     href: "/dashboard/teacher",
+    icon: FileText,
+    roles: [ROLES.TEACHER],
+  },
+  {
+    title: "Submissions",
+    href: "/dashboard/teacher/submissions",
     icon: FileText,
     roles: [ROLES.TEACHER],
   },
