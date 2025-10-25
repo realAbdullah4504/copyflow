@@ -18,11 +18,9 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useCreateSubmission } from "@/hooks/useSubmissions";
 import { toast } from "sonner";
-import { Loader as Loader2 } from "lucide-react";
 import type { FileType, PaperColor } from "@/types";
 import { Modal } from "../common";
 
