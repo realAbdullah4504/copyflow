@@ -7,14 +7,12 @@ interface SubmissionTableProps {
   data: Submission[];
   columns: Column<Submission>[];
   isLoading?: boolean;
-  title?: string;
 }
 
 const SubmissionTable = ({
   data,
   columns,
   isLoading,
-  title = "Submissions",
 }: SubmissionTableProps) => {
   return (
     <div>
@@ -22,7 +20,6 @@ const SubmissionTable = ({
         data={data}
         columns={columns}
         isLoading={isLoading}
-        title={title}
       />
     </div>
   );

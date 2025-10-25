@@ -27,15 +27,11 @@ const DataTable = <T extends { id: string | number }>({
   columns,
   isLoading = false,
   maxRows,
-  title,
 }: DataTableProps<T>) => {
   const displayedData = maxRows ? data.slice(0, maxRows) : data;
 
   return (
     <Card className="p-6">
-      {title && (
-        <h3 className="text-lg font-semibold text-slate-900 mb-4">{title}</h3>
-      )}
       <div className="rounded-md border">
         <Table>
           <TableHeader>

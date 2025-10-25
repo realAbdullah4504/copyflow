@@ -6,3 +6,6 @@
 
 export { ErrorBoundary } from "./ErrorBoundary";
 export { default as DataTable } from "./DataTable";
+export { default as PageHeader } from "./PageHeader";
+export { default as Modal } from "./Modal";
+
