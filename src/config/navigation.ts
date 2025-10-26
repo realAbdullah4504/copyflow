@@ -3,11 +3,12 @@ import {
   ClipboardCheck,
   FileText,
   Inbox,
+  Users,
 } from "lucide-react";
 import type { NavItem } from "@/types/navigation";
 import { ROLES } from "./roles";
 
-export const NAV_ITEMS: NavItem[] = [
+const TEACHER_NAV_ITEMS: NavItem[] = [
   {
     title: "Dashboard",
     href: "/dashboard/teacher",
@@ -21,29 +22,93 @@ export const NAV_ITEMS: NavItem[] = [
     roles: [ROLES.TEACHER],
   },
   {
-    title: "Inbox",
+    title: "Archive Submissions",
+    href: "/dashboard/teacher/archive",
+    icon: FileText,
+    roles: [ROLES.TEACHER],
+  },
+];
+
+const SECRETARY_NAV_ITEMS: NavItem[] = [
+  {
+    title: "Dashboard",
     href: "/dashboard/secretary",
-    icon: Inbox,
+    icon: FileText,
     roles: [ROLES.SECRETARY],
   },
   {
-    title: "Attendance",
-    href: "/dashboard/secretary/attendance",
-    icon: ClipboardCheck,
+    title: "Submissions",
+    href: "/dashboard/secretary/submissions",
+    icon: FileText,
     roles: [ROLES.SECRETARY],
   },
   {
-    title: "Overview",
+    title: "Archive Submissions",
+    href: "/dashboard/secretary/archive",
+    icon: FileText,
+    roles: [ROLES.SECRETARY],
+  },
+];
+
+const ADMIN_NAV_ITEMS: NavItem[] = [
+  {
+    title: "Dashboard",
     href: "/dashboard/admin",
-    icon: BarChart3,
+    icon: FileText,
     roles: [ROLES.ADMIN],
   },
   {
-    title: "All Submissions",
+    title: "Submissions",
     href: "/dashboard/admin/submissions",
     icon: FileText,
     roles: [ROLES.ADMIN],
   },
+  {
+    title: "Archive Submissions",
+    href: "/dashboard/admin/archive",
+    icon: FileText,
+    roles: [ROLES.ADMIN],
+  },
+  {
+    title: "Users",
+    href: "/dashboard/admin/users",
+    icon: FileText,
+    roles: [ROLES.ADMIN],
+  },
+  {
+    title: "Settings",
+    href: "/dashboard/admin/settings",
+    icon: FileText,
+    roles: [ROLES.ADMIN],
+  }
+];
+
+const PRINCIPAL_NAV_ITEMS: NavItem[] = [
+  {
+    title: "Dashboard",
+    href: "/dashboard/principal",
+    icon: FileText,
+    roles: [ROLES.PRINCIPAL],
+  },
+  {
+    title: "Submissions",
+    href: "/dashboard/principal/submissions",
+    icon: FileText,
+    roles: [ROLES.PRINCIPAL],
+  },
+  {
+    title: "Archive Submissions",
+    href: "/dashboard/principal/archive",
+    icon: FileText,
+    roles: [ROLES.PRINCIPAL],
+  },
+];
+
+export const NAV_ITEMS: NavItem[] = [
+  ...TEACHER_NAV_ITEMS,
+  ...SECRETARY_NAV_ITEMS,
+  ...ADMIN_NAV_ITEMS,
+  ...PRINCIPAL_NAV_ITEMS,
 ];
 
 export const getNavForRole = (role: string): NavItem[] => {

@@ -7,7 +7,11 @@ import {
   Users,
   TeacherPage,
   TeacherSubmissionsPage,
+  TeacherArchivePage,
   SecretaryPage,
+  SecretaryArchivePage,
+  AdminArchive,
+  SecretarySubmissionsPage,
 } from "@/pages/dashboard";
 import { ProtectedRoute, RootRedirect } from "@/components/guards";
 
@@ -29,6 +33,7 @@ export const privateRoutes: RouteObject[] = [
           { path: "users", element: <Users /> },
           { path: "settings", element: <AdminSettings /> },
           { path: "submissions", element: <AdminSubmissions /> },
+          { path: "archive", element: <AdminArchive /> },
         ],
       },
       // Teacher Routes
@@ -36,9 +41,8 @@ export const privateRoutes: RouteObject[] = [
         path: "teacher",
         children: [
           { index: true, element: <TeacherPage /> },
-          // { path: "classes", element: <TeacherClassesPage /> },
           { path: "submissions", element: <TeacherSubmissionsPage /> },
-          // { path: "attendance", element: <TeacherAttendancePage /> },
+          { path: "archive", element: <TeacherArchivePage /> },
         ],
       },
       // Secretary Routes
@@ -46,8 +50,8 @@ export const privateRoutes: RouteObject[] = [
         path: "secretary",
         children: [
           { index: true, element: <SecretaryPage /> },
-          // { path: "reports", element: <SecretaryReportsPage /> },
-          // { path: "documents", element: <SecretaryDocumentsPage /> },
+          { path: "archive", element: <SecretaryArchivePage /> },
+          { path: "submissions", element: <SecretarySubmissionsPage /> },
         ],
       },
       // // Principal Routes
