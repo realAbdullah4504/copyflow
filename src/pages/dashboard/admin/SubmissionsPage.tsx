@@ -7,20 +7,27 @@ import {
 } from "@/components/submissions";
 import { useSubmissions } from "@/hooks/useSubmissions";
 import { PageHeader } from "@/components/common";
+import { type ActionType } from "@/config";
 
 const AdminSubmissionsPage = () => {
   const { submissions } = useSubmissions();
   const [selectedRow, setSelectedRow] = useState<Submission | null>(null);
   const [deleteOpen, setDeleteOpen] = useState(false);
 
-  const handleAction = (action: string, row: Submission) => {
-    if (action === "view") {
-      console.log("Viewing", row);
-    } else if (action === "edit") {
-      console.log("Editing", row);
-    } else if (action === "delete") {
-      setSelectedRow(row);
-      setDeleteOpen(true);
+  const handleAction = (action: ActionType, row: Submission) => {
+    switch (action) {
+      case "view":
+        // maybe navigate
+        console.log("Viewing", row);
+        break;
+      case "edit":
+        // maybe open an edit modal
+        console.log("Editing", row);
+        break;
+      case "delete":
+        setSelectedRow(row);
+        setDeleteOpen(true); // OPEN MODAL
+        break;
     }
   };
 
@@ -28,18 +35,18 @@ const AdminSubmissionsPage = () => {
 
   return (
     <>
-      <PageHeader title="All Submissions" />
+      <PageHeader title="All Submissions" role={ROLES.ADMIN} onNew={() => {}} />
       <SubmissionTable data={submissions} columns={columns} />
-      {/* {deleteOpen && selectedRow && (
-        <DeleteModal
-          open={deleteOpen}
-          onConfirm={() => {
-            console.log("Deleting", selectedRow);
-            setDeleteOpen(false);
-          }}
-          onCancel={() => setDeleteOpen(false)}
-        />
-      )} */}
+      {deleteOpen && selectedRow && (
+        // <DeleteModal
+        //   open={deleteOpen}
+        //   onConfirm={() => {
+        //     console.log("Deleting", selectedRow);
+        //     setDeleteOpen(false);
+        //   }}
+        //   onCancel={() => setDeleteOpen(false)}
+        // />
+      )}
     </>
   );
 };

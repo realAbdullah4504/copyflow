@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Eye, Edit, Trash2, MoreHorizontal } from "lucide-react";
+import { MoreHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -9,9 +9,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import type { Role } from "@/config/roles";
 import type { Submission } from "@/types";
-import { ACTION_CONFIG, ALLOWED_ACTIONS, type ActionType } from "@/config/actions";
+import {
+  getActionMeta,
+  getAllowedActions,
+  type ActionType,
+  type Role,
+} from "@/config";
 
 interface ActionCellProps {
   role: Role;
@@ -21,7 +25,7 @@ interface ActionCellProps {
 
 const ActionCell: React.FC<ActionCellProps> = ({ role, rowData, onAction }) => {
   const [open, setOpen] = useState(false);
-  const actions = ALLOWED_ACTIONS[role];
+  const actions = getAllowedActions(role);
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
@@ -34,8 +38,7 @@ const ActionCell: React.FC<ActionCellProps> = ({ role, rowData, onAction }) => {
 
       <DropdownMenuContent align="end">
         {actions.map((action) => {
-          const Icon = ACTION_CONFIG[action].icon;
-          const label = ACTION_CONFIG[action].label;
+          const { icon: Icon, label } = getActionMeta(action);
           const danger = action === "delete";
 
           return (

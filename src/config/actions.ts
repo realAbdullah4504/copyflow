@@ -26,4 +26,25 @@ export const ALLOWED_ACTIONS: Record<Role, ActionType[]> = {
   principal: ["view"],
 } as const;
 
+export const getActionMeta = (action: ActionType) => {
+  const meta = ACTION_CONFIG[action];
+  if (!meta) {
+    throw new Error(`Unknown action: ${action}`);
+  }
+  return meta;
+};
+
+
+export const ALLOWED_CREATION_ROLES: Role[] = ["teacher", "admin"];
+export const canCreate = (role: Role) => ALLOWED_CREATION_ROLES.includes(role);
+
+
+export const getAllowedActions = (role: Role): ActionType[] => {
+  return ALLOWED_ACTIONS[role] ?? [];
+};
+
+export const canPerformAction = (role: Role, action: ActionType) => {
+  return ALLOWED_ACTIONS[role].includes(action);
+};
+
 export type ActionType = keyof typeof ACTION_CONFIG;

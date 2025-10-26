@@ -1,14 +1,14 @@
 import React from "react";
-import { Plus } from "lucide-react";
 import { useSubmissionsByTeacher } from "@/hooks/useSubmissions";
 import { useAuth } from "@/hooks/useAuth";
-import NewSubmissionModal from "@/components/submissions/NewSubmissionModal";
 import { PageHeader } from "@/components/common";
-import { Button } from "@/components/ui/button";
-import { getSubmissionColumns } from "@/components/submissions/columnsDef";
 import { ROLES } from "@/config/roles";
 import type { Submission } from "@/types";
-import { SubmissionTable } from "@/components/submissions";
+import {
+  getSubmissionColumns,
+  NewSubmissionModal,
+  SubmissionTable,
+} from "@/components/submissions";
 
 const SubmissionPage = () => {
   const { user } = useAuth();
@@ -29,6 +29,7 @@ const SubmissionPage = () => {
     <>
       <PageHeader
         title="All Submissions"
+        role={ROLES.TEACHER}
         onNew={() => setModalOpen(true)}
       />
       <SubmissionTable

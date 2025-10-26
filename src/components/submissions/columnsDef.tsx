@@ -1,13 +1,21 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import type { Submission } from "@/types";
-import { ROLES, type Role } from "@/config/roles";
 import ActionCell from "./ActionCell";
+import type { ActionType, Role } from "@/config";
+
+const ROLE_COLUMNS: Record<Role, ColumnDef<Submission>[]> = {
+  admin: [{ accessorKey: "teacherName", header: "Teacher" }],
+  teacher: [],
+  secretary: [],
+  principal: [],
+};
 
 export const getSubmissionColumns = (
   role: Role,
-  onAction: (action: string, row: Submission) => void
+  onAction: (action: ActionType, row: Submission) => void
 ): ColumnDef<Submission>[] => {
   const baseColumns: ColumnDef<Submission>[] = [
+    ...(ROLE_COLUMNS[role] ?? []),
     { accessorKey: "subject", header: "Subject" },
     { accessorKey: "grade", header: "Grade" },
     {
@@ -24,19 +32,14 @@ export const getSubmissionColumns = (
       header: "Created",
       cell: ({ getValue }) => new Date(getValue<string>()).toLocaleString(),
     },
+    {
+      id: "actions",
+      header: "Actions",
+      cell: ({ row }) => (
+        <ActionCell role={role} rowData={row.original} onAction={onAction} />
+      ),
+    },
   ];
-
-  if (role === ROLES.ADMIN) {
-    baseColumns.unshift({ accessorKey: "teacherName", header: "Teacher" });
-  }
-
-  baseColumns.push({
-    id: "actions",
-    header: "Actions",
-    cell: ({ row }) => (
-      <ActionCell role={role} rowData={row.original} onAction={onAction} />
-    ),
-  });
 
   return baseColumns;
 };
