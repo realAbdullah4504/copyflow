@@ -1,23 +1,36 @@
+import React from "react";
+import {
+  useDeleteSubmission,
+  useSubmissions,
+  useSubmissionsByTeacher,
+} from "@/hooks/useSubmissions";
+import { useAuth } from "@/hooks/useAuth";
+import { DeleteModal, PageHeader } from "@/components/common";
 import { ROLES } from "@/config/roles";
 import type { Submission } from "@/types";
 import {
+  EditSubmissionModal,
   getSubmissionColumns,
+  NewSubmissionModal,
   SubmissionTable,
   ViewSubmissionModal,
-  EditSubmissionModal,
-  NewSubmissionModal,
 } from "@/components/submissions";
-import { useSubmissions } from "@/hooks/useSubmissions";
-import { DeleteModal, PageHeader } from "@/components/common";
-import { type ActionType } from "@/config";
 import { useModal } from "@/hooks/useModal";
+import type { ActionType } from "@/config";
 
-const AdminSubmissionsPage = () => {
+export const teachers = [
+  { id: "1", name: "Teacher 1" },
+  { id: "2", name: "Teacher 2" },
+];
+
+const SubmissionPage = () => {
   const { submissions } = useSubmissions();
+  const { mutate: deleteSubmission } = useDeleteSubmission();
   const { modal, openModal, closeModal } = useModal<Submission>();
 
   const handleDeleteConfirm = () => {
-    console.log("delete confirmed", modal.data);
+    if (!modal.data) return;
+    deleteSubmission(modal.data.id);
     closeModal();
   };
 
@@ -30,23 +43,18 @@ const AdminSubmissionsPage = () => {
         openModal("edit", row);
         break;
       case "delete":
-        console.log("delete action pressed", row);
         openModal("delete", row);
         break;
     }
   };
-
-  const handleSubmissionUpdated = () => {
-    // This will trigger a refetch of submissions if needed
-    // The submissions list should automatically update via React Query
-    closeModal();
-  };
-
-  const columns = getSubmissionColumns(ROLES.ADMIN, handleAction);
-
+  const columns = getSubmissionColumns(ROLES.TEACHER, handleAction);
   return (
     <>
-      <PageHeader title="All Submissions" role={ROLES.ADMIN} onNew={() => {openModal("newSubmission", { teacherId: "", teacherName: "" })}} />
+      <PageHeader
+        title="All Submissions"
+        role={ROLES.TEACHER}
+        onNew={() => openModal("newSubmission")}
+      />
       <SubmissionTable data={submissions} columns={columns} />
       {modal.type === "delete" && modal.data && (
         <DeleteModal
@@ -57,7 +65,13 @@ const AdminSubmissionsPage = () => {
           description="Are you sure you want to delete this submission?"
         />
       )}
-
+      {modal.type === "edit" && modal.data && (
+        <EditSubmissionModal
+          open={modal.type === "edit"}
+          onOpenChange={(open) => !open && closeModal()}
+          submission={modal.data}
+        />
+      )}
       {modal.type === "view" && modal.data && (
         <ViewSubmissionModal
           open={modal.type === "view"}
@@ -65,25 +79,13 @@ const AdminSubmissionsPage = () => {
           submission={modal.data}
         />
       )}
-
-      {modal.type === "edit" && modal.data && (
-        <EditSubmissionModal
-          open={modal.type === "edit"}
-          onOpenChange={(open) => !open && closeModal()}
-          submission={modal.data}
-          onSuccess={handleSubmissionUpdated}
-        />
-      )}
-      {modal.type === "newSubmission" && (
-        <NewSubmissionModal
-          open={modal.type === "newSubmission"}
-          onOpenChange={(open) => !open && closeModal()}
-          teacherId={modal.data?.teacherId || ""}
-          teacherName={modal.data?.teacherName || ""}
-        />
-      )}
+      <NewSubmissionModal
+        open={modal.type === "newSubmission"}
+        onOpenChange={(open) => !open && closeModal()}
+        teacherOptions={teachers}
+      />
     </>
   );
 };
 
-export default AdminSubmissionsPage;
+export default SubmissionPage;

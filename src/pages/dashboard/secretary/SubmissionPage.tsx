@@ -1,35 +1,38 @@
 import { ROLES } from "@/config/roles";
 import type { Submission } from "@/types";
 import {
+  EditSubmissionModal,
   getSubmissionColumns,
+  NewSubmissionModal,
   SubmissionTable,
+  ViewSubmissionModal,
 } from "@/components/submissions";
-import { useSubmissions } from "@/hooks/useSubmissions";
+import { useDeleteSubmission, useSubmissions } from "@/hooks/useSubmissions";
 import { DeleteModal, PageHeader } from "@/components/common";
 import { type ActionType } from "@/config";
 import { useModal } from "@/hooks/useModal";
+import { teachers } from "../admin/SubmissionsPage";
 
 const SecretarySubmissionsPage = () => {
   const { submissions } = useSubmissions();
+  const { mutate: deleteSubmission } = useDeleteSubmission();
   const { modal, openModal, closeModal } = useModal<Submission>();
 
   const handleDeleteConfirm = () => {
-    console.log("delete confirmed", modal.data);
+    if (!modal.data) return;
+    deleteSubmission(modal.data.id);
     closeModal();
   };
 
   const handleAction = (action: ActionType, row: Submission) => {
     switch (action) {
       case "view":
-        // maybe navigate
-        console.log("Viewing", row);
+        openModal("view", row);
         break;
       case "edit":
-        // maybe open an edit modal
-        console.log("Editing", row);
+        openModal("edit", row);
         break;
       case "delete":
-        console.log("delete action pressed", row);
         openModal("delete", row);
         break;
     }
@@ -39,7 +42,11 @@ const SecretarySubmissionsPage = () => {
 
   return (
     <>
-      <PageHeader title="All Submissions" role={ROLES.ADMIN} onNew={() => {}} />
+      <PageHeader
+        title="All Submissions"
+        role={ROLES.ADMIN}
+        onNew={() => openModal("newSubmission")}
+      />
       <SubmissionTable data={submissions} columns={columns} />
       {modal.type === "delete" && modal.data && (
         <DeleteModal
@@ -50,6 +57,25 @@ const SecretarySubmissionsPage = () => {
           description="Are you sure you want to delete this submission?"
         />
       )}
+      {modal.type === "edit" && modal.data && (
+        <EditSubmissionModal
+          open={modal.type === "edit"}
+          onOpenChange={(open) => !open && closeModal()}
+          submission={modal.data}
+        />
+      )}
+      {modal.type === "view" && modal.data && (
+        <ViewSubmissionModal
+          open={modal.type === "view"}
+          onOpenChange={(open) => !open && closeModal()}
+          submission={modal.data}
+        />
+      )}
+      <NewSubmissionModal
+        open={modal.type === "newSubmission"}
+        onOpenChange={(open) => !open && closeModal()}
+        teacherOptions={teachers}
+      />
     </>
   );
 };

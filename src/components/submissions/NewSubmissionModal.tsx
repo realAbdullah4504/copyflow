@@ -1,13 +1,13 @@
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogDescription,
-} from '@/components/ui/dialog';
+} from "@/components/ui/dialog";
 import {
   Form,
   FormControl,
@@ -15,67 +15,69 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
+} from "@/components/ui/form";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
-import { useCreateSubmission } from '@/hooks/useSubmissions';
-import { toast } from 'sonner';
-import { Loader as Loader2 } from 'lucide-react';
-import type { FileType, PaperColor } from '@/types';
+} from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useCreateSubmission } from "@/hooks/useSubmissions";
+import { toast } from "sonner";
+import { Loader as Loader2 } from "lucide-react";
+import type { FileType, PaperColor } from "@/types";
 
 const formSchema = z.object({
-  subject: z.string().min(1, 'Subject is required'),
-  grade: z.string().min(1, 'Grade is required'),
-  fileType: z.string().min(1, 'File type is required'),
-  files: z.string().min(1, 'At least one file is required'),
+  subject: z.string().min(1, "Subject is required"),
+  grade: z.string().min(1, "Grade is required"),
+  fileType: z.string().min(1, "File type is required"),
+  files: z.string().min(1, "At least one file is required"),
   notes: z.string(),
-  copies: z.string().min(1, 'Number of copies is required'),
-  paperColor: z.string().min(1, 'Paper color is required'),
+  copies: z.string().min(1, "Number of copies is required"),
+  paperColor: z.string().min(1, "Paper color is required"),
   doubleSided: z.boolean(),
   stapled: z.boolean(),
   color: z.boolean(),
-  urgency: z.enum(['low', 'medium', 'high'])
+  urgency: z.enum(["low", "medium", "high"]),
 });
 
 interface NewSubmissionModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  teacherId: string;
-  teacherName: string;
+  teacherOptions?: { id: string; name: string }[];
+  teacherId?: string;
+  teacherName?: string;
 }
 
 const NewSubmissionModal = ({
   open,
   onOpenChange,
+  teacherOptions,
   teacherId,
-  teacherName
+  teacherName,
 }: NewSubmissionModalProps) => {
   const createSubmission = useCreateSubmission();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      subject: '',
-      grade: '',
-      fileType: '',
-      files: '',
-      notes: '',
-      copies: '30',
-      paperColor: 'white',
+      subject: "",
+      grade: "",
+      fileType: "",
+      files: "",
+      notes: "",
+      copies: "30",
+      paperColor: "white",
       doubleSided: false,
       stapled: false,
       color: false,
-      urgency: 'medium'
-    }
+      urgency: "medium",
+    },
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
@@ -86,24 +88,24 @@ const NewSubmissionModal = ({
         subject: values.subject,
         grade: values.grade,
         fileType: values.fileType as FileType,
-        files: values.files.split(',').map(f => f.trim()),
+        files: values.files.split(",").map((f) => f.trim()),
         notes: values.notes,
         copies: parseInt(values.copies),
         paperColor: values.paperColor as PaperColor,
         printSettings: {
           doubleSided: values.doubleSided,
           stapled: values.stapled,
-          color: values.color
+          color: values.color,
         },
-        status: 'pending',
-        urgency: values.urgency
+        status: "pending",
+        urgency: values.urgency,
       });
 
-      toast.success('Submission created successfully!');
+      toast.success("Submission created successfully!");
       form.reset();
       onOpenChange(false);
     } catch (error) {
-      toast.error('Failed to create submission');
+      toast.error("Failed to create submission");
     }
   };
 
@@ -148,7 +150,40 @@ const NewSubmissionModal = ({
                 )}
               />
             </div>
-
+            {teacherOptions && teacherOptions.length > 0 ? (
+              <FormField
+                control={form.control}
+                name="teacherId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Teacher</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value || teacherId}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select teacher" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {teacherOptions.map((t) => (
+                          <SelectItem key={t.id} value={t.id}>
+                            {t.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            ) : (
+              // For teacher role: hidden or read-only
+              <input
+                type="hidden"
+                value={teacherId}
+                {...form.register("teacherId")}
+              />
+            )}
             <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}
@@ -156,7 +191,10 @@ const NewSubmissionModal = ({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>File Type</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select type" />
@@ -181,7 +219,10 @@ const NewSubmissionModal = ({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Urgency</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue />
@@ -254,7 +295,10 @@ const NewSubmissionModal = ({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Paper Color</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue />
@@ -306,9 +350,7 @@ const NewSubmissionModal = ({
                           onCheckedChange={field.onChange}
                         />
                       </FormControl>
-                      <FormLabel className="font-normal">
-                        Stapled
-                      </FormLabel>
+                      <FormLabel className="font-normal">Stapled</FormLabel>
                     </FormItem>
                   )}
                 />
@@ -353,6 +395,6 @@ const NewSubmissionModal = ({
       </DialogContent>
     </Dialog>
   );
-}
+};
 
 export default NewSubmissionModal;

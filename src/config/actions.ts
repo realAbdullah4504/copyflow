@@ -21,7 +21,7 @@ export const ACTION_CONFIG = {
 
 export const ALLOWED_ACTIONS: Record<Role, ActionType[]> = {
   admin: ["view", "edit", "delete"],
-  teacher: ["view", "edit"],
+  teacher: ["view", "edit","delete"],
   secretary: ["view", "delete"],
   principal: ["view"],
 } as const;
