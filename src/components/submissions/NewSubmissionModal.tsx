@@ -53,12 +53,12 @@ interface NewSubmissionModalProps {
   teacherName: string;
 }
 
-export function NewSubmissionModal({
+const NewSubmissionModal = ({
   open,
   onOpenChange,
   teacherId,
   teacherName
-}: NewSubmissionModalProps) {
+}: NewSubmissionModalProps) => {
   const createSubmission = useCreateSubmission();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -354,3 +354,5 @@ export function NewSubmissionModal({
     </Dialog>
   );
 }
+
+export default NewSubmissionModal;
