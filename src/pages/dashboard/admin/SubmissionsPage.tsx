@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { ROLES } from "@/config/roles";
 import type { Submission } from "@/types";
 import {
@@ -6,13 +5,18 @@ import {
   SubmissionTable,
 } from "@/components/submissions";
 import { useSubmissions } from "@/hooks/useSubmissions";
-import { PageHeader } from "@/components/common";
+import { DeleteModal, PageHeader } from "@/components/common";
 import { type ActionType } from "@/config";
+import { useModal } from "@/hooks/useModal";
 
 const AdminSubmissionsPage = () => {
   const { submissions } = useSubmissions();
-  const [selectedRow, setSelectedRow] = useState<Submission | null>(null);
-  const [deleteOpen, setDeleteOpen] = useState(false);
+  const { modal, openModal, closeModal } = useModal<Submission>();
+
+  const handleDeleteConfirm = () => {
+    console.log("delete confirmed", modal.data);
+    closeModal();
+  };
 
   const handleAction = (action: ActionType, row: Submission) => {
     switch (action) {
@@ -25,8 +29,8 @@ const AdminSubmissionsPage = () => {
         console.log("Editing", row);
         break;
       case "delete":
-        setSelectedRow(row);
-        setDeleteOpen(true); // OPEN MODAL
+        console.log("delete action pressed", row);
+        openModal("delete", row);
         break;
     }
   };
@@ -37,15 +41,14 @@ const AdminSubmissionsPage = () => {
     <>
       <PageHeader title="All Submissions" role={ROLES.ADMIN} onNew={() => {}} />
       <SubmissionTable data={submissions} columns={columns} />
-      {deleteOpen && selectedRow && (
-        // <DeleteModal
-        //   open={deleteOpen}
-        //   onConfirm={() => {
-        //     console.log("Deleting", selectedRow);
-        //     setDeleteOpen(false);
-        //   }}
-        //   onCancel={() => setDeleteOpen(false)}
-        // />
+      {modal.type === "delete" && modal.data && (
+        <DeleteModal
+          open={modal.type === "delete"}
+          onConfirm={handleDeleteConfirm}
+          onCancel={closeModal}
+          title="Confirm Deletion"
+          description="Are you sure you want to delete this submission?"
+        />
       )}
     </>
   );

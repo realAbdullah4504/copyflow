@@ -38,6 +38,8 @@ const formSchema = z.object({
   urgency: z.enum(["low", "medium", "high"]),
 });
 
+export type NewSubmissionFormValues = z.infer<typeof formSchema>;
+
 interface NewSubmissionModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -53,7 +55,7 @@ const NewSubmissionModal = ({
 }: NewSubmissionModalProps) => {
   const createSubmission = useCreateSubmission();
 
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<NewSubmissionFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       subject: "",
@@ -70,9 +72,9 @@ const NewSubmissionModal = ({
     },
   });
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    try {
-      await createSubmission.mutateAsync({
+  const onSubmit = (values: NewSubmissionFormValues) => {
+    createSubmission.mutate(
+      {
         teacherId,
         teacherName,
         subject: values.subject,
@@ -89,14 +91,18 @@ const NewSubmissionModal = ({
         },
         status: "pending",
         urgency: values.urgency,
-      });
-
-      toast.success("Submission created successfully!");
-      form.reset();
-      onOpenChange(false);
-    } catch (error) {
-      toast.error("Failed to create submission");
-    }
+      },
+      {
+        onSuccess: () => {
+          toast.success("Submission created successfully!");
+          form.reset();
+          onOpenChange(false);
+        },
+        onError: (error) => {
+          toast.error(error.message);
+        },
+      }
+    );
   };
 
   return (
@@ -337,7 +343,6 @@ const NewSubmissionModal = ({
               />
             </div>
           </div>
-
         </form>
       </Form>
     </Modal>
