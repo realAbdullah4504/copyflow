@@ -1,4 +1,4 @@
-import { Eye, Edit, Trash2 } from "lucide-react";
+import { Eye, Edit, Trash2, Archive, LockKeyhole } from "lucide-react";
 import type { Role } from "@/config/roles";
 
 export const ACTION_CONFIG = {
@@ -17,12 +17,22 @@ export const ACTION_CONFIG = {
     icon: Trash2,
     color: "destructive",
   },
+  archive: {
+    label: "Archive",
+    icon: Archive,
+    color: "default",
+  },
+  censorship: {
+    label: "Censorship",
+    icon: LockKeyhole,
+    color: "default",
+  },
 } as const;
 
 export const ALLOWED_ACTIONS: Record<Role, ActionType[]> = {
-  admin: ["view", "edit", "delete"],
-  teacher: ["view", "edit","delete"],
-  secretary: ["view", "delete"],
+  admin: ["view", "edit", "archive", "censorship", "delete"],
+  teacher: ["view", "edit", "delete"],
+  secretary: ["view", "edit", "archive", "censorship", "delete"],
   principal: ["view"],
 } as const;
 
@@ -34,10 +44,8 @@ export const getActionMeta = (action: ActionType) => {
   return meta;
 };
 
-
-export const ALLOWED_CREATION_ROLES: Role[] = ["teacher","admin"];
+export const ALLOWED_CREATION_ROLES: Role[] = ["secretary","teacher", "admin"];
 export const canCreate = (role: Role) => ALLOWED_CREATION_ROLES.includes(role);
-
 
 export const getAllowedActions = (role: Role): ActionType[] => {
   return ALLOWED_ACTIONS[role] ?? [];

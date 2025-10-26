@@ -38,13 +38,13 @@ const SecretarySubmissionsPage = () => {
     }
   };
 
-  const columns = getSubmissionColumns(ROLES.ADMIN, handleAction);
+  const columns = getSubmissionColumns(ROLES.SECRETARY, handleAction);
 
   return (
     <>
       <PageHeader
         title="All Submissions"
-        role={ROLES.ADMIN}
+        role={ROLES.SECRETARY}
         onNew={() => openModal("newSubmission")}
       />
       <SubmissionTable data={submissions} columns={columns} />
