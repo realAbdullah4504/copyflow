@@ -35,7 +35,7 @@ export const getActionMeta = (action: ActionType) => {
 };
 
 
-export const ALLOWED_CREATION_ROLES: Role[] = ["teacher"];
+export const ALLOWED_CREATION_ROLES: Role[] = ["teacher","admin"];
 export const canCreate = (role: Role) => ALLOWED_CREATION_ROLES.includes(role);
 
 
