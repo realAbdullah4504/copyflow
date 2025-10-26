@@ -1,7 +1,9 @@
 import type { ColumnDef } from "@tanstack/react-table";
-import type { Submission } from "@/types";
+import type { Submission, SubmissionStatus } from "@/types";
 import ActionCell from "./ActionCell";
 import type { ActionType, Role } from "@/config";
+import { StatusBadge } from "./status-badge";
+import { UrgencyBadge } from "./urgency-badge";
 
 const ROLE_COLUMNS: Record<Role, ColumnDef<Submission>[]> = {
   admin: [{ accessorKey: "teacherName", header: "Teacher" }],
@@ -26,7 +28,24 @@ export const getSubmissionColumns = (
         return val.replace("_", " ");
       },
     },
-    { accessorKey: "status", header: "Status" },
+    {
+      accessorKey: "status",
+      header: "Status",
+      cell: ({ getValue }) => {
+        const val = getValue<SubmissionStatus>();
+        return <StatusBadge status={val} />;
+      },
+    },
+
+    {
+      accessorKey: "urgency",
+      header: "Urgency",
+      cell: ({ getValue }) => {
+        const val = getValue<"low" | "medium" | "high">();
+        return <UrgencyBadge urgency={val} />;
+      },
+    },
+
     {
       accessorKey: "createdAt",
       header: "Created",
