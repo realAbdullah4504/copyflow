@@ -23,26 +23,56 @@ const ArchiveTable = ({
 }: ArchiveTableProps) => {
   const columns: ColumnDef<Submission>[] = [
     {
-      accessorKey: "title",
-      header: "Title",
+      accessorKey: "subject",
+      header: "Subject",
       cell: ({ row }) => (
-        <div className="font-medium">{row.original.title || 'Untitled Document'}</div>
+        <div className="font-medium">
+          <div>{row.original.subject || 'No Subject'}</div>
+          <div className="text-sm text-muted-foreground">
+            {row.original.teacherName} • {row.original.grade}
+          </div>
+        </div>
+      ),
+    },
+    {
+      accessorKey: "fileType",
+      header: "Type",
+      cell: ({ row }) => (
+        <span className="capitalize">
+          {row.original.fileType?.replace('_', ' ') || 'Document'}
+        </span>
       ),
     },
     {
       accessorKey: "status",
       header: "Status",
-      cell: ({ row }) => (
-        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-          {row.original.status}
-        </span>
-      ),
+      cell: ({ row }) => {
+        const status = row.original.status || 'unknown';
+        const statusColors = {
+          archived: 'bg-gray-100 text-gray-800',
+          pending: 'bg-yellow-100 text-yellow-800',
+          printed: 'bg-green-100 text-green-800',
+          censored: 'bg-red-100 text-red-800',
+          flagged: 'bg-orange-100 text-orange-800',
+          default: 'bg-gray-100 text-gray-800',
+        };
+        
+        return (
+          <span 
+            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+              statusColors[status as keyof typeof statusColors] || statusColors.default
+            }`}
+          >
+            {status.charAt(0).toUpperCase() + status.slice(1)}
+          </span>
+        );
+      },
     },
     {
-      accessorKey: "submittedAt",
-      header: "Submitted At",
+      accessorKey: "createdAt",
+      header: "Submitted",
       cell: ({ row }) => {
-        const date = row.original.submittedAt || row.original.createdAt;
+        const date = row.original.createdAt;
         return date ? new Date(date).toLocaleDateString() : 'N/A';
       },
     },

@@ -1,7 +1,7 @@
 // hooks/useModal.ts
 import { useState, useCallback } from "react";
 
-type ModalType = "delete" | "newSubmission" | "edit" | "view" | null;
+type ModalType = "delete" | "newSubmission" | "edit" | "view" | "archive" | "censorship" | null;
 
 interface ModalState<T = null> {
   type: ModalType;

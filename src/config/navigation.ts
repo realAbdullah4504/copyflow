@@ -48,6 +48,12 @@ const SECRETARY_NAV_ITEMS: NavItem[] = [
     icon: FileText,
     roles: [ROLES.SECRETARY],
   },
+  {
+    title: "Censored Submissions",
+    href: "/dashboard/secretary/censorship",
+    icon: FileText,
+    roles: [ROLES.SECRETARY],
+  },
 ];
 
 const ADMIN_NAV_ITEMS: NavItem[] = [
@@ -80,7 +86,7 @@ const ADMIN_NAV_ITEMS: NavItem[] = [
     href: "/dashboard/admin/settings",
     icon: FileText,
     roles: [ROLES.ADMIN],
-  }
+  },
 ];
 
 const PRINCIPAL_NAV_ITEMS: NavItem[] = [

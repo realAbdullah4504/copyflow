@@ -2,10 +2,8 @@ import React from "react";
 import {
   useDeleteSubmission,
   useSubmissions,
-  useSubmissionsByTeacher,
 } from "@/hooks/useSubmissions";
-import { useAuth } from "@/hooks/useAuth";
-import { DeleteModal, PageHeader } from "@/components/common";
+import { ActionModal, PageHeader } from "@/components/common";
 import { ROLES } from "@/config/roles";
 import type { Submission } from "@/types";
 import {
@@ -57,7 +55,7 @@ const SubmissionPage = () => {
       />
       <SubmissionTable data={submissions} columns={columns} />
       {modal.type === "delete" && modal.data && (
-        <DeleteModal
+        <ActionModal
           open={modal.type === "delete"}
           onConfirm={handleDeleteConfirm}
           onCancel={closeModal}

@@ -9,37 +9,41 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
-interface DeleteModalProps {
+interface ActionModalProps {
   open: boolean;
   onConfirm: () => void;
   onCancel: () => void;
   title?: string;
   description?: string;
+  buttonTitle?: string;
 }
 
-const DeleteModal: React.FC<DeleteModalProps> = ({
+const ActionModal: React.FC<ActionModalProps> = ({
   open,
   onConfirm,
   onCancel,
   title = "Delete item?",
   description = "This action cannot be undone.",
+  buttonTitle = "Delete",
 }) => {
   return (
     <AlertDialog open={open} onOpenChange={onCancel}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>{title}</AlertDialogTitle>
-          <AlertDialogDescription>
-            {description}
-          </AlertDialogDescription>
+          <AlertDialogDescription>{description}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel onClick={onCancel}>Cancel</AlertDialogCancel>
           <AlertDialogAction
             onClick={onConfirm}
-            className="bg-red-600 hover:bg-red-700"
+            className={`${
+              buttonTitle === "Delete"
+                ? "bg-red-600 hover:bg-red-700"
+                : "bg-blue-600 hover:bg-blue-700"
+            }`}
           >
-            Delete
+            {buttonTitle}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
@@ -47,4 +51,4 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
   );
 };
 
-export default DeleteModal;
+export default ActionModal;

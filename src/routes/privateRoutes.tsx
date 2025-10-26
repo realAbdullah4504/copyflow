@@ -12,6 +12,7 @@ import {
   SecretaryArchivePage,
   AdminArchive,
   SecretarySubmissionsPage,
+  SecretaryCensorshipPage
 } from "@/pages/dashboard";
 import { ProtectedRoute, RootRedirect } from "@/components/guards";
 
@@ -52,6 +53,7 @@ export const privateRoutes: RouteObject[] = [
           { index: true, element: <SecretaryPage /> },
           { path: "archive", element: <SecretaryArchivePage /> },
           { path: "submissions", element: <SecretarySubmissionsPage /> },
+          { path: "censorship", element: <SecretaryCensorshipPage /> },
         ],
       },
       // // Principal Routes

@@ -1,9 +1,15 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { submissionService } from "@/services/submissionService";
 import type { Submission } from "@/types";
+import { useAuth } from "./useAuth";
+import { ROLES } from "@/config/roles";
 
 export function useSubmissions() {
-  const { data: submissions = [], isLoading } = useQuery({
+  const {
+    data: submissions = [],
+    isLoading,
+    refetch,
+  } = useQuery({
     queryKey: ["submissions"],
     queryFn: submissionService.getSubmissions,
   });
@@ -11,6 +17,7 @@ export function useSubmissions() {
   return {
     submissions,
     isLoading,
+    refetch,
   };
 }
 
@@ -64,6 +71,48 @@ export function useDeleteSubmission() {
     mutationFn: (id: string) => submissionService.deleteSubmission(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["submissions"] });
+    },
+  });
+}
+
+export function useArchiveSubmission() {
+  return useQuery({
+    queryKey: ["submissions", "archive"],
+    queryFn: submissionService.getArchivedSubmissions,
+  });
+}
+
+export function useCreateArchiveSubmission() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => submissionService.archiveSubmission(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["submissions"] });
+    },
+  });
+}
+
+export function useCensoredSubmissions() {
+  const { user } = useAuth();
+  
+  return useQuery({
+    queryKey: ["submissions", "censored"],
+    queryFn: user?.role === ROLES.SECRETARY
+      ? submissionService.getCensoredSubmissions
+      : () => submissionService.getCensoredSubmissionsByTeacher(user?.id || ''),
+    enabled: !!user?.id,
+  });
+}
+
+export function useCensorSubmission() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => submissionService.censorSubmission(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["submissions"] });
+      queryClient.invalidateQueries({ queryKey: ["submissions", "censored"] });
     },
   });
 }

@@ -1,4 +1,3 @@
-import { supabase } from '@/lib/supabaseClient';
 import type { Submission } from '@/types';
 
 let mockSubmissions: Submission[] = [
@@ -111,12 +110,13 @@ let mockSubmissions: Submission[] = [
 
 export const submissionService = {
   getSubmissions: async (): Promise<Submission[]> => {
-    const { data: submissions, error } = await supabase.from('submissions').select('*');
-    if (error) throw error;
+    // In a real implementation, this would fetch from the database
+    // const { data, error } = await supabase.from('submissions').select('*');
+    // if (error) throw error;
     await new Promise(resolve => setTimeout(resolve, 300));
-    return [...mockSubmissions].sort((a, b) =>
-      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    );
+    return [...mockSubmissions]
+      .filter(sub => sub.status !== 'archived')
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   },
 
   getSubmissionById: async (id: string): Promise<Submission | undefined> => {
@@ -127,8 +127,56 @@ export const submissionService = {
   getSubmissionsByTeacher: async (teacherId: string): Promise<Submission[]> => {
     await new Promise(resolve => setTimeout(resolve, 300));
     return mockSubmissions
-      .filter(s => s.teacherId === teacherId)
+      .filter(s => s.teacherId === teacherId && s.status !== 'archived')
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  },
+
+  getArchivedSubmissions: async (): Promise<Submission[]> => {
+    await new Promise(resolve => setTimeout(resolve, 300));
+    return mockSubmissions
+      .filter(s => s.status === 'archived')
+      .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
+  },
+
+  getArchivedSubmissionsByTeacher: async (teacherId: string): Promise<Submission[]> => {
+    await new Promise(resolve => setTimeout(resolve, 300));
+    return mockSubmissions
+      .filter(s => s.teacherId === teacherId && s.status === 'archived')
+      .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
+  },
+
+  getCensoredSubmissions: async (): Promise<Submission[]> => {
+    await new Promise(resolve => setTimeout(resolve, 300));
+    return mockSubmissions
+      .filter(s => s.status === 'censored')
+      .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
+  },
+
+  getCensoredSubmissionsByTeacher: async (teacherId: string): Promise<Submission[]> => {
+    await new Promise(resolve => setTimeout(resolve, 300));
+    return mockSubmissions
+      .filter(s => s.teacherId === teacherId && s.status === 'censored')
+      .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
+  },
+
+  censorSubmission: async (id: string): Promise<Submission> => {
+    const submission = await submissionService.getSubmissionById(id);
+    if (!submission) {
+      throw new Error('Submission not found');
+    }
+    
+    const updatedSubmission: Submission = {
+      ...submission,
+      status: 'censored',
+      updatedAt: new Date()
+    };
+
+    const index = mockSubmissions.findIndex(s => s.id === id);
+    if (index !== -1) {
+      mockSubmissions[index] = updatedSubmission;
+    }
+
+    return updatedSubmission;
   },
 
   createSubmission: async (submission: Omit<Submission, 'id' | 'createdAt' | 'updatedAt'>): Promise<Submission> => {
@@ -136,7 +184,7 @@ export const submissionService = {
 
     const newSubmission: Submission = {
       ...submission,
-      id: Math.random().toString(36).substr(2, 9),
+      id: Math.random().toString(36).substring(2, 11),
       createdAt: new Date(),
       updatedAt: new Date()
     };
@@ -165,5 +213,28 @@ export const submissionService = {
   deleteSubmission: async (id: string): Promise<void> => {
     await new Promise(resolve => setTimeout(resolve, 200));
     mockSubmissions = mockSubmissions.filter(s => s.id !== id);
-  }
+  },
+
+  archiveSubmission: async (id: string): Promise<Submission> => {
+    // In a real implementation, this would update the submission status to 'archived' in the database
+    const submission = await submissionService.getSubmissionById(id);
+    if (!submission) {
+      throw new Error('Submission not found');
+    }
+    
+    // Create a properly typed updated submission
+    const updatedSubmission: Submission = {
+      ...submission,
+      status: 'archived',
+      updatedAt: new Date()
+    };
+
+    // Update the submission in the mock data
+    const index = mockSubmissions.findIndex(s => s.id === id);
+    if (index !== -1) {
+      mockSubmissions[index] = updatedSubmission;
+    }
+
+    return updatedSubmission;
+  },
 };
