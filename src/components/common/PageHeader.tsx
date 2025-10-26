@@ -1,12 +1,20 @@
+import { Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
+
 interface PageHeaderProps {
   title: string;
-  actions?: React.ReactNode;
+  onNew?: () => void;
 }
 
-const PageHeader = ({ title, actions }: PageHeaderProps) => (
+const PageHeader = ({ title, onNew }: PageHeaderProps) => (
   <div className="flex items-center justify-between mb-4">
     <h2 className="text-lg font-semibold text-slate-900 mb-4">{title}</h2>
-    {actions && <div>{actions}</div>}
+    {onNew && (
+      <Button onClick={onNew}>
+        <Plus className="mr-2 h-4 w-4" />
+        New Submission
+      </Button>
+    )}
   </div>
 );
 

@@ -29,12 +29,7 @@ const SubmissionPage = () => {
     <>
       <PageHeader
         title="All Submissions"
-        actions={
-          <Button onClick={() => setModalOpen(true)}>
-            <Plus className="mr-2 h-4 w-4" />
-            New Submission
-          </Button>
-        }
+        onNew={() => setModalOpen(true)}
       />
       <SubmissionTable
         data={submissions}
