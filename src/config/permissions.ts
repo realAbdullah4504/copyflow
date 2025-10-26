@@ -1,21 +1,8 @@
-import { ROLES } from "./roles";
-
-export const permissions = {
-  [ROLES.ADMIN]: {
-    canEdit: true,
-    canDelete: true,
-    canViewAll: true,
-  },
-  [ROLES.TEACHER]: {
-    canEdit: true,
-    canDelete: false,
-    canViewAll: false,
-  },
-  [ROLES.SECRETARY]: {
-    canEdit: false,
-    canDelete: false,
-    canViewAll: true,
-  },
+export const ALLOWED_ACTIONS = {
+  "admin": ["view", "edit", "delete"],
+  "teacher": ["view", "edit"],
+  "secretary": ["view", "delete"],
+  "principal": ["view"],
 } as const;
 
-export type Permission = keyof typeof permissions;
+export type ActionType = "view" | "edit" | "delete";

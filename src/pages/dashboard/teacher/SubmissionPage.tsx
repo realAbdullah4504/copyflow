@@ -2,16 +2,29 @@ import React from "react";
 import { Plus } from "lucide-react";
 import { useSubmissionsByTeacher } from "@/hooks/useSubmissions";
 import { useAuth } from "@/hooks/useAuth";
-import { SUBMISSION_COLUMNS, SubmissionTable } from "@/components/submissions";
 import NewSubmissionModal from "@/components/submissions/NewSubmissionModal";
 import { PageHeader } from "@/components/common";
 import { Button } from "@/components/ui/button";
+import { getSubmissionColumns } from "@/components/submissions/columnsDef";
+import { ROLES } from "@/config/roles";
+import type { Submission } from "@/types";
+import { SubmissionTable } from "@/components/submissions";
 
 const SubmissionPage = () => {
   const { user } = useAuth();
   const { submissions, isLoading } = useSubmissionsByTeacher(user?.id || "");
-  const columns = SUBMISSION_COLUMNS.TEACHER;
   const [modalOpen, setModalOpen] = React.useState(false);
+
+  const handleAction = (action: string, row: Submission) => {
+    if (action === "view") {
+      console.log("Viewing", row);
+    } else if (action === "edit") {
+      console.log("Editing", row);
+    } else if (action === "delete") {
+      console.log("Deleting", row);
+    }
+  };
+  const columns = getSubmissionColumns(ROLES.TEACHER, handleAction);
   return (
     <>
       <PageHeader

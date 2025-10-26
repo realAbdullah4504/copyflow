@@ -1,5 +1,3 @@
-import type { UserRole } from "@/types";
-
 // Define all available roles
 export const ROLES = {
   ADMIN: 'admin',
@@ -8,10 +6,10 @@ export const ROLES = {
   PRINCIPAL: 'principal',
 } as const;
 
-export type Role = UserRole;
+export type Role = (typeof ROLES)[keyof typeof ROLES];
 
 // Define role hierarchy (each role inherits permissions from roles to their right)
-const roleHierarchy: Record<Role, Role[]> = {
+export const roleHierarchy: Record<Role, Role[]> = {
   [ROLES.ADMIN]: [ROLES.ADMIN, ROLES.TEACHER, ROLES.SECRETARY, ROLES.PRINCIPAL],
   [ROLES.TEACHER]: [ROLES.TEACHER],
   [ROLES.SECRETARY]: [ROLES.SECRETARY],

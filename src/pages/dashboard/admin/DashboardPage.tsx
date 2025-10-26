@@ -7,7 +7,7 @@ import {
   AttendenceCard,
 } from "@/components/admin/overview";
 import { ADMIN_STAT_DATA } from "@/constants/admin/statsCards";
-import { SUBMISSION_COLUMNS } from "@/components/submissions/columns/columnsDef";
+// import { SUBMISSION_COLUMNS } from "@/components/submissions/columnsDef";
 
 export default function AdminDashboardPage() {
   const { submissions, isLoading: submissionsLoading } = useSubmissions();
@@ -76,13 +76,13 @@ export default function AdminDashboardPage() {
         <TeacherActivityCard teacherActivity={teacherActivity} />
       </div>
 
-      <DataTable
+      {/* <DataTable
         data={recentSubmissions}
         isLoading={submissionsLoading}
         columns={SUBMISSION_COLUMNS.ADMIN}
         maxRows={5}
         title="Recent Submissions"
-      />
+      /> */}
     </div>
   );
 }
