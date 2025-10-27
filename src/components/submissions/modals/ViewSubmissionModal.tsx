@@ -10,7 +10,7 @@ interface ViewSubmissionModalProps {
   readonly submission: Submission | null;
 }
 
-export function ViewSubmissionModal({ open, onOpenChange, submission }: ViewSubmissionModalProps) {
+const ViewSubmissionModal = ({ open, onOpenChange, submission }: ViewSubmissionModalProps) => {
   if (!submission) return null;
 
   const getStatusBadge = (status: string) => {
@@ -113,3 +113,5 @@ export function ViewSubmissionModal({ open, onOpenChange, submission }: ViewSubm
     </Dialog>
   );
 }
+
+export default ViewSubmissionModal;

@@ -1,4 +1,4 @@
-import { DataTable } from "../common";
+import { DataTable } from "@/components/common";
 import type { Submission } from "@/types";
 import type { ColumnDef } from "@tanstack/react-table";
 

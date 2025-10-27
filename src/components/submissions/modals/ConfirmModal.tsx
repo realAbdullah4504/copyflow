@@ -18,7 +18,7 @@ interface ActionModalProps {
   buttonTitle?: string;
 }
 
-const ActionModal: React.FC<ActionModalProps> = ({
+const ConfirmModal: React.FC<ActionModalProps> = ({
   open,
   onConfirm,
   onCancel,
@@ -51,4 +51,4 @@ const ActionModal: React.FC<ActionModalProps> = ({
   );
 };
 
-export default ActionModal;
+export default ConfirmModal;

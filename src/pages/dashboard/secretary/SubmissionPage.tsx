@@ -1,11 +1,9 @@
 import { ROLES } from "@/config/roles";
 import type { Submission } from "@/types";
 import {
-  EditSubmissionModal,
   getSubmissionColumns,
-  NewSubmissionModal,
+  SubmissionModal,
   SubmissionTable,
-  ViewSubmissionModal,
 } from "@/components/submissions";
 import {
   useDeleteSubmission,
@@ -16,9 +14,7 @@ import {
 import { PageHeader } from "@/components/common";
 import { type ActionType } from "@/config";
 import { useModal } from "@/hooks/useModal";
-import { teachers } from "../admin/SubmissionsPage";
 import { toast } from "sonner";
-import ActionModal from "@/components/common/ActionModal";
 
 const SecretarySubmissionsPage = () => {
   const { submissions, refetch } = useSubmissions();
@@ -65,23 +61,7 @@ const SecretarySubmissionsPage = () => {
   };
 
   const handleAction = (action: ActionType, row: Submission) => {
-    switch (action) {
-      case "view":
-        openModal("view", row);
-        break;
-      case "edit":
-        openModal("edit", row);
-        break;
-      case "delete":
-        openModal("delete", row);
-        break;
-      case "archive":
-        openModal("archive", row);
-        break;
-      case "censorship":
-        openModal("censorship", row);
-        break;
-    }
+    openModal(action, row);
   };
 
   const columns = getSubmissionColumns(ROLES.SECRETARY, handleAction);
@@ -94,57 +74,18 @@ const SecretarySubmissionsPage = () => {
         onNew={() => openModal("newSubmission")}
       />
       <SubmissionTable data={submissions} columns={columns} />
-      {modal.type === "delete" && modal.data && (
-        <ActionModal
-          open={modal.type === "delete"}
-          onConfirm={handleDeleteConfirm}
-          onCancel={closeModal}
-          title="Confirm Deletion"
-          description="Are you sure you want to delete this submission?"
-        />
-      )}
-      {modal.type === "edit" && modal.data && (
-        <EditSubmissionModal
-          open={modal.type === "edit"}
-          onOpenChange={(open) => !open && closeModal()}
-          submission={modal.data}
-        />
-      )}
-      {modal.type === "view" && modal.data && (
-        <ViewSubmissionModal
-          open={modal.type === "view"}
-          onOpenChange={(open) => !open && closeModal()}
-          submission={modal.data}
-        />
-      )}
-      {modal.type === "newSubmission" && (
-        <NewSubmissionModal
-          open={modal.type === "newSubmission"}
-          onOpenChange={(open) => !open && closeModal()}
-          teacherOptions={teachers}
-        />
-      )}
-
-      {modal.type === "archive" && modal.data && (
-        <ActionModal
-          open={modal.type === "archive"}
-          onConfirm={handleArchiveConfirm}
-          onCancel={closeModal}
-          buttonTitle="Archive"
-          title="Confirm Archiving"
-          description="Are you sure you want to archive this submission?"
-        />
-      )}
-      {modal.type === "censorship" && modal.data && (
-        <ActionModal
-          open={modal.type === "censorship"}
-          onConfirm={handleCensorshipConfirm}
-          onCancel={closeModal}
-          buttonTitle="Censor"
-          title="Confirm Censorship"
-          description="Are you sure you want to censor this submission?"
-        />
-      )}
+      <SubmissionModal
+        data={modal.data}
+        type={modal.type}
+        open={modal.isOpen}
+        onOpenChange={closeModal}
+        onClose={closeModal}
+        handlers={{
+          onDeleteConfirm: handleDeleteConfirm,
+          onArchiveConfirm: handleArchiveConfirm,
+          onCensorshipConfirm: handleCensorshipConfirm,
+        }}
+      />
     </>
   );
 };

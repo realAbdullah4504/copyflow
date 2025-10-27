@@ -48,12 +48,12 @@ interface EditSubmissionModalProps {
   readonly onSuccess?: () => void;
 }
 
-export function EditSubmissionModal({ 
+const EditSubmissionModal = ({ 
   open, 
   onOpenChange, 
   submission,
   onSuccess 
-}: EditSubmissionModalProps) {
+}: EditSubmissionModalProps) => {
   const updateSubmission = useUpdateSubmission();
   
   const form = useForm<FormValues>({
@@ -259,3 +259,5 @@ export function EditSubmissionModal({
     </Dialog>
   );
 }
+
+export default EditSubmissionModal;

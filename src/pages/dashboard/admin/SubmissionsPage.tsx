@@ -1,25 +1,14 @@
-import React from "react";
-import {
-  useDeleteSubmission,
-  useSubmissions,
-} from "@/hooks/useSubmissions";
-import { ActionModal, PageHeader } from "@/components/common";
+import { useDeleteSubmission, useSubmissions } from "@/hooks/useSubmissions";
+import { PageHeader } from "@/components/common";
 import { ROLES } from "@/config/roles";
 import type { Submission } from "@/types";
 import {
-  EditSubmissionModal,
   getSubmissionColumns,
-  NewSubmissionModal,
+  SubmissionModal,
   SubmissionTable,
-  ViewSubmissionModal,
 } from "@/components/submissions";
 import { useModal } from "@/hooks/useModal";
 import type { ActionType } from "@/config";
-
-export const teachers = [
-  { id: "1", name: "Teacher 1" },
-  { id: "2", name: "Teacher 2" },
-];
 
 const SubmissionPage = () => {
   const { submissions } = useSubmissions();
@@ -33,17 +22,7 @@ const SubmissionPage = () => {
   };
 
   const handleAction = (action: ActionType, row: Submission) => {
-    switch (action) {
-      case "view":
-        openModal("view", row);
-        break;
-      case "edit":
-        openModal("edit", row);
-        break;
-      case "delete":
-        openModal("delete", row);
-        break;
-    }
+    openModal(action, row);
   };
   const columns = getSubmissionColumns(ROLES.TEACHER, handleAction);
   return (
@@ -54,33 +33,15 @@ const SubmissionPage = () => {
         onNew={() => openModal("newSubmission")}
       />
       <SubmissionTable data={submissions} columns={columns} />
-      {modal.type === "delete" && modal.data && (
-        <ActionModal
-          open={modal.type === "delete"}
-          onConfirm={handleDeleteConfirm}
-          onCancel={closeModal}
-          title="Confirm Deletion"
-          description="Are you sure you want to delete this submission?"
-        />
-      )}
-      {modal.type === "edit" && modal.data && (
-        <EditSubmissionModal
-          open={modal.type === "edit"}
-          onOpenChange={(open) => !open && closeModal()}
-          submission={modal.data}
-        />
-      )}
-      {modal.type === "view" && modal.data && (
-        <ViewSubmissionModal
-          open={modal.type === "view"}
-          onOpenChange={(open) => !open && closeModal()}
-          submission={modal.data}
-        />
-      )}
-      <NewSubmissionModal
-        open={modal.type === "newSubmission"}
-        onOpenChange={(open) => !open && closeModal()}
-        teacherOptions={teachers}
+      <SubmissionModal
+        data={modal.data}
+        type={modal.type}
+        open={modal.isOpen}
+        onOpenChange={closeModal}
+        onClose={closeModal}
+        handlers={{
+          onDeleteConfirm: handleDeleteConfirm,
+        }}
       />
     </>
   );
