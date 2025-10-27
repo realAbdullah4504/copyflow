@@ -1,9 +1,13 @@
 import {
-  ChartBar as BarChart3,
-  ClipboardCheck,
+  // General
+  LayoutDashboard,
   FileText,
-  Inbox,
+  Archive,
   Users,
+  Settings,
+  // File related
+  FileArchive,
+  FileCheck,
 } from "lucide-react";
 import type { NavItem } from "@/types/navigation";
 import { ROLES } from "./roles";
@@ -12,7 +16,7 @@ const TEACHER_NAV_ITEMS: NavItem[] = [
   {
     title: "Dashboard",
     href: "/dashboard/teacher",
-    icon: FileText,
+    icon: LayoutDashboard,
     roles: [ROLES.TEACHER],
   },
   {
@@ -24,7 +28,7 @@ const TEACHER_NAV_ITEMS: NavItem[] = [
   {
     title: "Archive Submissions",
     href: "/dashboard/teacher/archive",
-    icon: FileText,
+    icon: FileArchive,
     roles: [ROLES.TEACHER],
   },
 ];
@@ -33,7 +37,7 @@ const SECRETARY_NAV_ITEMS: NavItem[] = [
   {
     title: "Dashboard",
     href: "/dashboard/secretary",
-    icon: FileText,
+    icon: LayoutDashboard,
     roles: [ROLES.SECRETARY],
   },
   {
@@ -45,13 +49,13 @@ const SECRETARY_NAV_ITEMS: NavItem[] = [
   {
     title: "Censored Submissions",
     href: "/dashboard/secretary/censorship",
-    icon: FileText,
+    icon: FileCheck,
     roles: [ROLES.SECRETARY],
   },
   {
-    title: "Archive Submissions",
+    title: "Archive",
     href: "/dashboard/secretary/archive",
-    icon: FileText,
+    icon: Archive,
     roles: [ROLES.SECRETARY],
   },
 ];
@@ -60,7 +64,7 @@ const ADMIN_NAV_ITEMS: NavItem[] = [
   {
     title: "Dashboard",
     href: "/dashboard/admin",
-    icon: FileText,
+    icon: LayoutDashboard,
     roles: [ROLES.ADMIN],
   },
   {
@@ -70,21 +74,15 @@ const ADMIN_NAV_ITEMS: NavItem[] = [
     roles: [ROLES.ADMIN],
   },
   {
-    title: "Users",
+    title: "User Management",
     href: "/dashboard/admin/users",
-    icon: FileText,
+    icon: Users,
     roles: [ROLES.ADMIN],
   },
   {
     title: "Settings",
     href: "/dashboard/admin/settings",
-    icon: FileText,
-    roles: [ROLES.ADMIN],
-  },
-  {
-    title: "Archive Submissions",
-    href: "/dashboard/admin/archive",
-    icon: FileText,
+    icon: Settings,
     roles: [ROLES.ADMIN],
   },
 ];
@@ -93,7 +91,7 @@ const PRINCIPAL_NAV_ITEMS: NavItem[] = [
   {
     title: "Dashboard",
     href: "/dashboard/principal",
-    icon: FileText,
+    icon: LayoutDashboard,
     roles: [ROLES.PRINCIPAL],
   },
   {

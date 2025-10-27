@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 
 interface HeaderProps {
   title: ReactNode;
@@ -26,8 +26,8 @@ export default function Header({ title, userName, onLogout }: HeaderProps) {
     .toUpperCase();
 
   return (
-    <header className="border-b bg-white">
-      <div className="flex h-16 items-center justify-between px-6">
+    <header className="border-b bg-white relative z-20">
+      <div className="flex h-16 items-center justify-between px-4 md:px-6 pl-16 md:pl-6">
         <div className="flex items-center">
           <h2 className="text-2xl font-semibold text-slate-900">{title}</h2>
         </div>
