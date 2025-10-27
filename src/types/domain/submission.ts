@@ -3,7 +3,7 @@
  * Core business entities related to print submissions
  */
 
-export type SubmissionStatus = 'pending' | 'printed' | 'censored' | 'flagged' | 'archived';
+export type SubmissionStatus = 'pending' | 'printed' | 'censored' | 'archived';
 
 export type FileType = 'worksheet' | 'exam' | 'handout' | 'lesson_plan' | 'other';
 

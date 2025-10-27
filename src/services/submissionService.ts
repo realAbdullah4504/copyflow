@@ -38,7 +38,7 @@ let mockSubmissions: Submission[] = [
       stapled: true,
       color: false
     },
-    status: 'flagged',
+    status: 'pending',
     urgency: 'high',
     createdAt: new Date('2025-09-27T14:20:00'),
     updatedAt: new Date('2025-09-28T09:15:00')
