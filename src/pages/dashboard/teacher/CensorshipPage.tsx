@@ -5,13 +5,15 @@ import {
   SubmissionTable,
 } from "@/components/submissions";
 import { ROLES } from "@/config/roles";
-import { useCensoredSubmissions } from "@/hooks/queries";
 import { useModal } from "@/hooks/useModal";
 import type { Submission } from "@/types";
 import { useSubmissionMutations } from "@/hooks/mutations";
+import { useAuth } from "@/hooks/useAuth";
+import { useCensoredSubmissionsByTeacher } from "@/hooks/queries";
 
 export default function TeacherCensorshipPage() {
-  const { submissions } = useCensoredSubmissions();
+  const { user } = useAuth();
+  const { submissions } = useCensoredSubmissionsByTeacher(user?.id || "");
   const { modal, openModal, closeModal } = useModal<Submission>();
 
   const { unCensorSubmission } = useSubmissionMutations();

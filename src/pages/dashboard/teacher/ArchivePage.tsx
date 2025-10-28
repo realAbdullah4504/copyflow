@@ -5,12 +5,14 @@ import {
   SubmissionTable,
 } from "@/components/submissions";
 import { ROLES } from "@/config/roles";
-import { useArchivedSubmissions } from "@/hooks/queries";
+import { useArchiveSubmissionsByTeacher } from "@/hooks/queries";
 import { useModal } from "@/hooks/useModal";
 import type { Submission } from "@/types";
 import { useSubmissionMutations } from "@/hooks/mutations";
+import { useAuth } from "@/hooks/useAuth";
 export default function TeacherArchivePage() {
-  const { submissions } = useArchivedSubmissions();
+  const { user } = useAuth();
+  const { submissions } = useArchiveSubmissionsByTeacher(user?.id || "");
   const { deleteSubmission } = useSubmissionMutations();
   const { modal, openModal, closeModal } = useModal<Submission>();
   const handleDeleteConfirm = () => {

@@ -13,8 +13,8 @@ import {
 const ROLE_COLUMNS: Record<Role, ColumnDef<Submission>[]> = {
   admin: [{ accessorKey: "teacherName", header: "Teacher" }],
   teacher: [],
-  secretary: [],
-  principal: [],
+  secretary: [{ accessorKey: "teacherName", header: "Teacher" }],
+  principal: [{ accessorKey: "teacherName", header: "Teacher" }],
 };
 
 export const getSubmissionColumns = (
