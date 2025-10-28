@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, FileText, Archive, AlertTriangle, CheckCircle, Clock } from "lucide-react";
 import { submissionService } from "@/services/submissionService";
-import { useCensoredSubmissions } from "@/hooks/useSubmissions";
+import { useAllSubmissions, useArchivedSubmissions, useCensoredSubmissions } from "@/hooks/queries";
 
 type StatsCardProps = {
   title: string;
@@ -41,16 +41,10 @@ const StatsCard = ({ title, value, icon, trend, trendType = 'neutral' }: StatsCa
   );
 };
 const SecretaryPage = () => {
-  const { data: submissions = [], isLoading: isLoadingSubmissions } = useQuery({
-    queryKey: ['submissions'],
-    queryFn: submissionService.getSubmissions,
-  });
+  const { submissions, isLoading: isLoadingSubmissions } = useAllSubmissions();
 
-  const { data: censoredSubmissions = [], isLoading: isLoadingCensored } = useCensoredSubmissions();
-  const { data: archivedSubmissions = [], isLoading: isLoadingArchived } = useQuery({
-    queryKey: ['submissions', 'archive'],
-    queryFn: submissionService.getArchivedSubmissions,
-  });
+  const { submissions: censoredSubmissions, isLoading: isLoadingCensored } = useCensoredSubmissions();
+  const { submissions: archivedSubmissions, isLoading: isLoadingArchived } = useArchivedSubmissions();
 
   if (isLoadingSubmissions || isLoadingCensored || isLoadingArchived) {
     return (

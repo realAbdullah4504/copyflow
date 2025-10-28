@@ -1,4 +1,3 @@
-import { useDeleteSubmission, useSubmissions } from "@/hooks/useSubmissions";
 import { PageHeader } from "@/components/common";
 import { ROLES } from "@/config/roles";
 import type { Submission } from "@/types";
@@ -9,10 +8,12 @@ import {
 } from "@/components/submissions";
 import { useModal } from "@/hooks/useModal";
 import type { ActionType } from "@/config";
+import { useAllSubmissions } from "@/hooks/queries";
+import { useSubmissionMutations } from "@/hooks/mutations";
 
 const SubmissionPage = () => {
-  const { submissions } = useSubmissions();
-  const { mutate: deleteSubmission } = useDeleteSubmission();
+  const { submissions } = useAllSubmissions();
+  const { deleteSubmission } = useSubmissionMutations();
   const { modal, openModal, closeModal } = useModal<Submission>();
 
   const handleDeleteConfirm = () => {

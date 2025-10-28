@@ -5,12 +5,12 @@ import { Search } from "lucide-react";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Submission } from '@/types';
-import { useArchiveSubmission } from '@/hooks/useSubmissions';
+import { useArchivedSubmissions } from '@/hooks/queries';
 const ArchiveContent = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const { data: archivedSubmissions = [], isLoading } = useArchiveSubmission();
+  const { submissions: archivedSubmissions = [], isLoading } = useArchivedSubmissions();
   
-  const filteredSubmissions = archivedSubmissions.filter(submission => {
+  const filteredSubmissions = archivedSubmissions.filter((submission: Submission) => {
     const searchLower = searchTerm.toLowerCase();
     return (
       submission.subject?.toLowerCase().includes(searchLower) ||

@@ -5,22 +5,16 @@ import {
   SubmissionModal,
   SubmissionTable,
 } from "@/components/submissions";
-import {
-  useDeleteSubmission,
-  useSubmissions,
-  useCreateArchiveSubmission,
-  useCensorSubmission,
-} from "@/hooks/useSubmissions";
 import { PageHeader } from "@/components/common";
 import { type ActionType } from "@/config";
 import { useModal } from "@/hooks/useModal";
 import { toast } from "sonner";
+import { useAllSubmissions } from "@/hooks/queries";
+import { useSubmissionMutations } from "@/hooks/mutations";
 
 const SecretarySubmissionsPage = () => {
-  const { submissions, refetch } = useSubmissions();
-  const { mutate: deleteSubmission } = useDeleteSubmission();
-  const { mutate: archiveSubmission } = useCreateArchiveSubmission();
-  const { mutate: censorSubmission } = useCensorSubmission();
+  const { submissions} = useAllSubmissions();
+  const { deleteSubmission,archiveSubmission, censorSubmission } = useSubmissionMutations();
   const { modal, openModal, closeModal } = useModal<Submission>();
 
   const handleDeleteConfirm = () => {
@@ -35,7 +29,6 @@ const SecretarySubmissionsPage = () => {
     archiveSubmission(modal.data.id, {
       onSuccess: () => {
         toast.success("Submission archived successfully");
-        refetch();
         closeModal();
       },
       onError: (error: Error) => {
@@ -50,7 +43,6 @@ const SecretarySubmissionsPage = () => {
     censorSubmission(modal.data.id, {
       onSuccess: () => {
         toast.success("Submission censored successfully");
-        refetch();
         closeModal();
       },
       onError: (error: Error) => {

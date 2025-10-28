@@ -1,8 +1,4 @@
-import React from "react";
-import {
-  useDeleteSubmission,
-  useSubmissionsByTeacher,
-} from "@/hooks/useSubmissions";
+
 import { useAuth } from "@/hooks/useAuth";
 import { PageHeader } from "@/components/common";
 import { ROLES } from "@/config/roles";
@@ -14,11 +10,13 @@ import {
 } from "@/components/submissions";
 import { useModal } from "@/hooks/useModal";
 import type { ActionType } from "@/config";
+import { useSubmissionsByTeacher } from "@/hooks/queries";
+import { useSubmissionMutations } from "@/hooks/mutations";
 
 const SubmissionPage = () => {
   const { user } = useAuth();
   const { submissions, isLoading } = useSubmissionsByTeacher(user?.id || "");
-  const { mutate: deleteSubmission } = useDeleteSubmission();
+  const { deleteSubmission } = useSubmissionMutations();
   const { modal, openModal, closeModal } = useModal<Submission>();
 
   const handleDeleteConfirm = () => {

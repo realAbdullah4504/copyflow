@@ -1,17 +1,28 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Loader2 } from "lucide-react";
 import type { PaperColor, Submission } from "@/types";
-import { useUpdateSubmission } from "@/hooks/useSubmissions";
 import { toast } from "sonner";
+import { useSubmissionMutations } from "@/hooks/mutations";
 
 type FormValues = {
   subject: string;
@@ -24,7 +35,7 @@ type FormValues = {
     stapled: boolean;
     color: boolean;
   };
-  urgency: 'low' | 'medium' | 'high';
+  urgency: "low" | "medium" | "high";
 };
 
 const formSchema = z.object({
@@ -48,14 +59,14 @@ interface EditSubmissionModalProps {
   readonly onSuccess?: () => void;
 }
 
-const EditSubmissionModal = ({ 
-  open, 
-  onOpenChange, 
+const EditSubmissionModal = ({
+  open,
+  onOpenChange,
   submission,
-  onSuccess 
+  onSuccess,
 }: EditSubmissionModalProps) => {
-  const updateSubmission = useUpdateSubmission();
-  
+  const { updateSubmission } = useSubmissionMutations();
+
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema) as any,
     defaultValues: {
@@ -75,23 +86,22 @@ const EditSubmissionModal = ({
 
   const onSubmit = async (values: FormValues) => {
     if (!submission) return;
-    
-    try {
-      await updateSubmission.mutateAsync({
+
+    updateSubmission(
+      {
         id: submission.id,
         updates: {
           ...values,
           updatedAt: new Date(),
         },
-      });
-      
-      toast.success("Submission updated successfully");
-      onOpenChange(false);
-      onSuccess?.();
-    } catch (error) {
-      console.error("Error updating submission:", error);
-      toast.error("Failed to update submission");
-    }
+      },
+      {
+        onSuccess: () => {
+          onOpenChange(false);
+          onSuccess?.();
+        },
+      }
+    );
   };
 
   if (!submission) return null;
@@ -100,9 +110,11 @@ const EditSubmissionModal = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle className="text-xl font-semibold">Edit Submission</DialogTitle>
+          <DialogTitle className="text-xl font-semibold">
+            Edit Submission
+          </DialogTitle>
         </DialogHeader>
-        
+
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 py-2">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
@@ -172,7 +184,7 @@ const EditSubmissionModal = ({
             <div className="space-y-2">
               <Label htmlFor="urgency">Urgency</Label>
               <Select
-                onValueChange={(value: 'low' | 'medium' | 'high') =>
+                onValueChange={(value: "low" | "medium" | "high") =>
                   form.setValue("urgency", value)
                 }
                 value={form.watch("urgency")}
@@ -258,6 +270,6 @@ const EditSubmissionModal = ({
       </DialogContent>
     </Dialog>
   );
-}
+};
 
 export default EditSubmissionModal;

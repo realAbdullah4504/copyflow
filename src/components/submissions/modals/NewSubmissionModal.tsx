@@ -27,10 +27,10 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useCreateSubmission } from "@/hooks/useSubmissions";
 import { toast } from "sonner";
 import { Loader as Loader2 } from "lucide-react";
 import type { FileType, PaperColor } from "@/types";
+import { useSubmissionMutations } from "@/hooks/mutations";
 
 const formSchema = z.object({
   subject: z.string().min(1, "Subject is required"),
@@ -50,8 +50,8 @@ interface NewSubmissionModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   teacherOptions?: { id: string; name: string }[];
-  teacherId?: string;
-  teacherName?: string;
+  teacherId?: string | undefined;
+  teacherName?: string | undefined;
 }
 
 const NewSubmissionModal = ({
@@ -61,7 +61,7 @@ const NewSubmissionModal = ({
   teacherId,
   teacherName,
 }: NewSubmissionModalProps) => {
-  const createSubmission = useCreateSubmission();
+  const { createSubmission } = useSubmissionMutations();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -80,11 +80,11 @@ const NewSubmissionModal = ({
     },
   });
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    try {
-      await createSubmission.mutateAsync({
-        teacherId,
-        teacherName,
+  const onSubmit = (values: z.infer<typeof formSchema>) => {
+    createSubmission(
+      {
+        teacherId: teacherId || "",
+        teacherName: teacherName || "",
         subject: values.subject,
         grade: values.grade,
         fileType: values.fileType as FileType,
@@ -99,14 +99,15 @@ const NewSubmissionModal = ({
         },
         status: "pending",
         urgency: values.urgency,
-      });
-
-      toast.success("Submission created successfully!");
-      form.reset();
-      onOpenChange(false);
-    } catch (error) {
-      toast.error("Failed to create submission");
-    }
+      },
+      {
+        onSuccess: () => {
+          toast.success("Submission created successfully!");
+          form.reset();
+          onOpenChange(false);
+        },
+      }
+    );
   };
 
   return (
