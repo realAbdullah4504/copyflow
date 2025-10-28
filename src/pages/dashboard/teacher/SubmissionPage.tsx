@@ -15,13 +15,18 @@ import { useSubmissionMutations } from "@/hooks/mutations";
 const SubmissionPage = () => {
   const { user } = useAuth();
   const { submissions, isLoading } = useSubmissionsByTeacher(user?.id || "");
-  const { deleteSubmission } = useSubmissionMutations();
+  const { deleteSubmission, archiveSubmission } = useSubmissionMutations();
   const { modal, openModal, closeModal } = useModal<Submission>();
 
   const handleDeleteConfirm = () => {
     if (!modal.data) return;
-    console.log("delete confirmed", modal.data);
     deleteSubmission(modal.data.id);
+    closeModal();
+  };
+
+  const handleArchiveConfirm = () => {
+    if (!modal.data) return;
+    archiveSubmission(modal.data.id);
     closeModal();
   };
 
@@ -34,7 +39,7 @@ const SubmissionPage = () => {
       <PageHeader
         title="All Submissions"
         role={ROLES.TEACHER}
-        onNew={() => openModal("newSubmission")}
+        sideAction={() => openModal("newSubmission")}
       />
       <SubmissionTable
         data={submissions}
@@ -49,6 +54,7 @@ const SubmissionPage = () => {
         onClose={closeModal}
         handlers={{
           onDeleteConfirm: handleDeleteConfirm,
+          onArchiveConfirm: handleArchiveConfirm,
         }}
       />
     </>

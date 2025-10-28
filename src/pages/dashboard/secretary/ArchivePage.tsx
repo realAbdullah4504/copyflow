@@ -1,9 +1,12 @@
 import { PageHeader } from "@/components/common";
-import { getArchiveColumns, SubmissionTable } from "@/components/submissions";
+import {
+  getArchiveColumns,
+  SubmissionModal,
+  SubmissionTable,
+} from "@/components/submissions";
 import { ROLES } from "@/config/roles";
 import { useArchivedSubmissions } from "@/hooks/queries";
 import { useModal } from "@/hooks/useModal";
-import { SubmissionModal } from "@/components/submissions";
 import type { Submission } from "@/types";
 import { useSubmissionMutations } from "@/hooks/mutations";
 export default function SecretaryArchivePage() {

@@ -1,19 +1,20 @@
-import { ROLES, type Role } from "@/config/roles";
+import type { ActionKey, GenericActionConfig } from "@/components/submissions/actions/shared";
+import { type Role } from "@/config/roles";
+import { ALLOWED_CREATION_ROLES } from "./submissionPermissions";
 
-export const ALLOWED_CREATION_ROLES: Role[] = Object.values(ROLES);
-export const canCreate = (role: Role) => ALLOWED_CREATION_ROLES.includes(role);
+export const canCreate = (role: Role): boolean => ALLOWED_CREATION_ROLES.includes(role);
 
-export const canPerformAction = (
-  actions: Record<Role, string[]>,
+export const canPerformAction = <T extends GenericActionConfig>(
+  actions: Record<Role, ReadonlyArray<ActionKey<T>>>,
   role: Role,
-  action: string
-) => {
+  action: ActionKey<T>
+): boolean => {
   return actions[role]?.includes(action) ?? false;
 };
 
-export const getAllowedActions = (
-  actions: Record<Role, string[]>,
+export const getAllowedActions = <T extends GenericActionConfig>(
+  actions: Record<Role, ReadonlyArray<ActionKey<T>>>,
   role: Role
-): string[] => {
+): ReadonlyArray<ActionKey<T>> => {
   return actions[role] ?? [];
 };

@@ -12,7 +12,7 @@ import { useSubmissionMutations } from "@/hooks/mutations";
 
 const SubmissionPage = () => {
   const { submissions } = useAllSubmissions();
-  const { deleteSubmission } = useSubmissionMutations();
+  const { deleteSubmission,censorSubmission } = useSubmissionMutations();
   const { modal, openModal, closeModal } = useModal<Submission>();
 
   const handleDeleteConfirm = () => {
@@ -21,16 +21,23 @@ const SubmissionPage = () => {
     closeModal();
   };
 
+  const handleCensorshipConfirm = () => {
+    if (!modal.data) return;
+    censorSubmission(modal.data.id);
+    closeModal();
+  };
+
+
   const handleAction = (action: string, row: Submission) => {
     openModal(action, row);
   };
-  const columns = getSubmissionColumns(ROLES.TEACHER, handleAction);
+  const columns = getSubmissionColumns(ROLES.ADMIN, handleAction);
   return (
     <>
       <PageHeader
         title="All Submissions"
-        role={ROLES.TEACHER}
-        onNew={() => openModal("newSubmission")}
+        role={ROLES.ADMIN}
+        sideAction={() => openModal("newSubmission")}
       />
       <SubmissionTable data={submissions} columns={columns} />
       <SubmissionModal
@@ -41,6 +48,7 @@ const SubmissionPage = () => {
         onClose={closeModal}
         handlers={{
           onDeleteConfirm: handleDeleteConfirm,
+          onCensorshipConfirm: handleCensorshipConfirm,
         }}
       />
     </>

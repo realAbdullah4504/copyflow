@@ -61,7 +61,7 @@ const SecretarySubmissionsPage = () => {
       <PageHeader
         title="All Submissions"
         role={ROLES.SECRETARY}
-        onNew={() => openModal("newSubmission")}
+        sideAction={() => openModal("newSubmission")}
       />
       <SubmissionTable data={submissions} columns={columns} />
       <SubmissionModal

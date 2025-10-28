@@ -85,6 +85,12 @@ const ADMIN_NAV_ITEMS: NavItem[] = [
     icon: Settings,
     roles: [ROLES.ADMIN],
   },
+  {
+    title: "Archive Submissions",
+    href: "/dashboard/admin/archive",
+    icon: FileArchive,
+    roles: [ROLES.ADMIN],
+  },
 ];
 
 const PRINCIPAL_NAV_ITEMS: NavItem[] = [
