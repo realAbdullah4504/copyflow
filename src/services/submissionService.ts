@@ -132,8 +132,11 @@ export const submissionService = {
 
   deleteSubmission: async (id: string): Promise<Submission[]> => {
     await new Promise((resolve) => setTimeout(resolve, 200));
-    const updatedSubmissions = mockSubmissions.filter((s) => s.id !== id);
-    return updatedSubmissions;
+    const index = mockSubmissions.findIndex((s) => s.id === id);
+    if (index !== -1) {
+      mockSubmissions.splice(index, 1);
+    }
+    return mockSubmissions;
   },
 
   archiveSubmission: async (id: string): Promise<Submission> => {
