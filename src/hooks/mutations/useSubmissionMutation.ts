@@ -54,6 +54,14 @@ export const useSubmissionMutations = () => {
     ]),
   });
 
+  const unCensorSubmission = useMutation({
+    mutationFn: (id: string) => submissionService.unCensorSubmission(id),
+    ...mutationHandlers("Submission uncensored successfully", [
+      QUERY_KEYS.SUBMISSIONS,
+      QUERY_KEYS.CENSORED_SUBMISSIONS,
+    ]),
+  });
+
   return {
     createSubmission: createSubmission.mutate,
     isLoading: createSubmission.isPending,
@@ -69,5 +77,8 @@ export const useSubmissionMutations = () => {
 
     censorSubmission: censorSubmission.mutate,
     censorLoading: censorSubmission.isPending,
+
+    unCensorSubmission: unCensorSubmission.mutate,
+    unCensorLoading: unCensorSubmission.isPending,
   };
 };

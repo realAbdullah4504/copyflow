@@ -94,16 +94,16 @@ const SubmissionModal = ({
           />
         )
       );
-        case "unCensorship":
+        case "approve":
           return (
             handlers.onUnCensorshipConfirm &&
             data && (
               <ConfirmModal
                 open={open}
-                title="Unarchive Submission"
-                buttonTitle="Unarchive"
-                description="Are you sure you want to unarchive this submission?"
-                onConfirm={() => handlers.onUnArchiveConfirm?.()}
+                title="Approve Submission"
+                buttonTitle="Approve"
+                description="Are you sure you want to approve this submission?"
+                onConfirm={() => handlers.onUnCensorshipConfirm?.()}
                 onCancel={onClose}
               />
             )

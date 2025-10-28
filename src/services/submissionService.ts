@@ -94,6 +94,26 @@ export const submissionService = {
     return updatedSubmission;
   },
 
+  unCensorSubmission: async (id: string): Promise<Submission> => {
+    const submission = await submissionService.getSubmissionById(id);
+    if (!submission) {
+      throw new Error("Submission not found");
+    }
+
+    const updatedSubmission: Submission = {
+      ...submission,
+      status: "pending",
+      updatedAt: new Date(),
+    };
+
+    const index = mockSubmissions.findIndex((s) => s.id === id);
+    if (index !== -1) {
+      mockSubmissions[index] = updatedSubmission;
+    }
+
+    return updatedSubmission;
+  },
+
   createSubmission: async (
     submission: Omit<Submission, "id" | "createdAt" | "updatedAt">
   ): Promise<Submission> => {

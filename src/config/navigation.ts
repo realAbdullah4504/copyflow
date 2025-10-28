@@ -26,6 +26,12 @@ const TEACHER_NAV_ITEMS: NavItem[] = [
     roles: [ROLES.TEACHER],
   },
   {
+    title: "Censored Submissions",
+    href: "/dashboard/teacher/censorship",
+    icon: FileCheck,
+    roles: [ROLES.TEACHER],
+  },
+  {
     title: "Archive Submissions",
     href: "/dashboard/teacher/archive",
     icon: FileArchive,
@@ -83,6 +89,12 @@ const ADMIN_NAV_ITEMS: NavItem[] = [
     title: "Settings",
     href: "/dashboard/admin/settings",
     icon: Settings,
+    roles: [ROLES.ADMIN],
+  },
+  {
+    title: "Censored Submissions",
+    href: "/dashboard/admin/censorship",
+    icon: FileCheck,
     roles: [ROLES.ADMIN],
   },
   {

@@ -7,7 +7,6 @@ import {
 } from "@/components/submissions";
 import { PageHeader } from "@/components/common";
 import { useModal } from "@/hooks/useModal";
-import { toast } from "sonner";
 import { useAllSubmissions } from "@/hooks/queries";
 import { useSubmissionMutations } from "@/hooks/mutations";
 
@@ -28,12 +27,7 @@ const SecretarySubmissionsPage = () => {
 
     archiveSubmission(modal.data.id, {
       onSuccess: () => {
-        toast.success("Submission archived successfully");
         closeModal();
-      },
-      onError: (error: Error) => {
-        console.error("Failed to archive submission:", error);
-        toast.error("Failed to archive submission");
       },
     });
   };
@@ -42,12 +36,7 @@ const SecretarySubmissionsPage = () => {
     if (!modal.data) return;
     censorSubmission(modal.data.id, {
       onSuccess: () => {
-        toast.success("Submission censored successfully");
         closeModal();
-      },
-      onError: (error: Error) => {
-        console.error("Failed to censor submission:", error);
-        toast.error("Failed to censor submission");
       },
     });
   };

@@ -10,7 +10,7 @@ import { useModal } from "@/hooks/useModal";
 import type { Submission } from "@/types";
 import { useSubmissionMutations } from "@/hooks/mutations";
 
-export default function SecretaryCensorshipPage() {
+export default function TeacherCensorshipPage() {
   const { submissions } = useCensoredSubmissions();
   const { modal, openModal, closeModal } = useModal<Submission>();
 
@@ -31,11 +31,11 @@ export default function SecretaryCensorshipPage() {
     openModal(action, row);
   };
 
-  const columns = getCensorshipColumns(ROLES.SECRETARY, handleAction);
+  const columns = getCensorshipColumns(ROLES.TEACHER, handleAction);
 
   return (
     <>
-      <PageHeader title="Censorship Queue" role={ROLES.SECRETARY} />
+      <PageHeader title="Censorship Queue" role={ROLES.TEACHER} />
       <SubmissionTable data={submissions} columns={columns} />
       <SubmissionModal
         data={modal.data}

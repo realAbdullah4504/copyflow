@@ -17,14 +17,20 @@ const SubmissionPage = () => {
 
   const handleDeleteConfirm = () => {
     if (!modal.data) return;
-    deleteSubmission(modal.data.id);
-    closeModal();
+    deleteSubmission(modal.data.id,{
+      onSuccess:()=>{
+        closeModal();
+      }
+    });
   };
 
   const handleCensorshipConfirm = () => {
     if (!modal.data) return;
-    censorSubmission(modal.data.id);
-    closeModal();
+    censorSubmission(modal.data.id,{
+      onSuccess:()=>{
+        closeModal();
+      }
+    });
   };
 
 
