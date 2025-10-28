@@ -1,4 +1,4 @@
 export * from "./table";
 export * from "./modals";
-export * from "./fields";
+export * from "./config";
 export * from "./cells";
