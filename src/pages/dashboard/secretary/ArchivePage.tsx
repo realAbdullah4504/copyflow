@@ -1,5 +1,37 @@
-import { ArchiveContent } from "@/components/archive";
-
+import { PageHeader } from "@/components/common";
+import { getArchiveColumns, SubmissionTable } from "@/components/submissions";
+import { ROLES } from "@/config/roles";
+import { useArchivedSubmissions } from "@/hooks/queries";
+import { useModal } from "@/hooks/useModal";
+import { SubmissionModal } from "@/components/submissions";
+import type { Submission } from "@/types";
+import { useSubmissionMutations } from "@/hooks/mutations";
 export default function SecretaryArchivePage() {
-  return <ArchiveContent />;
+  const { submissions } = useArchivedSubmissions();
+  const { deleteSubmission } = useSubmissionMutations();
+  const { modal, openModal, closeModal } = useModal<Submission>();
+  const handleDeleteConfirm = () => {
+    if (!modal.data) return;
+    deleteSubmission(modal.data.id);
+    closeModal();
+  };
+  const handleAction = (action: string, row: Submission) =>
+    openModal(action, row);
+  const columns = getArchiveColumns(ROLES.SECRETARY, handleAction);
+  return (
+    <>
+      <PageHeader title="Archive Submissions" role={ROLES.SECRETARY} />
+      <SubmissionTable data={submissions} columns={columns} />
+      <SubmissionModal
+        data={modal.data}
+        type={modal.type}
+        open={modal.isOpen}
+        onOpenChange={closeModal}
+        onClose={closeModal}
+        handlers={{
+          onDeleteConfirm: handleDeleteConfirm,
+        }}
+      />
+    </>
+  );
 }

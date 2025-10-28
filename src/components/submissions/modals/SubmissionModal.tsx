@@ -15,6 +15,7 @@ interface Props {
     onDeleteConfirm?: () => void;
     onArchiveConfirm?: () => void;
     onCensorshipConfirm?: () => void;
+    onUnCensorshipConfirm?: () => void;
   };
 }
 
@@ -93,6 +94,20 @@ const SubmissionModal = ({
           />
         )
       );
+        case "unCensorship":
+          return (
+            handlers.onUnCensorshipConfirm &&
+            data && (
+              <ConfirmModal
+                open={open}
+                title="Unarchive Submission"
+                buttonTitle="Unarchive"
+                description="Are you sure you want to unarchive this submission?"
+                onConfirm={() => handlers.onUnArchiveConfirm?.()}
+                onCancel={onClose}
+              />
+            )
+          );
     default:
       return null;
   }

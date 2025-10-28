@@ -34,7 +34,7 @@ export const useSubmissionMutations = () => {
     mutationFn: (id: string) => submissionService.deleteSubmission(id),
     ...mutationHandlers("Submission deleted successfully", [
       QUERY_KEYS.SUBMISSIONS,
-      QUERY_KEYS.TEACHER_SUBMISSIONS,
+      QUERY_KEYS.ARCHIVED_SUBMISSIONS,
     ]),
   });
 
