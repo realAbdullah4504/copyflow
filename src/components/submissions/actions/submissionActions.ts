@@ -30,11 +30,3 @@ export const SUBMISSION_ACTION_CONFIG = {
 } as const;
 
 export type SubmissionAction = ActionKey<typeof SUBMISSION_ACTION_CONFIG>;
-
-export const getActionMeta = (action: SubmissionAction) => {
-  const meta = SUBMISSION_ACTION_CONFIG[action];
-  if (!meta) {
-    throw new Error(`Unknown action: ${action}`);
-  }
-  return meta;
-};

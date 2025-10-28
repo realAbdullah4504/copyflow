@@ -10,7 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import type { Submission } from "@/types";
-import { type ActionKey, type GenericActionConfig } from "../actions/shared";
+import { getActionMeta, type ActionKey, type GenericActionConfig } from "../actions/shared";
 
 interface ActionCellProps<T extends GenericActionConfig> {
   actions: ActionKey<T>[]; // Allowed actions for the given role/context
@@ -38,7 +38,7 @@ const ActionCell: React.FC<ActionCellProps<GenericActionConfig>> = ({
 
       <DropdownMenuContent align="end">
         {actions.map((action) => {
-          const { icon: Icon, label } = actionsConfig[action];
+          const { icon: Icon, label } = getActionMeta(actionsConfig, action);
           const danger = action === "delete";
 
           return (

@@ -1,10 +1,10 @@
-// hooks/useModal.ts
+import type { SubmissionAction } from "@/components/submissions";
 import { useState, useCallback } from "react";
 
-export type ModalType = string | null;
+export type ModalActionType = SubmissionAction | "newSubmission" | null;
 
 interface ModalState<T = null> {
-  type: ModalType;
+  type: ModalActionType;
   isOpen: boolean;
   data?: T;
 }
@@ -15,7 +15,7 @@ export function useModal<T = null>() {
     isOpen: false,
   });
 
-  const openModal = useCallback((type: ModalType, data?: T) => {
+  const openModal = useCallback((type: ModalActionType, data?: T) => {
     setModal({ type, isOpen: true, data });
   }, []);
 

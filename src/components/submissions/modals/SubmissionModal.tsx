@@ -1,4 +1,4 @@
-import type { ModalType } from "@/hooks/useModal";
+import type { ModalActionType } from "@/hooks/useModal";
 import type { Submission } from "@/types";
 import NewSubmissionModal from "./NewSubmissionModal";
 import EditSubmissionModal from "./EditSubmissionModal";
@@ -6,7 +6,7 @@ import ViewSubmissionModal from "./ViewSubmissionModal";
 import ConfirmModal from "./ConfirmModal";
 
 interface Props {
-  type: ModalType;
+  type: ModalActionType;
   data?: Submission;
   open: boolean;
   onOpenChange: (open: boolean) => void;
