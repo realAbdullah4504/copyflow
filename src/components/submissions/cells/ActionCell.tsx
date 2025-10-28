@@ -10,12 +10,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import type { Submission } from "@/types";
-import {
-  getActionMeta,
-  getAllowedActions,
-  type ActionType,
-  type Role,
-} from "@/config";
+import { getActionMeta, getAllowedActions, type ActionType } from "../actions";
+import type { Role } from "@/config";
 
 interface ActionCellProps {
   role: Role;
