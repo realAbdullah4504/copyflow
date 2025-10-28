@@ -4,7 +4,7 @@ import ActionCell from "../cells/ActionCell";
 import type { Role } from "@/config";
 import { StatusBadge } from "../ui/status-badge";
 import { UrgencyBadge } from "../ui/urgency-badge";
-import { SUBMISSION_ACTION_CONFIG, type SubmissionAction } from "../actions";
+import { SUBMISSION_ACTION_CONFIG } from "../actions";
 import {
   getAllowedActions,
   SUBMISSION_ALLOWED_ACTIONS,
@@ -19,7 +19,7 @@ const ROLE_COLUMNS: Record<Role, ColumnDef<Submission>[]> = {
 
 export const getSubmissionColumns = (
   role: Role,
-  onAction: (action: SubmissionAction, row: Submission) => void
+  onAction: (action: string, row: Submission) => void
 ): ColumnDef<Submission>[] => {
   const actions = getAllowedActions(SUBMISSION_ALLOWED_ACTIONS, role);
   const actionConfig = SUBMISSION_ACTION_CONFIG;

@@ -7,7 +7,6 @@ import {
   SubmissionTable,
 } from "@/components/submissions";
 import { useModal } from "@/hooks/useModal";
-import type { ActionType } from "@/config";
 import { useAllSubmissions } from "@/hooks/queries";
 import { useSubmissionMutations } from "@/hooks/mutations";
 
@@ -22,7 +21,7 @@ const SubmissionPage = () => {
     closeModal();
   };
 
-  const handleAction = (action: ActionType, row: Submission) => {
+  const handleAction = (action: string, row: Submission) => {
     openModal(action, row);
   };
   const columns = getSubmissionColumns(ROLES.TEACHER, handleAction);

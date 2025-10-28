@@ -4,7 +4,6 @@ import {
   getSubmissionColumns,
   SubmissionModal,
   SubmissionTable,
-  type SubmissionAction,
 } from "@/components/submissions";
 import { PageHeader } from "@/components/common";
 import { useModal } from "@/hooks/useModal";
@@ -52,7 +51,7 @@ const SecretarySubmissionsPage = () => {
       },
     });
   };
-  const handleAction = (action: SubmissionAction, row: Submission) =>
+  const handleAction = (action: string, row: Submission) =>
     openModal(action, row);
 
   const columns = getSubmissionColumns(ROLES.SECRETARY, handleAction);

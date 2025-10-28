@@ -1,7 +1,6 @@
-import type { SubmissionAction } from "@/components/submissions";
 import { useState, useCallback } from "react";
 
-export type ModalActionType = SubmissionAction | "newSubmission" | null;
+export type ModalActionType = string | null;
 
 interface ModalState<T = null> {
   type: ModalActionType;
