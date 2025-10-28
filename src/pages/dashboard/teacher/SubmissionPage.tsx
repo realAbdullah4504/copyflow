@@ -20,14 +20,20 @@ const SubmissionPage = () => {
 
   const handleDeleteConfirm = () => {
     if (!modal.data) return;
-    deleteSubmission(modal.data.id);
-    closeModal();
+    deleteSubmission(modal.data.id,{
+      onSuccess: () => {
+        closeModal();
+      },
+    });
   };
 
   const handleArchiveConfirm = () => {
     if (!modal.data) return;
-    archiveSubmission(modal.data.id);
-    closeModal();
+    archiveSubmission(modal.data.id,{
+      onSuccess: () => {
+        closeModal();
+      },
+    });
   };
 
   const handleAction = (action: string, row: Submission) => {

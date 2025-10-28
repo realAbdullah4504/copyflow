@@ -43,8 +43,11 @@ export const useSubmissionMutations = () => {
     ...mutationHandlers("Submission archived successfully", [
       QUERY_KEYS.SUBMISSIONS,
       QUERY_KEYS.ARCHIVED_SUBMISSIONS,
+      QUERY_KEYS.TEACHER_ARCHIVED,
+      QUERY_KEYS.TEACHER_SUBMISSIONS,
     ]),
   });
+  
 
   const censorSubmission = useMutation({
     mutationFn: (id: string) => submissionService.censorSubmission(id),
