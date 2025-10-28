@@ -1,8 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import type { Submission } from "@/types";
+import { type QueryKeys } from "@/config";
 
 export function useSubmissions(
-  type: string,
+  key: QueryKeys,
   queryFn: () => Promise<Submission[]>
 ) {
   const {
@@ -10,7 +11,7 @@ export function useSubmissions(
     isLoading,
     refetch,
   } = useQuery({
-    queryKey: ["submissions", type],
+    queryKey: [key],
     queryFn: queryFn,
   });
 

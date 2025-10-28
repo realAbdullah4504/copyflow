@@ -4,11 +4,18 @@ import { submissionService } from "@/services/submissionService";
 import { toast } from "sonner";
 import type { Submission } from "@/types";
 import { queryClient } from "@/lib/queryClient";
+import { QUERY_KEYS, type QueryKeys } from "@/config";
 
 export const useSubmissionMutations = () => {
-  const onSuccess = (msg: string) => {
+
+  const invalidate = (keys: QueryKeys[]) => {
+    for (const key of keys) {
+      queryClient.invalidateQueries({ queryKey: [key] });
+    }
+  };
+  const onSuccess = (msg: string,keys: QueryKeys[]) => {
     toast.success(msg);
-    queryClient.invalidateQueries({ queryKey: ["submissions"] });
+    invalidate(keys);
   };
 
   const onError = (err: Error) => {
@@ -19,7 +26,7 @@ export const useSubmissionMutations = () => {
     mutationFn: (
       submission: Omit<Submission, "id" | "createdAt" | "updatedAt">
     ) => submissionService.createSubmission(submission),
-    onSuccess: () => onSuccess("Submission created successfully"),
+    onSuccess: () => onSuccess("Submission created successfully",[QUERY_KEYS.SUBMISSIONS,QUERY_KEYS.TEACHER_SUBMISSIONS]),
     onError,
   });
 
@@ -31,25 +38,25 @@ export const useSubmissionMutations = () => {
       id: string;
       updates: Partial<Submission>;
     }) => submissionService.updateSubmission(id, updates),
-    onSuccess: () => onSuccess("Submission updated successfully"),
+    onSuccess: () => onSuccess("Submission updated successfully",[QUERY_KEYS.SUBMISSIONS,QUERY_KEYS.TEACHER_SUBMISSIONS]),
     onError,
   });
 
   const deleteSubmission = useMutation({
     mutationFn: (id: string) => submissionService.deleteSubmission(id),
-    onSuccess: () => onSuccess("Submission deleted successfully"),
+    onSuccess: () => onSuccess("Submission deleted successfully",[QUERY_KEYS.SUBMISSIONS,QUERY_KEYS.TEACHER_SUBMISSIONS]),
     onError,
   });
 
   const archiveSubmission = useMutation({
     mutationFn: (id: string) => submissionService.archiveSubmission(id),
-    onSuccess: () => onSuccess("Submission archived successfully"),
+    onSuccess: () => onSuccess("Submission archived successfully",[QUERY_KEYS.SUBMISSIONS,QUERY_KEYS.ARCHIVED_SUBMISSIONS]),
     onError,
   });
 
   const censorSubmission = useMutation({
     mutationFn: (id: string) => submissionService.censorSubmission(id),
-    onSuccess: () => onSuccess("Submission censored successfully"),
+    onSuccess: () => onSuccess("Submission censored successfully",[QUERY_KEYS.SUBMISSIONS,QUERY_KEYS.CENSORED_SUBMISSIONS]),
     onError,
   });
 
