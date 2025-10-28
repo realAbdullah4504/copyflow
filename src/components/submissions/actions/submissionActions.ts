@@ -1,7 +1,7 @@
 import { Eye, Edit, Trash2, Archive, LockKeyhole } from "lucide-react";
-import type { Role } from "@/config/roles";
+import type { ActionKey } from "./shared";
 
-export const ACTION_CONFIG = {
+export const SUBMISSION_ACTION_CONFIG = {
   view: {
     label: "View",
     icon: Eye,
@@ -29,30 +29,12 @@ export const ACTION_CONFIG = {
   },
 } as const;
 
-export const ALLOWED_ACTIONS: Record<Role, ActionType[]> = {
-  admin: ["view", "edit", "archive", "censorship", "delete"],
-  teacher: ["view", "edit", "delete"],
-  secretary: ["view", "edit", "archive", "censorship", "delete"],
-  principal: ["view"],
-} as const;
+export type SubmissionAction = ActionKey<typeof SUBMISSION_ACTION_CONFIG>;
 
-export const getActionMeta = (action: ActionType) => {
-  const meta = ACTION_CONFIG[action];
+export const getActionMeta = (action: SubmissionAction) => {
+  const meta = SUBMISSION_ACTION_CONFIG[action];
   if (!meta) {
     throw new Error(`Unknown action: ${action}`);
   }
   return meta;
 };
-
-export const ALLOWED_CREATION_ROLES: Role[] = ["secretary","teacher", "admin"];
-export const canCreate = (role: Role) => ALLOWED_CREATION_ROLES.includes(role);
-
-export const getAllowedActions = (role: Role): ActionType[] => {
-  return ALLOWED_ACTIONS[role] ?? [];
-};
-
-export const canPerformAction = (role: Role, action: ActionType) => {
-  return ALLOWED_ACTIONS[role].includes(action);
-};
-
-export type ActionType = keyof typeof ACTION_CONFIG;

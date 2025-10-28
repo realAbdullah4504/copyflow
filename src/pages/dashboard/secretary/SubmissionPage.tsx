@@ -6,8 +6,7 @@ import {
   SubmissionTable,
 } from "@/components/submissions";
 import { PageHeader } from "@/components/common";
-import { type ActionType } from "@/config";
-import { useModal } from "@/hooks/useModal";
+import { useModal, type ModalType } from "@/hooks/useModal";
 import { toast } from "sonner";
 import { useAllSubmissions } from "@/hooks/queries";
 import { useSubmissionMutations } from "@/hooks/mutations";
@@ -52,8 +51,7 @@ const SecretarySubmissionsPage = () => {
       },
     });
   };
-
-  const handleAction = (action: ActionType, row: Submission) =>
+  const handleAction = (action: ModalType, row: Submission) =>
     openModal(action, row);
 
   const columns = getSubmissionColumns(ROLES.SECRETARY, handleAction);

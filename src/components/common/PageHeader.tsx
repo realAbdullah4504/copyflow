@@ -1,7 +1,6 @@
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { canCreate } from "../submissions";
-import type { Role } from "@/config";
+import { canCreate, type Role } from "@/config";
 
 interface PageHeaderProps {
   title: string;

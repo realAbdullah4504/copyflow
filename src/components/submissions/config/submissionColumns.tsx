@@ -1,9 +1,14 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import type { Submission, SubmissionStatus } from "@/types";
 import ActionCell from "../cells/ActionCell";
-import type { ActionType, Role } from "@/config";
+import type { Role } from "@/config";
 import { StatusBadge } from "../ui/status-badge";
 import { UrgencyBadge } from "../ui/urgency-badge";
+import { SUBMISSION_ACTION_CONFIG, type SubmissionAction } from "../actions";
+import {
+  getAllowedActions,
+  SUBMISSION_ALLOWED_ACTIONS,
+} from "@/config/permissions";
 
 const ROLE_COLUMNS: Record<Role, ColumnDef<Submission>[]> = {
   admin: [{ accessorKey: "teacherName", header: "Teacher" }],
@@ -14,8 +19,10 @@ const ROLE_COLUMNS: Record<Role, ColumnDef<Submission>[]> = {
 
 export const getSubmissionColumns = (
   role: Role,
-  onAction: (action: ActionType, row: Submission) => void
+  onAction: (action: SubmissionAction, row: Submission) => void
 ): ColumnDef<Submission>[] => {
+  const actions = getAllowedActions(SUBMISSION_ALLOWED_ACTIONS, role);
+  const actionConfig = SUBMISSION_ACTION_CONFIG;
   const baseColumns: ColumnDef<Submission>[] = [
     ...(ROLE_COLUMNS[role] ?? []),
     { accessorKey: "subject", header: "Subject" },
@@ -55,7 +62,12 @@ export const getSubmissionColumns = (
       id: "actions",
       header: "Actions",
       cell: ({ row }) => (
-        <ActionCell role={role} rowData={row.original} onAction={onAction} />
+        <ActionCell
+          actions={actions}
+          actionsConfig={actionConfig}
+          rowData={row.original}
+          onAction={onAction}
+        />
       ),
     },
   ];

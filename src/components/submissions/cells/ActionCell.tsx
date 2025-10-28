@@ -10,18 +10,22 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import type { Submission } from "@/types";
-import { getActionMeta, getAllowedActions, type ActionType } from "../actions";
-import type { Role } from "@/config";
+import { type ActionKey, type GenericActionConfig } from "../actions/shared";
 
-interface ActionCellProps {
-  role: Role;
+interface ActionCellProps<T extends GenericActionConfig> {
+  actions: ActionKey<T>[]; // Allowed actions for the given role/context
+  actionsConfig: T; // The config for this table type (submission, archive, etc.)
   rowData: Submission;
-  onAction: (action: ActionType, row: Submission) => void;
+  onAction: (action: ActionKey<T>, row: Submission) => void;
 }
 
-const ActionCell: React.FC<ActionCellProps> = ({ role, rowData, onAction }) => {
+const ActionCell: React.FC<ActionCellProps<GenericActionConfig>> = ({
+  actions,
+  actionsConfig,
+  rowData,
+  onAction,
+}) => {
   const [open, setOpen] = useState(false);
-  const actions = getAllowedActions(role);
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
@@ -34,7 +38,7 @@ const ActionCell: React.FC<ActionCellProps> = ({ role, rowData, onAction }) => {
 
       <DropdownMenuContent align="end">
         {actions.map((action) => {
-          const { icon: Icon, label } = getActionMeta(action);
+          const { icon: Icon, label } = actionsConfig[action];
           const danger = action === "delete";
 
           return (

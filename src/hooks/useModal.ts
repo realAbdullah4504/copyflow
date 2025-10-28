@@ -1,7 +1,7 @@
 // hooks/useModal.ts
 import { useState, useCallback } from "react";
 
-export type ModalType = "delete" | "newSubmission" | "edit" | "view" | "archive" | "censorship" | null;
+export type ModalType = string | null;
 
 interface ModalState<T = null> {
   type: ModalType;
@@ -10,7 +10,10 @@ interface ModalState<T = null> {
 }
 
 export function useModal<T = null>() {
-  const [modal, setModal] = useState<ModalState<T>>({ type: null, isOpen: false });
+  const [modal, setModal] = useState<ModalState<T>>({
+    type: null,
+    isOpen: false,
+  });
 
   const openModal = useCallback((type: ModalType, data?: T) => {
     setModal({ type, isOpen: true, data });
