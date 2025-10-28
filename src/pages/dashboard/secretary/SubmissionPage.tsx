@@ -13,8 +13,9 @@ import { useAllSubmissions } from "@/hooks/queries";
 import { useSubmissionMutations } from "@/hooks/mutations";
 
 const SecretarySubmissionsPage = () => {
-  const { submissions} = useAllSubmissions();
-  const { deleteSubmission,archiveSubmission, censorSubmission } = useSubmissionMutations();
+  const { submissions } = useAllSubmissions();
+  const { deleteSubmission, archiveSubmission, censorSubmission } =
+    useSubmissionMutations();
   const { modal, openModal, closeModal } = useModal<Submission>();
 
   const handleDeleteConfirm = () => {
@@ -52,9 +53,8 @@ const SecretarySubmissionsPage = () => {
     });
   };
 
-  const handleAction = (action: ActionType, row: Submission) => {
+  const handleAction = (action: ActionType, row: Submission) =>
     openModal(action, row);
-  };
 
   const columns = getSubmissionColumns(ROLES.SECRETARY, handleAction);
 
