@@ -6,7 +6,6 @@ import {
   getCoreRowModel,
   type ColumnDef,
   type PaginationState,
-  type Table as TableType,
 } from "@tanstack/react-table";
 import { useMemo } from "react";
 import PaginationControls from "./PaginationControls";
