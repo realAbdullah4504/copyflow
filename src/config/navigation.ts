@@ -14,21 +14,9 @@ import { ROLES } from "./roles";
 
 const TEACHER_NAV_ITEMS: NavItem[] = [
   {
-    title: "Dashboard",
-    href: "/dashboard/teacher",
-    icon: LayoutDashboard,
-    roles: [ROLES.TEACHER],
-  },
-  {
     title: "Submissions",
     href: "/dashboard/teacher/submissions",
     icon: FileText,
-    roles: [ROLES.TEACHER],
-  },
-  {
-    title: "Censored Submissions",
-    href: "/dashboard/teacher/censorship",
-    icon: FileCheck,
     roles: [ROLES.TEACHER],
   },
   {
