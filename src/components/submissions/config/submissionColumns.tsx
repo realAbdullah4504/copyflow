@@ -3,7 +3,6 @@ import type { Submission, SubmissionStatus } from "@/types";
 import ActionCell from "../cells/ActionCell";
 import type { Role } from "@/config";
 import { StatusBadge } from "../ui/status-badge";
-import { UrgencyBadge } from "../ui/urgency-badge";
 import { SUBMISSION_ACTION_CONFIG } from "../actions";
 import {
   getAllowedActions,
@@ -22,7 +21,8 @@ export const getSubmissionColumns = (
   onAction: (action: string, row: Submission) => void
 ): ColumnDef<Submission>[] => {
   const actions = getAllowedActions(SUBMISSION_ALLOWED_ACTIONS, role);
-  const actionConfig = SUBMISSION_ACTION_CONFIG;
+  const hasActions = Array.isArray(actions) && actions.length > 0;
+
   const baseColumns: ColumnDef<Submission>[] = [
     ...(ROLE_COLUMNS[role] ?? []),
     { accessorKey: "subject", header: "Subject" },
@@ -48,19 +48,23 @@ export const getSubmissionColumns = (
       header: "Created",
       cell: ({ getValue }) => new Date(getValue<string>()).toLocaleString(),
     },
-    {
+  ];
+
+  // 👇 Conditionally add the Actions column
+  if (hasActions) {
+    baseColumns.push({
       id: "actions",
       header: "Actions",
       cell: ({ row }) => (
         <ActionCell
           actions={actions as string[]}
-          actionsConfig={actionConfig}
+          actionsConfig={SUBMISSION_ACTION_CONFIG}
           rowData={row.original}
           onAction={onAction}
         />
       ),
-    },
-  ];
+    });
+  }
 
   return baseColumns;
 };
