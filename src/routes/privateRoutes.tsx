@@ -3,9 +3,7 @@ import { DashboardLayout } from "@/components/layouts";
 import {
   AdminDashboard,
   AdminSubmissions,
-  AdminSettings,
   Users,
-  TeacherPage,
   TeacherSubmissionsPage,
   TeacherArchivePage,
   SecretaryPage,
@@ -42,7 +40,7 @@ export const privateRoutes: RouteObject[] = [
       {
         path: "teacher",
         children: [
-          { path: "submissions", element: <TeacherSubmissionsPage /> },
+          { index: true, element: <TeacherSubmissionsPage /> },
           { path: "archive", element: <TeacherArchivePage /> },
         ],
       },

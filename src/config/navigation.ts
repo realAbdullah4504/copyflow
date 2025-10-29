@@ -15,7 +15,7 @@ import { ROLES } from "./roles";
 const TEACHER_NAV_ITEMS: NavItem[] = [
   {
     title: "Submissions",
-    href: "/dashboard/teacher/submissions",
+    href: "/dashboard/teacher",
     icon: FileText,
     roles: [ROLES.TEACHER],
   },

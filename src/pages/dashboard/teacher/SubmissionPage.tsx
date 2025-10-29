@@ -1,4 +1,3 @@
-
 import { useAuth } from "@/hooks/useAuth";
 import { PageHeader } from "@/components/common";
 import { ROLES } from "@/config/roles";
@@ -15,21 +14,12 @@ import { useSubmissionMutations } from "@/hooks/mutations";
 const SubmissionPage = () => {
   const { user } = useAuth();
   const { submissions, isLoading } = useSubmissionsByTeacher(user?.id || "");
-  const { deleteSubmission, archiveSubmission } = useSubmissionMutations();
+  const { deleteSubmission } = useSubmissionMutations();
   const { modal, openModal, closeModal } = useModal<Submission>();
 
   const handleDeleteConfirm = () => {
     if (!modal.data) return;
-    deleteSubmission(modal.data.id,{
-      onSuccess: () => {
-        closeModal();
-      },
-    });
-  };
-
-  const handleArchiveConfirm = () => {
-    if (!modal.data) return;
-    archiveSubmission(modal.data.id,{
+    deleteSubmission(modal.data.id, {
       onSuccess: () => {
         closeModal();
       },
@@ -60,7 +50,6 @@ const SubmissionPage = () => {
         onClose={closeModal}
         handlers={{
           onDeleteConfirm: handleDeleteConfirm,
-          onArchiveConfirm: handleArchiveConfirm,
         }}
       />
     </>
