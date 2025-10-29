@@ -1,18 +1,31 @@
 import { mockSubmissions } from "@/constants";
 import type { Submission } from "@/types";
+import type { PaginationState } from "@tanstack/react-table";
 
 export const submissionService = {
-  getSubmissions: async (): Promise<Submission[]> => {
-    // In a real implementation, this would fetch from the database
-    // const { data, error } = await supabase.from('submissions').select('*');
-    // if (error) throw error;
+  getSubmissions: async ({
+    pageIndex,
+    pageSize,
+  }: PaginationState): Promise<{
+    data: Submission[];
+    total: number;
+  }> => {
     await new Promise((resolve) => setTimeout(resolve, 300));
-    return [...mockSubmissions]
+
+    const filtered = mockSubmissions
       .filter((sub) => sub.status !== "printed")
       .sort(
         (a, b) =>
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       );
+
+    const start = pageIndex * pageSize;
+    const paginated = filtered.slice(start, start + pageSize);
+
+    return {
+      data: paginated,
+      total: filtered.length,
+    };
   },
 
   getSubmissionsByTeacher: async (teacherId: string): Promise<Submission[]> => {

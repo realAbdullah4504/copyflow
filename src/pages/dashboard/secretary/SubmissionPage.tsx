@@ -9,9 +9,16 @@ import { PageHeader } from "@/components/common";
 import { useModal } from "@/hooks/useModal";
 import { useAllSubmissions } from "@/hooks/queries";
 import { useSubmissionMutations } from "@/hooks/mutations";
+import { useState } from "react";
+import type { PaginationState } from "@tanstack/react-table";
 
 const SecretarySubmissionsPage = () => {
-  const { submissions } = useAllSubmissions();
+  const [pagination, setPagination] = useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 6,
+  });
+  const { submissions, total, isLoading } = useAllSubmissions(pagination);
+
   const { deleteSubmission, printedSubmission, censorSubmission } =
     useSubmissionMutations();
   const { modal, openModal, closeModal } = useModal<Submission>();
@@ -52,7 +59,14 @@ const SecretarySubmissionsPage = () => {
         role={ROLES.SECRETARY}
         sideAction={() => openModal("newSubmission")}
       />
-      <SubmissionTable data={submissions} columns={columns} />
+      <SubmissionTable
+        data={submissions}
+        columns={columns}
+        pagination={pagination}
+        setPagination={setPagination}
+        total={total}
+        isLoading={isLoading}
+      />
       <SubmissionModal
         data={modal.data}
         type={modal.type}
