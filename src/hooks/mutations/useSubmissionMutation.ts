@@ -42,7 +42,8 @@ export const useSubmissionMutations = () => {
       submissionService.updateSubmission(id, { status: "censored" }),
     ...mutationHandlers("Submission Censored",[
       QUERY_KEYS.SUBMISSIONS,
-      QUERY_KEYS.TEACHER_CENSORED
+      QUERY_KEYS.TEACHER_CENSORED,
+      QUERY_KEYS.CENSORED_SUBMISSIONS
     ])
   });
 
@@ -51,6 +52,7 @@ export const useSubmissionMutations = () => {
       submissionService.updateSubmission(id, { status: "pending" }),
     ...mutationHandlers("Submission Approved",[
       QUERY_KEYS.SUBMISSIONS,
+      QUERY_KEYS.CENSORED_SUBMISSIONS,
       QUERY_KEYS.TEACHER_CENSORED
     ])
   });
