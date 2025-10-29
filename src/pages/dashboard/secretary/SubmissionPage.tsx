@@ -12,7 +12,7 @@ import { useSubmissionMutations } from "@/hooks/mutations";
 
 const SecretarySubmissionsPage = () => {
   const { submissions } = useAllSubmissions();
-  const { deleteSubmission, archiveSubmission, censorSubmission } =
+  const { deleteSubmission, printedSubmission, censorSubmission } =
     useSubmissionMutations();
   const { modal, openModal, closeModal } = useModal<Submission>();
 
@@ -22,10 +22,10 @@ const SecretarySubmissionsPage = () => {
     closeModal();
   };
 
-  const handleArchiveConfirm = () => {
+  const handlePrintedConfirm = () => {
     if (!modal.data) return;
 
-    archiveSubmission(modal.data.id, {
+    printedSubmission(modal.data.id, {
       onSuccess: () => {
         closeModal();
       },
@@ -61,7 +61,7 @@ const SecretarySubmissionsPage = () => {
         onClose={closeModal}
         handlers={{
           onDeleteConfirm: handleDeleteConfirm,
-          onArchiveConfirm: handleArchiveConfirm,
+          onPrintedConfirm: handlePrintedConfirm,
           onCensorshipConfirm: handleCensorshipConfirm,
         }}
       />

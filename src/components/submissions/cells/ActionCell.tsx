@@ -16,7 +16,7 @@ interface ActionCellProps<T extends GenericActionConfig> {
   actions: ActionKey<T>[]; // Allowed actions for the given role/context
   actionsConfig: T; // The config for this table type (submission, archive, etc.)
   rowData: Submission;
-  onAction: (action: ActionKey<T>, row: Submission) => void;
+  onAction?: (action: ActionKey<T>, row: Submission) => void;
 }
 
 const ActionCell: React.FC<ActionCellProps<GenericActionConfig>> = ({
@@ -46,7 +46,7 @@ const ActionCell: React.FC<ActionCellProps<GenericActionConfig>> = ({
               key={action}
               onClick={() => {
                 setOpen(false);
-                onAction(action, rowData);
+                onAction?.(action, rowData);
               }}
               className={danger ? "text-red-600" : ""}
             >

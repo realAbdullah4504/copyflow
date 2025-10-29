@@ -13,7 +13,7 @@ interface Props {
   onClose: () => void;
   handlers: {
     onDeleteConfirm?: () => void;
-    onArchiveConfirm?: () => void;
+    onPrintedConfirm?: () => void;
     onCensorshipConfirm?: () => void;
     onUnCensorshipConfirm?: () => void;
   };
@@ -66,16 +66,16 @@ const SubmissionModal = ({
           />
         )
       );
-    case "archive":
+    case "printed":
       return (
-        handlers.onArchiveConfirm &&
+        handlers.onPrintedConfirm &&
         data && (
           <ConfirmModal
             open={open}
-            title="Archive Submission"
-            buttonTitle="Archive"
-            description="Are you sure you want to archive this submission?"
-            onConfirm={() => handlers.onArchiveConfirm?.()}
+            title="Printed Submission"
+            buttonTitle="Printed"
+            description="Are you sure you want to change the status of this submission to printed?"
+            onConfirm={() => handlers.onPrintedConfirm?.()}
             onCancel={onClose}
           />
         )

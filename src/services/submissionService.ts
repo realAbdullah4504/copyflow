@@ -8,7 +8,7 @@ export const submissionService = {
     // if (error) throw error;
     await new Promise((resolve) => setTimeout(resolve, 300));
     return [...mockSubmissions]
-      .filter((sub) => sub.status !== "archived")
+      .filter((sub) => sub.status !== "printed")
       .sort(
         (a, b) =>
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
@@ -18,7 +18,7 @@ export const submissionService = {
   getSubmissionsByTeacher: async (teacherId: string): Promise<Submission[]> => {
     await new Promise((resolve) => setTimeout(resolve, 300));
     return mockSubmissions
-      .filter((s) => s.teacherId === teacherId && s.status !== "archived")
+      .filter((s) => s.teacherId === teacherId && s.status !== "printed")
       .sort(
         (a, b) =>
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
@@ -28,7 +28,7 @@ export const submissionService = {
   getArchivedSubmissions: async (): Promise<Submission[]> => {
     await new Promise((resolve) => setTimeout(resolve, 300));
     return mockSubmissions
-      .filter((s) => s.status === "archived")
+      .filter((s) => s.status === "printed")
       .sort(
         (a, b) =>
           new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
@@ -40,7 +40,7 @@ export const submissionService = {
   ): Promise<Submission[]> => {
     await new Promise((resolve) => setTimeout(resolve, 300));
     return mockSubmissions
-      .filter((s) => s.teacherId === teacherId && s.status === "archived")
+      .filter((s) => s.teacherId === teacherId && s.status === "printed")
       .sort(
         (a, b) =>
           new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()

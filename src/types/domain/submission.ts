@@ -3,11 +3,16 @@
  * Core business entities related to print submissions
  */
 
-export type SubmissionStatus = 'pending' | 'printed' | 'censored' | 'archived' ;
+export type SubmissionStatus = "pending" | "printed" | "censored";
 
-export type FileType = 'worksheet' | 'exam' | 'handout' | 'lesson_plan' | 'other';
+export type FileType =
+  | "worksheet"
+  | "exam"
+  | "handout"
+  | "lesson_plan"
+  | "other";
 
-export type PaperColor = 'white' | 'yellow' | 'blue' | 'green' | 'pink';
+export type PaperColor = "white" | "yellow" | "blue" | "green" | "pink";
 
 export interface Submission {
   id: string;
@@ -26,7 +31,7 @@ export interface Submission {
     color: boolean;
   };
   status: SubmissionStatus;
-  urgency: 'low' | 'medium' | 'high';
+  urgency: "low" | "medium" | "high";
   createdAt: Date;
   updatedAt: Date;
 }

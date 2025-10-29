@@ -26,10 +26,10 @@ export const useSubmissionMutations = () => {
     }) => submissionService.updateSubmission(id, updates),
   });
 
-  const archiveSubmission = useMutation({
+  const printedSubmission = useMutation({
     mutationFn: (id: string) =>
-      submissionService.updateSubmission(id, { status: "archived" }),
-    ...mutationHandlers("Submission Archived", [
+      submissionService.updateSubmission(id, { status: "printed" }),
+    ...mutationHandlers("Submission Printed", [
       QUERY_KEYS.SUBMISSIONS,
       QUERY_KEYS.TEACHER_SUBMISSIONS,
       QUERY_KEYS.ARCHIVED_SUBMISSIONS,
@@ -58,7 +58,8 @@ export const useSubmissionMutations = () => {
   const deleteSubmission = useMutation({
     mutationFn: (id: string) => submissionService.deleteSubmission(id),
     ...mutationHandlers("Submission Deleted", [
-      QUERY_KEYS.SUBMISSIONS,
+      QUERY_KEYS.SUBMISSIONS, 
+      QUERY_KEYS.TEACHER_SUBMISSIONS,
     ]),
   });
 
@@ -72,8 +73,8 @@ export const useSubmissionMutations = () => {
     deleteSubmission: deleteSubmission.mutate,
     deleteLoading: deleteSubmission.isPending,
 
-    archiveSubmission: archiveSubmission.mutate,
-    archiveLoading: archiveSubmission.isPending,
+    printedSubmission: printedSubmission.mutate,
+    printedLoading: printedSubmission.isPending,
 
     censorSubmission: censorSubmission.mutate,
     censorLoading: censorSubmission.isPending,
