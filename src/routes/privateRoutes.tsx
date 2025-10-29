@@ -34,7 +34,6 @@ export const privateRoutes: RouteObject[] = [
         children: [
           { index: true, element: <AdminDashboard /> },
           { path: "users", element: <Users /> },
-          { path: "settings", element: <AdminSettings /> },
           { path: "submissions", element: <AdminSubmissions /> },
           { path: "censorship", element: <AdminCensorshipPage /> },
           { path: "archive", element: <AdminArchive /> },

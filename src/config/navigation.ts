@@ -86,12 +86,6 @@ const ADMIN_NAV_ITEMS: NavItem[] = [
     roles: [ROLES.ADMIN],
   },
   {
-    title: "Settings",
-    href: "/dashboard/admin/settings",
-    icon: Settings,
-    roles: [ROLES.ADMIN],
-  },
-  {
     title: "Censored Submissions",
     href: "/dashboard/admin/censorship",
     icon: FileCheck,
