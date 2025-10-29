@@ -3,13 +3,10 @@ import type { Submission } from "@/types";
 import type { PaginationState } from "@tanstack/react-table";
 
 export const submissionService = {
-  getSubmissions: async ({
-    pageIndex,
-    pageSize,
-  }: PaginationState): Promise<{
-    data: Submission[];
-    total: number;
-  }> => {
+
+  getSubmissions: async (
+    pagination?: PaginationState
+  ): Promise<{ data: Submission[]; total: number }> => {
     await new Promise((resolve) => setTimeout(resolve, 300));
 
     const filtered = mockSubmissions
@@ -19,14 +16,24 @@ export const submissionService = {
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       );
 
-    const start = pageIndex * pageSize;
-    const paginated = filtered.slice(start, start + pageSize);
+    // ✅ if pagination is provided, slice the data accordingly
+    if (pagination) {
+      const { pageIndex, pageSize } = pagination;
+      const start = pageIndex * pageSize;
+      const paginated = filtered.slice(start, start + pageSize);
 
+      return {
+        data: paginated,
+        total: filtered.length,
+      };
+    }
     return {
-      data: paginated,
+      data: filtered,
       total: filtered.length,
     };
   },
+
+
 
   getSubmissionsByTeacher: async (teacherId: string): Promise<Submission[]> => {
     await new Promise((resolve) => setTimeout(resolve, 300));

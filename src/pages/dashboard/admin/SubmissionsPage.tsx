@@ -1,6 +1,5 @@
 import { PageHeader } from "@/components/common";
 import { ROLES } from "@/config/roles";
-import type { Submission } from "@/types";
 import {
   getSubmissionColumns,
   SubmissionTable,

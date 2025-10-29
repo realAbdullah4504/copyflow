@@ -1,6 +1,15 @@
 import { DataTable } from "@/components/common";
+import { Card } from "@/components/ui/card";
 import type { Submission } from "@/types";
-import type { ColumnDef, PaginationState } from "@tanstack/react-table";
+import {
+  useReactTable,
+  getCoreRowModel,
+  type ColumnDef,
+  type PaginationState,
+  type Table as TableType,
+} from "@tanstack/react-table";
+import { useMemo } from "react";
+import PaginationControls from "./PaginationControls";
 
 interface SubmissionTableProps {
   data: Submission[];
@@ -19,17 +28,34 @@ const SubmissionTable = ({
   total,
   isLoading,
 }: SubmissionTableProps) => {
+  const tableData = useMemo(
+    () => (total ? data.slice(0, total) : data),
+    [data, total]
+  );
+
+  const table = useReactTable<Submission>({
+    data: tableData,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+    state: {
+      pagination,
+    },
+    onPaginationChange: setPagination,
+    manualPagination: true,
+    pageCount:
+      total && pagination?.pageSize
+        ? Math.ceil(total / pagination.pageSize)
+        : undefined,
+  });
   return (
-    <div>
-      <DataTable
-        data={data}
+    <Card className="p-6 space-y-4">
+      <DataTable<Submission>
+        table={table}
         columns={columns}
-        pagination={pagination}
-        setPagination={setPagination}
-        total={total}
         isLoading={isLoading}
       />
-    </div>
+      {pagination && setPagination && <PaginationControls table={table} />}
+    </Card>
   );
 };
 

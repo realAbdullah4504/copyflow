@@ -11,6 +11,7 @@ import {
   User,
 } from "lucide-react";
 import { submissionService } from "@/services/submissionService";
+import { useAllSubmissions } from "@/hooks/queries";
 
 type StatsCardProps = {
   title: string;
@@ -59,10 +60,7 @@ const StatsCard = ({
 };
 
 export default function AdminDashboardPage() {
-  const { data: submissions = [], isLoading: isLoadingSubmissions } = useQuery({
-    queryKey: ["submissions"],
-    queryFn: submissionService.getSubmissions,
-  });
+  const { submissions, isLoading: isLoadingSubmissions } = useAllSubmissions();
 
   const { data: users = [] } = useQuery({
     queryKey: ["users"],

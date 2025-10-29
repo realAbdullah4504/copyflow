@@ -5,15 +5,13 @@ import type { PaginationState } from "@tanstack/react-table";
 
 export function useSubmissions(
   key: QueryKeys,
-  queryFn: (pagination: PaginationState) => Promise<{ data: Submission[]; total: number }>,
-  pagination: PaginationState
+  queryFn: (
+    pagination?: PaginationState
+  ) => Promise<{ data: Submission[]; total: number }>,
+  pagination?: PaginationState
 ) {
-  const {
-    data,
-    isLoading,
-    refetch,
-  } = useQuery({
-    queryKey: [key, pagination],
+  const { data, isLoading, refetch } = useQuery({
+    queryKey: pagination ? [key, pagination] : [key],
     queryFn: () => queryFn(pagination),
     placeholderData: keepPreviousData,
   });
