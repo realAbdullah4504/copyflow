@@ -45,15 +45,6 @@ export const getArchiveColumns = (
     },
 
     {
-      accessorKey: "urgency",
-      header: "Urgency",
-      cell: ({ getValue }) => {
-        const val = getValue<"low" | "medium" | "high">();
-        return <UrgencyBadge urgency={val} />;
-      },
-    },
-
-    {
       accessorKey: "createdAt",
       header: "Created",
       cell: ({ getValue }) => new Date(getValue<string>()).toLocaleString(),
@@ -63,7 +54,7 @@ export const getArchiveColumns = (
       header: "Actions",
       cell: ({ row }) => (
         <ActionCell
-          actions={actions}
+          actions={actions as string[]}
           actionsConfig={actionConfig}
           rowData={row.original}
           onAction={onAction}

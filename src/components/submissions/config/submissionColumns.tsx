@@ -43,16 +43,6 @@ export const getSubmissionColumns = (
         return <StatusBadge status={val} />;
       },
     },
-
-    {
-      accessorKey: "urgency",
-      header: "Urgency",
-      cell: ({ getValue }) => {
-        const val = getValue<"low" | "medium" | "high">();
-        return <UrgencyBadge urgency={val} />;
-      },
-    },
-
     {
       accessorKey: "createdAt",
       header: "Created",
@@ -63,7 +53,7 @@ export const getSubmissionColumns = (
       header: "Actions",
       cell: ({ row }) => (
         <ActionCell
-          actions={actions}
+          actions={actions as string[]}
           actionsConfig={actionConfig}
           rowData={row.original}
           onAction={onAction}

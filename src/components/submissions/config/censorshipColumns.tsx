@@ -41,14 +41,6 @@ export const getCensorshipColumns = (
       },
     },
     {
-      accessorKey: "urgency",
-      header: "Urgency",
-      cell: ({ getValue }) => {
-        const val = getValue<"low" | "medium" | "high">();
-        return <UrgencyBadge urgency={val} />;
-      },
-    },
-    {
       accessorKey: "createdAt",
       header: "Created",
       cell: ({ getValue }) => new Date(getValue<string>()).toLocaleString(),
