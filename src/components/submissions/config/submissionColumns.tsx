@@ -18,7 +18,7 @@ const ROLE_COLUMNS: Record<Role, ColumnDef<Submission>[]> = {
 
 export const getSubmissionColumns = (
   role: Role,
-  onAction: (action: string, row: Submission) => void
+  onAction?: (action: string, row: Submission) => void
 ): ColumnDef<Submission>[] => {
   const actions = getAllowedActions(SUBMISSION_ALLOWED_ACTIONS, role);
   const config = SUBMISSION_ACTION_CONFIG;

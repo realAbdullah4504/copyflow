@@ -1,4 +1,4 @@
-import { Eye, Edit, Trash2, Archive, LockKeyhole } from "lucide-react";
+import { Eye, Edit, Trash2, LockKeyhole, Printer } from "lucide-react";
 import type { ActionKey } from "./shared";
 
 export const SUBMISSION_ACTION_CONFIG = {
@@ -17,9 +17,9 @@ export const SUBMISSION_ACTION_CONFIG = {
     icon: Trash2,
     color: "destructive",
   },
-  archive: {
-    label: "Archive",
-    icon: Archive,
+  printed: {
+    label: "Printed",
+    icon: Printer,
     color: "default",
   },
   censorship: {

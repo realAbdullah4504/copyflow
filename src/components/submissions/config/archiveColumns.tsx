@@ -3,7 +3,7 @@ import type { Submission, SubmissionStatus } from "@/types";
 import ActionCell from "../cells/ActionCell";
 import type { Role } from "@/config";
 import { StatusBadge } from "../ui/status-badge";
-import { ARCHIVE_ACTION_CONFIG} from "../actions";
+import { ARCHIVE_ACTION_CONFIG } from "../actions";
 import {
   ARCHIVE_ALLOWED_ACTIONS,
   getAllowedActions,
@@ -18,7 +18,7 @@ const ROLE_COLUMNS: Record<Role, ColumnDef<Submission>[]> = {
 
 export const getArchiveColumns = (
   role: Role,
-  onAction: (action: string, row: Submission) => void
+  onAction?: (action: string, row: Submission) => void
 ): ColumnDef<Submission>[] => {
   const actions = getAllowedActions(ARCHIVE_ALLOWED_ACTIONS, role);
   const config = ARCHIVE_ACTION_CONFIG;
