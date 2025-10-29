@@ -10,7 +10,7 @@ export const useSubmissionMutations = () => {
     mutationFn: (
       submission: Omit<Submission, "id" | "createdAt" | "updatedAt">
     ) => submissionService.createSubmission(submission),
-    ...mutationHandlers("Submission created successfully", [
+    ...mutationHandlers("Submission Created", [
       QUERY_KEYS.SUBMISSIONS,
       QUERY_KEYS.TEACHER_SUBMISSIONS,
     ]),
@@ -24,44 +24,41 @@ export const useSubmissionMutations = () => {
       id: string;
       updates: Partial<Submission>;
     }) => submissionService.updateSubmission(id, updates),
-    ...mutationHandlers("Submission updated successfully", [
+  });
+
+  const archiveSubmission = useMutation({
+    mutationFn: (id: string) =>
+      submissionService.updateSubmission(id, { status: "archived" }),
+    ...mutationHandlers("Submission Archived", [
       QUERY_KEYS.SUBMISSIONS,
       QUERY_KEYS.TEACHER_SUBMISSIONS,
+      QUERY_KEYS.ARCHIVED_SUBMISSIONS,
+      QUERY_KEYS.TEACHER_ARCHIVED,
     ]),
+  });
+
+  const censorSubmission = useMutation({
+    mutationFn: (id: string) =>
+      submissionService.updateSubmission(id, { status: "censored" }),
+    ...mutationHandlers("Submission Censored",[
+      QUERY_KEYS.SUBMISSIONS,
+      QUERY_KEYS.TEACHER_CENSORED
+    ])
+  });
+
+  const unCensorSubmission = useMutation({
+    mutationFn: (id: string) =>
+      submissionService.updateSubmission(id, { status: "pending" }),
+    ...mutationHandlers("Submission Approved",[
+      QUERY_KEYS.SUBMISSIONS,
+      QUERY_KEYS.TEACHER_CENSORED
+    ])
   });
 
   const deleteSubmission = useMutation({
     mutationFn: (id: string) => submissionService.deleteSubmission(id),
-    ...mutationHandlers("Submission deleted successfully", [
+    ...mutationHandlers("Submission Deleted", [
       QUERY_KEYS.SUBMISSIONS,
-      QUERY_KEYS.ARCHIVED_SUBMISSIONS,
-    ]),
-  });
-
-  const archiveSubmission = useMutation({
-    mutationFn: (id: string) => submissionService.archiveSubmission(id),
-    ...mutationHandlers("Submission archived successfully", [
-      QUERY_KEYS.SUBMISSIONS,
-      QUERY_KEYS.ARCHIVED_SUBMISSIONS,
-      QUERY_KEYS.TEACHER_ARCHIVED,
-      QUERY_KEYS.TEACHER_SUBMISSIONS,
-    ]),
-  });
-  
-
-  const censorSubmission = useMutation({
-    mutationFn: (id: string) => submissionService.censorSubmission(id),
-    ...mutationHandlers("Submission censored successfully", [
-      QUERY_KEYS.SUBMISSIONS,
-      QUERY_KEYS.CENSORED_SUBMISSIONS,
-    ]),
-  });
-
-  const unCensorSubmission = useMutation({
-    mutationFn: (id: string) => submissionService.unCensorSubmission(id),
-    ...mutationHandlers("Submission uncensored successfully", [
-      QUERY_KEYS.SUBMISSIONS,
-      QUERY_KEYS.CENSORED_SUBMISSIONS,
     ]),
   });
 
