@@ -42,7 +42,7 @@ const PaginationControls = <TData,>({
           }}
         >
           <SelectTrigger className="h-8 w-[70px]">
-            <SelectValue placeholder={pageSize} />
+            <SelectValue>{pageSize}</SelectValue>
           </SelectTrigger>
           <SelectContent side="top">
             {pageSizeOptions.map((size) => (
@@ -107,4 +107,4 @@ const PaginationControls = <TData,>({
   );
 };
 
-export { PaginationControls };
+export default PaginationControls;
