@@ -21,6 +21,7 @@ export const getSubmissionColumns = (
   onAction: (action: string, row: Submission) => void
 ): ColumnDef<Submission>[] => {
   const actions = getAllowedActions(SUBMISSION_ALLOWED_ACTIONS, role);
+  const config = SUBMISSION_ACTION_CONFIG;
   const hasActions = Array.isArray(actions) && actions.length > 0;
 
   const baseColumns: ColumnDef<Submission>[] = [
@@ -50,7 +51,6 @@ export const getSubmissionColumns = (
     },
   ];
 
-  // 👇 Conditionally add the Actions column
   if (hasActions) {
     baseColumns.push({
       id: "actions",
@@ -58,7 +58,7 @@ export const getSubmissionColumns = (
       cell: ({ row }) => (
         <ActionCell
           actions={actions as string[]}
-          actionsConfig={SUBMISSION_ACTION_CONFIG}
+          actionsConfig={config}
           rowData={row.original}
           onAction={onAction}
         />

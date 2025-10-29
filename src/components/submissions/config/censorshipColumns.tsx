@@ -1,15 +1,18 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import type { Submission, SubmissionStatus } from "@/types";
 import ActionCell from "../cells/ActionCell";
-import { getAllowedActions, type Role } from "@/config";
+import type { Role } from "@/config";
 import { StatusBadge } from "../ui/status-badge";
-import { UrgencyBadge } from "../ui/urgency-badge";
-import { CENSORSHIP_ALLOWED_ACTIONS } from "@/config/permissions/censorshipPermissions";
-import { CENSORSHIP_ACTION_CONFIG } from "../actions";
+import { CENSORSHIP_ACTION_CONFIG} from "../actions";
+import {
+  CENSORSHIP_ALLOWED_ACTIONS,
+  getAllowedActions,
+} from "@/config/permissions";
+
 const ROLE_COLUMNS: Record<Role, ColumnDef<Submission>[]> = {
   admin: [{ accessorKey: "teacherName", header: "Teacher" }],
   teacher: [],
-  secretary: [],
+  secretary: [{ accessorKey: "teacherName", header: "Teacher" }],
   principal: [{ accessorKey: "teacherName", header: "Teacher" }],
 };
 
@@ -18,8 +21,9 @@ export const getCensorshipColumns = (
   onAction: (action: string, row: Submission) => void
 ): ColumnDef<Submission>[] => {
   const actions = getAllowedActions(CENSORSHIP_ALLOWED_ACTIONS, role);
-  const actionConfig = CENSORSHIP_ACTION_CONFIG;
-  
+  const config = CENSORSHIP_ACTION_CONFIG;
+  const hasActions = Array.isArray(actions) && actions.length > 0;
+
   const baseColumns: ColumnDef<Submission>[] = [
     ...(ROLE_COLUMNS[role] ?? []),
     { accessorKey: "subject", header: "Subject" },
@@ -45,19 +49,22 @@ export const getCensorshipColumns = (
       header: "Created",
       cell: ({ getValue }) => new Date(getValue<string>()).toLocaleString(),
     },
-    {
+  ];
+
+  if (hasActions) {
+    baseColumns.push({
       id: "actions",
       header: "Actions",
       cell: ({ row }) => (
         <ActionCell
           actions={actions as string[]}
-          actionsConfig={actionConfig}
+          actionsConfig={config}
           rowData={row.original}
           onAction={onAction}
         />
       ),
-    },
-  ];
+    });
+  }
 
   return baseColumns;
 };
