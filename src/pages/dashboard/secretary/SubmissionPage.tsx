@@ -15,7 +15,7 @@ import type { PaginationState } from "@tanstack/react-table";
 const SecretarySubmissionsPage = () => {
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
-    pageSize: 6,
+    pageSize: 7,
   });
   const { submissions, total, isLoading } = useAllSubmissions(pagination);
 

@@ -46,6 +46,7 @@ const SubmissionTable = ({
         ? Math.ceil(total / pagination.pageSize)
         : undefined,
   });
+  
   return (
     <Card className="p-6 space-y-4">
       <DataTable<Submission>
