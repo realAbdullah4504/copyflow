@@ -17,7 +17,9 @@ const SecretarySubmissionsPage = () => {
     pageIndex: 0,
     pageSize: 7,
   });
-  const { submissions, total, isLoading } = useAllSubmissions(pagination);
+  const submissionParams = { pagination };
+
+  const { submissions, total, isLoading } = useAllSubmissions(submissionParams);
 
   const { deleteSubmission, printedSubmission, censorSubmission } =
     useSubmissionMutations();
