@@ -15,12 +15,14 @@ interface DataTableProps<TData> {
   table: TableType<TData>;
   columns: ColumnDef<TData>[];
   isLoading?: boolean;
+  showSorting?: boolean;
 }
 
 const DataTable = <TData,>({
   table,
   columns,
   isLoading = false,
+  showSorting = false,
 }: DataTableProps<TData>) => {
   return (
     <div className="rounded-md border">
@@ -32,7 +34,7 @@ const DataTable = <TData,>({
                 <TableHead 
                   key={header.id}
                   className={cn({
-                    'cursor-pointer select-none': header.column.getCanSort(),
+                    'cursor-pointer select-none': header.column.getCanSort() && showSorting,
                   })}
                   onClick={header.column.getToggleSortingHandler()}
                 >
@@ -41,7 +43,7 @@ const DataTable = <TData,>({
                       header.column.columnDef.header,
                       header.getContext()
                     )}
-                    {header.column.getCanSort() && (
+                    {header.column.getCanSort() && showSorting && (
                       <span className="ml-2">
                         {(() => {
                           const isSorted = header.column.getIsSorted();

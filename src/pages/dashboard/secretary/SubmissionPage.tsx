@@ -80,6 +80,7 @@ const SecretarySubmissionsPage = () => {
         onSortingChange={setSorting}
         showFilters
         showPagination
+        showSorting
       />
 
       <SubmissionModal
