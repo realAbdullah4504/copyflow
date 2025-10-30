@@ -9,7 +9,7 @@ import { PageHeader } from "@/components/common";
 import { useModal } from "@/hooks/useModal";
 import { useAllSubmissions } from "@/hooks/queries";
 import { useSubmissionMutations } from "@/hooks/mutations";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type {
   PaginationState,
   ColumnFiltersState,
@@ -31,6 +31,12 @@ const SecretarySubmissionsPage = () => {
   const { deleteSubmission, printedSubmission, censorSubmission } =
     useSubmissionMutations();
   const { modal, openModal, closeModal } = useModal<Submission>();
+
+  useEffect(() => {
+    if (setPagination) {
+      setPagination((p) => ({ ...p, pageIndex: 0 }));
+    }
+  }, [columnFilters, setPagination]);
 
   const handleDeleteConfirm = () => {
     if (!modal.data) return;

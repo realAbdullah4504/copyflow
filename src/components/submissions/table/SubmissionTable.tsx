@@ -66,13 +66,6 @@ const SubmissionTable = ({
         : undefined,
   });
 
-  // Reset to first page when filters change (server-side filtering UX)
-  useEffect(() => {
-    if (setPagination) {
-      setPagination((p) => ({ ...p, pageIndex: 0 }));
-    }
-  }, [columnFilters, setPagination]);
-
   return (
     <Card className="p-6 space-y-4">
       {showFilters && <SubmissionFilters table={table} data={tableData} />}
