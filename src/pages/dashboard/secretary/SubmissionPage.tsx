@@ -10,14 +10,21 @@ import { useModal } from "@/hooks/useModal";
 import { useAllSubmissions } from "@/hooks/queries";
 import { useSubmissionMutations } from "@/hooks/mutations";
 import { useState } from "react";
-import type { PaginationState } from "@tanstack/react-table";
+import type {
+  PaginationState,
+  ColumnFiltersState,
+} from "@tanstack/react-table";
 
 const SecretarySubmissionsPage = () => {
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
     pageSize: 7,
   });
-  const submissionParams = { pagination };
+
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+
+  const submissionParams = { pagination, columnFilters };
+  const setSubmissionParams = { setPagination, setColumnFilters };
 
   const { submissions, total, isLoading } = useAllSubmissions(submissionParams);
 
@@ -64,10 +71,11 @@ const SecretarySubmissionsPage = () => {
       <SubmissionTable
         data={submissions}
         columns={columns}
-        pagination={pagination}
-        setPagination={setPagination}
+        submissionParams={submissionParams}
+        setSubmissionParams={setSubmissionParams}
         total={total}
         isLoading={isLoading}
+        showFilters
       />
       <SubmissionModal
         data={modal.data}

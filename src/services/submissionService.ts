@@ -6,16 +6,57 @@ export const submissionService = {
   getSubmissions: async (
     params?: SubmissionQueryParams
   ): Promise<{ data: Submission[]; total: number }> => {
-    const { pagination } = params ?? {};
+    const { pagination, filters } = params ?? {};
     console.log("pagination", pagination);
     await new Promise((resolve) => setTimeout(resolve, 300));
 
-    const filtered = mockSubmissions
+    let filtered = mockSubmissions
       .filter((sub) => sub.status !== "printed")
       .sort(
         (a, b) =>
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       );
+
+    if (filters) {
+      const { grade, fileType, status, timeFrame } = filters;
+
+      if (grade) {
+        filtered = filtered.filter((s) => s.grade === grade);
+      }
+      if (fileType) {
+        filtered = filtered.filter((s) => s.fileType === fileType);
+      }
+      if (status) {
+        filtered = filtered.filter((s) => s.status === status);
+      }
+      if (timeFrame && timeFrame !== "all") {
+        const now = new Date();
+        let from: Date | null = null;
+        switch (timeFrame) {
+          case "today": {
+            from = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            break;
+          }
+          case "7d": {
+            from = new Date(now);
+            from.setDate(from.getDate() - 7);
+            break;
+          }
+          case "30d": {
+            from = new Date(now);
+            from.setDate(from.getDate() - 30);
+            break;
+          }
+          case "this_month": {
+            from = new Date(now.getFullYear(), now.getMonth(), 1);
+            break;
+          }
+        }
+        if (from) {
+          filtered = filtered.filter((s) => new Date(s.createdAt) >= from);
+        }
+      }
+    }
 
     //pagination stuff
     if (pagination) {

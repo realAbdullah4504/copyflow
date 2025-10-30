@@ -6,49 +6,76 @@ import {
   getCoreRowModel,
   type ColumnDef,
   type PaginationState,
+  type ColumnFiltersState,
 } from "@tanstack/react-table";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import PaginationControls from "./PaginationControls";
+import SubmissionFilters from "./SubmissionFilters";
 
+type submissionParams = {
+  pagination?: PaginationState;
+  columnFilters?: ColumnFiltersState;
+};
+
+type submissionParamsSet = {
+  setPagination?: React.Dispatch<React.SetStateAction<PaginationState>>;
+  setColumnFilters?: React.Dispatch<React.SetStateAction<ColumnFiltersState>>;
+};
 interface SubmissionTableProps {
   data: Submission[];
   columns: ColumnDef<Submission>[];
-  pagination?: PaginationState;
-  setPagination?: React.Dispatch<React.SetStateAction<PaginationState>>;
+  submissionParams?: submissionParams;
+  setSubmissionParams?: submissionParamsSet;
   total?: number;
   isLoading?: boolean;
+  showFilters?: boolean;
 }
 
 const SubmissionTable = ({
   data,
   columns,
-  pagination,
-  setPagination,
+  submissionParams,
+  setSubmissionParams,
   total,
   isLoading,
+  showFilters = false,
 }: SubmissionTableProps) => {
   const tableData = useMemo(
     () => (total ? data.slice(0, total) : data),
     [data, total]
   );
 
+  const { pagination, columnFilters } = submissionParams || {};
+  const { setPagination, setColumnFilters } = setSubmissionParams || {};
+
   const table = useReactTable<Submission>({
     data: tableData,
-    columns,
+    columns: columns,
     getCoreRowModel: getCoreRowModel(),
+    manualFiltering: true,
     state: {
       pagination,
+      columnFilters,
     },
     onPaginationChange: setPagination,
+    onColumnFiltersChange: setColumnFilters,
     manualPagination: true,
     pageCount:
       total && pagination?.pageSize
         ? Math.ceil(total / pagination.pageSize)
         : undefined,
   });
-  
+
+  // Reset to first page when filters change (server-side filtering UX)
+  useEffect(() => {
+    if (setPagination) {
+      setPagination((p) => ({ ...p, pageIndex: 0 }));
+    }
+  }, [columnFilters, setPagination]);
+
   return (
     <Card className="p-6 space-y-4">
+      {showFilters && <SubmissionFilters table={table} data={tableData} />}
       <DataTable<Submission>
         table={table}
         columns={columns}
