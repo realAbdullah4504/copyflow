@@ -13,9 +13,17 @@ export type SubmissionFilters = {
   timeFrame?: TimeFrame;
 };
 
+export type SortDirection = 'asc' | 'desc';
+
+export type SubmissionSort = {
+  id: string;
+  desc: boolean;
+};
+
 export type SubmissionQueryParams = {
   pagination?: PaginationState;
   filters?: SubmissionFilters;
+  sorting?: SubmissionSort[];
 };
 
 export const useAllSubmissions = (params?: SubmissionQueryParams) => {

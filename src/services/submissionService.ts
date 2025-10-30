@@ -6,16 +6,76 @@ export const submissionService = {
   getSubmissions: async (
     params?: SubmissionQueryParams
   ): Promise<{ data: Submission[]; total: number }> => {
-    const { pagination, filters } = params ?? {};
+
+    console.log(params)
+    const { pagination, filters, sorting } = params ?? {};
 
     await new Promise((resolve) => setTimeout(resolve, 300));
 
-    let filtered = mockSubmissions
-      .filter((sub) => sub.status !== "printed")
-      .sort(
+    let filtered = mockSubmissions.filter((sub) => sub.status !== "printed");
+
+    // Apply sorting if specified
+    if (sorting && sorting.length > 0) {
+      filtered.sort((a, b) => {
+        for (const sort of sorting) {
+          const aValue = a[sort.id as keyof Submission];
+          const bValue = b[sort.id as keyof Submission];
+          
+          // Handle different data types for sorting
+          if (aValue === bValue) continue;
+          
+          if (aValue === null || aValue === undefined) return sort.desc ? -1 : 1;
+          if (bValue === null || bValue === undefined) return sort.desc ? 1 : -1;
+          
+          if (sort.id === 'grade' && typeof aValue === 'string' && typeof bValue === 'string') {
+            // Special handling for grade sorting (e.g., '9A', '10B', '12B')
+            const gradeRegex = /^(\d+)([A-Za-z]*)$/;
+            const aMatch = aValue.match(gradeRegex);
+            const bMatch = bValue.match(gradeRegex);
+            
+            if (aMatch && bMatch) {
+              const aNum = parseInt(aMatch[1], 10);
+              const bNum = parseInt(bMatch[1], 10);
+              
+              // First compare the numeric part
+              if (aNum !== bNum) {
+                return sort.desc ? bNum - aNum : aNum - bNum;
+              }
+              
+              // If numeric parts are equal, compare the letter part
+              const aLetter = aMatch[2] || '';
+              const bLetter = bMatch[2] || '';
+              const letterCompare = aLetter.localeCompare(bLetter);
+              
+              return sort.desc ? -letterCompare : letterCompare;
+            }
+          }
+          
+          // Default string comparison for other string fields
+          if (typeof aValue === 'string' && typeof bValue === 'string') {
+            return sort.desc 
+              ? bValue.localeCompare(aValue)
+              : aValue.localeCompare(bValue);
+          }
+          
+          if (aValue instanceof Date && bValue instanceof Date) {
+            return sort.desc 
+              ? bValue.getTime() - aValue.getTime()
+              : aValue.getTime() - bValue.getTime();
+          }
+          
+          if (aValue < bValue) return sort.desc ? 1 : -1;
+          if (aValue > bValue) return sort.desc ? -1 : 1;
+        }
+        return 0;
+      });
+    } else {
+      // Default sorting by createdAt desc if no sorting is specified
+      filtered.sort(
         (a, b) =>
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       );
+    }
 
     if (filters) {
       const { grade, fileType, status, timeFrame } = filters;

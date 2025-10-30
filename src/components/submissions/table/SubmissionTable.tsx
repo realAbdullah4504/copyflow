@@ -7,6 +7,7 @@ import {
   type ColumnDef,
   type PaginationState,
   type ColumnFiltersState,
+  type SortingState,
 } from "@tanstack/react-table";
 import { useMemo } from "react";
 import PaginationControls from "./PaginationControls";
@@ -17,10 +18,12 @@ interface SubmissionTableProps {
   columns: ColumnDef<Submission>[];
   pagination?: PaginationState;
   columnFilters?: ColumnFiltersState;
+  sorting?: SortingState;
   onColumnFiltersChange?: React.Dispatch<
     React.SetStateAction<ColumnFiltersState>
   >;
   onPaginationChange?: React.Dispatch<React.SetStateAction<PaginationState>>;
+  onSortingChange?: React.Dispatch<React.SetStateAction<SortingState>>;
   total?: number;
   isLoading?: boolean;
   showFilters?: boolean;
@@ -32,8 +35,10 @@ const SubmissionTable = ({
   columns,
   pagination,
   columnFilters,
+  sorting,
   onPaginationChange,
   onColumnFiltersChange,
+  onSortingChange,
   total,
   isLoading,
   showFilters = false,
@@ -52,10 +57,13 @@ const SubmissionTable = ({
     state: {
       pagination,
       columnFilters,
+      sorting,
     },
     onPaginationChange,
     onColumnFiltersChange,
+    onSortingChange,
     manualPagination: true,
+    manualSorting: true,
     pageCount:
       total && pagination?.pageSize
         ? Math.ceil(total / pagination.pageSize)

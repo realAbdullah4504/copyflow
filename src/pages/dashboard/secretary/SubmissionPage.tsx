@@ -19,11 +19,14 @@ const SecretarySubmissionsPage = () => {
     filters,
     columnFilters,
     setColumnFilters,
+    sorting,
+    setSorting,
   } = useTableParams();
 
   const { submissions, total, isLoading } = useAllSubmissions({
     pagination,
     filters,
+    sorting,
   });
 
   const { deleteSubmission, printedSubmission, censorSubmission } =
@@ -33,7 +36,7 @@ const SecretarySubmissionsPage = () => {
 
   useEffect(() => {
     setPagination((prev) => ({ ...prev, pageIndex: 0 }));
-  }, [filters, setPagination]);
+  }, [filters, setPagination, sorting]);
 
   const handlers = {
     onDeleteConfirm: () => {
@@ -69,10 +72,12 @@ const SecretarySubmissionsPage = () => {
         columns={columns}
         pagination={pagination}
         columnFilters={columnFilters}
+        sorting={sorting}
         total={total}
         isLoading={isLoading}
         onPaginationChange={setPagination}
         onColumnFiltersChange={setColumnFilters}
+        onSortingChange={setSorting}
         showFilters
         showPagination
       />
