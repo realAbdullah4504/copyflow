@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { ROLES } from "@/config/roles";
 import type { Submission } from "@/types";
 import {
@@ -9,25 +10,16 @@ import { PageHeader } from "@/components/common";
 import { useModal } from "@/hooks/useModal";
 import { useAllSubmissions } from "@/hooks/queries";
 import { useSubmissionMutations } from "@/hooks/mutations";
-import { useState, useEffect, useMemo } from "react";
-import type {
-  PaginationState,
-  ColumnFiltersState,
-} from "@tanstack/react-table";
-import { toFilterObject } from "@/utils";
+import { useTableParams } from "@/hooks";
 
 const SecretarySubmissionsPage = () => {
-  const [pagination, setPagination] = useState<PaginationState>({
-    pageIndex: 0,
-    pageSize: 5,
-  });
-
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-
-  const filters = useMemo(() => toFilterObject(columnFilters), [columnFilters]);
-
-  const submissionParams = { pagination, columnFilters };
-  const setSubmissionParams = { setPagination, setColumnFilters };
+  const {
+    pagination,
+    setPagination,
+    filters,
+    columnFilters,
+    setColumnFilters,
+  } = useTableParams();
 
   const { submissions, total, isLoading } = useAllSubmissions({
     pagination,
@@ -36,38 +28,29 @@ const SecretarySubmissionsPage = () => {
 
   const { deleteSubmission, printedSubmission, censorSubmission } =
     useSubmissionMutations();
+
   const { modal, openModal, closeModal } = useModal<Submission>();
 
   useEffect(() => {
-    if (setPagination) {
-      setPagination((p) => ({ ...p, pageIndex: 0 }));
-    }
-  }, [columnFilters, setPagination]);
+    setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+  }, [filters, setPagination]);
 
-  const handleDeleteConfirm = () => {
-    if (!modal.data) return;
-    deleteSubmission(modal.data.id);
-    closeModal();
+  const handlers = {
+    onDeleteConfirm: () => {
+      if (!modal.data) return;
+      deleteSubmission(modal.data.id);
+      closeModal();
+    },
+    onPrintedConfirm: () => {
+      if (!modal.data) return;
+      printedSubmission(modal.data.id, { onSuccess: closeModal });
+    },
+    onCensorshipConfirm: () => {
+      if (!modal.data) return;
+      censorSubmission(modal.data.id, { onSuccess: closeModal });
+    },
   };
 
-  const handlePrintedConfirm = () => {
-    if (!modal.data) return;
-
-    printedSubmission(modal.data.id, {
-      onSuccess: () => {
-        closeModal();
-      },
-    });
-  };
-
-  const handleCensorshipConfirm = () => {
-    if (!modal.data) return;
-    censorSubmission(modal.data.id, {
-      onSuccess: () => {
-        closeModal();
-      },
-    });
-  };
   const handleAction = (action: string, row: Submission) =>
     openModal(action, row);
 
@@ -80,26 +63,27 @@ const SecretarySubmissionsPage = () => {
         role={ROLES.SECRETARY}
         sideAction={() => openModal("newSubmission")}
       />
+
       <SubmissionTable
         data={submissions}
         columns={columns}
-        submissionParams={submissionParams}
-        setSubmissionParams={setSubmissionParams}
+        pagination={pagination}
+        columnFilters={columnFilters}
         total={total}
         isLoading={isLoading}
+        onPaginationChange={setPagination}
+        onColumnFiltersChange={setColumnFilters}
         showFilters
+        showPagination
       />
+
       <SubmissionModal
         data={modal.data}
         type={modal.type}
         open={modal.isOpen}
         onOpenChange={closeModal}
         onClose={closeModal}
-        handlers={{
-          onDeleteConfirm: handleDeleteConfirm,
-          onPrintedConfirm: handlePrintedConfirm,
-          onCensorshipConfirm: handleCensorshipConfirm,
-        }}
+        handlers={handlers}
       />
     </>
   );

@@ -8,45 +8,41 @@ import {
   type PaginationState,
   type ColumnFiltersState,
 } from "@tanstack/react-table";
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import PaginationControls from "./PaginationControls";
 import SubmissionFilters from "./SubmissionFilters";
 
-type submissionParams = {
-  pagination?: PaginationState;
-  columnFilters?: ColumnFiltersState;
-};
-
-type submissionParamsSet = {
-  setPagination?: React.Dispatch<React.SetStateAction<PaginationState>>;
-  setColumnFilters?: React.Dispatch<React.SetStateAction<ColumnFiltersState>>;
-};
 interface SubmissionTableProps {
   data: Submission[];
   columns: ColumnDef<Submission>[];
-  submissionParams?: submissionParams;
-  setSubmissionParams?: submissionParamsSet;
+  pagination?: PaginationState;
+  columnFilters?: ColumnFiltersState;
+  onColumnFiltersChange?: React.Dispatch<
+    React.SetStateAction<ColumnFiltersState>
+  >;
+  onPaginationChange?: React.Dispatch<React.SetStateAction<PaginationState>>;
   total?: number;
   isLoading?: boolean;
   showFilters?: boolean;
+  showPagination?: boolean;
 }
 
 const SubmissionTable = ({
   data,
   columns,
-  submissionParams,
-  setSubmissionParams,
+  pagination,
+  columnFilters,
+  onPaginationChange,
+  onColumnFiltersChange,
   total,
   isLoading,
   showFilters = false,
+  showPagination = true,
 }: SubmissionTableProps) => {
   const tableData = useMemo(
     () => (total ? data.slice(0, total) : data),
     [data, total]
   );
-
-  const { pagination, columnFilters } = submissionParams || {};
-  const { setPagination, setColumnFilters } = setSubmissionParams || {};
 
   const table = useReactTable<Submission>({
     data: tableData,
@@ -57,8 +53,8 @@ const SubmissionTable = ({
       pagination,
       columnFilters,
     },
-    onPaginationChange: setPagination,
-    onColumnFiltersChange: setColumnFilters,
+    onPaginationChange,
+    onColumnFiltersChange,
     manualPagination: true,
     pageCount:
       total && pagination?.pageSize
@@ -68,13 +64,17 @@ const SubmissionTable = ({
 
   return (
     <Card className="p-6 space-y-4">
-      {showFilters && <SubmissionFilters table={table} data={tableData} />}
+      {showFilters && columnFilters && (
+        <SubmissionFilters table={table} data={tableData} />
+      )}
       <DataTable<Submission>
         table={table}
         columns={columns}
         isLoading={isLoading}
       />
-      {pagination && setPagination && <PaginationControls table={table} />}
+      {showPagination && pagination && onPaginationChange && (
+        <PaginationControls table={table} />
+      )}
     </Card>
   );
 };
