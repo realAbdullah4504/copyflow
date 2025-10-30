@@ -3,9 +3,14 @@ import { useSubmissions } from "./useSubmissions";
 import { QUERY_KEYS } from "@/config";
 
 export const useCensoredSubmissionsByTeacher = (teacherId: string) => {
-  const { submissions, isLoading } = useSubmissions(
-    QUERY_KEYS.TEACHER_CENSORED,
-    () => submissionService.getCensoredSubmissionsByTeacher(teacherId),
+  const { data, isLoading } = useSubmissions(
+    [QUERY_KEYS.TEACHER_CENSORED, teacherId],
+    async () => {
+      const data = await submissionService.getCensoredSubmissionsByTeacher(
+        teacherId
+      );
+      return { data, total: data.length };
+    }
   );
-  return { submissions, isLoading };
+  return { submissions: data?.data || [], total: data?.total || 0, isLoading };
 };
