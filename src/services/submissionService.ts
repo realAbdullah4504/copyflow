@@ -6,8 +6,6 @@ export const submissionService = {
   getSubmissions: async (
     params?: SubmissionQueryParams
   ): Promise<{ data: Submission[]; total: number }> => {
-
-    console.log(params)
     const { pagination, filters, sorting } = params ?? {};
 
     await new Promise((resolve) => setTimeout(resolve, 300));
