@@ -3,11 +3,11 @@ import { submissionService } from "@/services/submissionService";
 import { QUERY_KEYS } from "@/config";
 import type { PaginationState } from "@tanstack/react-table";
 
-type UseAllSubmissionsParams = {
+export type SubmissionQueryParams = {
   pagination?: PaginationState;
 };
 
-export const useAllSubmissions = (params?: UseAllSubmissionsParams) => {
+export const useAllSubmissions = (params?: SubmissionQueryParams) => {
   const queryKey = params
     ? [QUERY_KEYS.SUBMISSIONS, params]
     : [QUERY_KEYS.SUBMISSIONS];

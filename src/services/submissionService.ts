@@ -1,6 +1,6 @@
 import { mockSubmissions } from "@/constants";
-import type { Submission } from "@/types";
 import type { SubmissionQueryParams } from "@/hooks/queries";
+import type { Submission } from "@/types";
 
 export const submissionService = {
   getSubmissions: async (
