@@ -34,10 +34,6 @@ const SecretarySubmissionsPage = () => {
 
   const { modal, openModal, closeModal } = useModal<Submission>();
 
-  useEffect(() => {
-    setPagination((prev) => ({ ...prev, pageIndex: 0 }));
-  }, [filters, setPagination, sorting]);
-
   const handlers = {
     onDeleteConfirm: () => {
       if (!modal.data) return;

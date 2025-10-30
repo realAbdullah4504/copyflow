@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import type {
   PaginationState,
   ColumnFiltersState,
@@ -16,6 +16,9 @@ export const useTableParams = () => {
   const [sorting, setSorting] = useState<SortingState>([]);
 
   const filters = useMemo(() => toFilterObject(columnFilters), [columnFilters]);
+  useEffect(() => {
+    setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+  }, [filters, setPagination, sorting]);
 
   return {
     pagination,
