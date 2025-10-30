@@ -9,24 +9,30 @@ import { PageHeader } from "@/components/common";
 import { useModal } from "@/hooks/useModal";
 import { useAllSubmissions } from "@/hooks/queries";
 import { useSubmissionMutations } from "@/hooks/mutations";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import type {
   PaginationState,
   ColumnFiltersState,
 } from "@tanstack/react-table";
+import { toFilterObject } from "@/utils";
 
 const SecretarySubmissionsPage = () => {
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
-    pageSize: 7,
+    pageSize: 5,
   });
 
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
+  const filters = useMemo(() => toFilterObject(columnFilters), [columnFilters]);
+
   const submissionParams = { pagination, columnFilters };
   const setSubmissionParams = { setPagination, setColumnFilters };
 
-  const { submissions, total, isLoading } = useAllSubmissions(submissionParams);
+  const { submissions, total, isLoading } = useAllSubmissions({
+    pagination,
+    filters,
+  });
 
   const { deleteSubmission, printedSubmission, censorSubmission } =
     useSubmissionMutations();

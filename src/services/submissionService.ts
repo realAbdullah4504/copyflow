@@ -7,7 +7,7 @@ export const submissionService = {
     params?: SubmissionQueryParams
   ): Promise<{ data: Submission[]; total: number }> => {
     const { pagination, filters } = params ?? {};
-    console.log("pagination", pagination);
+
     await new Promise((resolve) => setTimeout(resolve, 300));
 
     let filtered = mockSubmissions
