@@ -26,14 +26,28 @@ export const submissionService = {
     };
   },
 
-  getSubmissionsByTeacher: async (teacherId: string): Promise<Submission[]> => {
+  getSubmissionsByTeacher: async (
+    teacherId: string,
+    params?: SubmissionQueryParams
+  ): Promise<{ data: Submission[]; total: number }> => {
+    const { pagination, filters, sorting } = params ?? {};
     await new Promise((resolve) => setTimeout(resolve, 300));
-    return mockSubmissions
-      .filter((s) => s.teacherId === teacherId && s.status !== "printed")
-      .sort(
-        (a, b) =>
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-      );
+    let filtered = mockSubmissions.filter(
+      (s) => s.teacherId === teacherId && s.status !== "printed"
+    );
+
+    // Apply sorting if specified
+    filtered = sortData(filtered, sorting);
+
+    // Apply filters if specified
+    filtered = filterData(filtered, filters);
+
+    //pagination stuff
+    const paginated = paginateData(filtered, pagination);
+    return {
+      data: paginated.data,
+      total: paginated.total,
+    };
   },
 
   getArchivedSubmissions: async (
@@ -64,8 +78,8 @@ export const submissionService = {
     teacherId: string,
     params?: SubmissionQueryParams
   ): Promise<{ data: Submission[]; total: number }> => {
-    await new Promise((resolve) => setTimeout(resolve, 300));
     const { pagination, filters, sorting } = params ?? {};
+    await new Promise((resolve) => setTimeout(resolve, 300));
     let filtered = mockSubmissions.filter(
       (sub) => sub.teacherId === teacherId && sub.status === "printed"
     );
@@ -107,15 +121,27 @@ export const submissionService = {
   },
 
   getCensoredSubmissionsByTeacher: async (
-    teacherId: string
-  ): Promise<Submission[]> => {
+    teacherId: string,
+    params?: SubmissionQueryParams
+  ): Promise<{ data: Submission[]; total: number }> => {
+    const { pagination, filters, sorting } = params ?? {};
     await new Promise((resolve) => setTimeout(resolve, 300));
-    return mockSubmissions
-      .filter((s) => s.teacherId === teacherId && s.status === "censored")
-      .sort(
-        (a, b) =>
-          new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
-      );
+    let filtered = mockSubmissions.filter(
+      (s) => s.teacherId === teacherId && s.status === "censored"
+    );
+
+    // Apply sorting if specified
+    filtered = sortData(filtered, sorting);
+
+    // Apply filters if specified
+    filtered = filterData(filtered, filters);
+
+    //pagination stuff
+    const paginated = paginateData(filtered, pagination);
+    return {
+      data: paginated.data,
+      total: paginated.total,
+    };
   },
 
   getCensoredSubmissionsByTeacher: async (
