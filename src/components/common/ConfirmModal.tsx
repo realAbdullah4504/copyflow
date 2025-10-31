@@ -50,7 +50,15 @@ const ConfirmModal = ({
           <Button variant="outline" onClick={handleCancel}>
             Cancel
           </Button>
-          <Button variant={variant} onClick={handleConfirm}>
+          <Button
+            variant={variant}
+            className={
+              buttonTitle === "Delete"
+                ? "bg-red-600 hover:bg-red-700"
+                : "bg-blue-600 hover:bg-blue-700"
+            }
+            onClick={handleConfirm}
+          >
             {buttonTitle}
           </Button>
         </DialogFooter>

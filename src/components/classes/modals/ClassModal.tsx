@@ -24,7 +24,7 @@ const ClassModal = ({
   handlers,
 }: Props) => {
   if (!type) return null;
-
+  console.log("type", type);
   switch (type) {
     case "newClass":
       return <NewClassModal open={open} onOpenChange={onOpenChange} />;
@@ -38,7 +38,7 @@ const ClassModal = ({
           />
         )
       );
-    case "delete":
+    case "deleteClass":
       return (
         handlers.onDeleteConfirm &&
         data && (
