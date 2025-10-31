@@ -61,15 +61,27 @@ export const submissionService = {
   },
 
   getArchivedSubmissionsByTeacher: async (
-    teacherId: string
-  ): Promise<Submission[]> => {
+    teacherId: string,
+    params?: SubmissionQueryParams
+  ): Promise<{ data: Submission[]; total: number }> => {
     await new Promise((resolve) => setTimeout(resolve, 300));
-    return mockSubmissions
-      .filter((s) => s.teacherId === teacherId && s.status === "printed")
-      .sort(
-        (a, b) =>
-          new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
-      );
+    const { pagination, filters, sorting } = params ?? {};
+    let filtered = mockSubmissions.filter(
+      (sub) => sub.teacherId === teacherId && sub.status === "printed"
+    );
+
+    // Apply sorting if specified
+    filtered = sortData(filtered, sorting);
+
+    // Apply filters if specified
+    filtered = filterData(filtered, filters);
+
+    //pagination stuff
+    const paginated = paginateData(filtered, pagination);
+    return {
+      data: paginated.data,
+      total: paginated.total,
+    };
   },
 
   getCensoredSubmissions: async (
