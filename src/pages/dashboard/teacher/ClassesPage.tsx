@@ -29,7 +29,7 @@ const ClassesPage = () => {
 
   const handleDeleteConfirm = () => {
     if (!modal.data) return;
-    deleteClass.mutate(modal.data.id, {
+    deleteClass(modal.data.id, {
       onSuccess: () => {
         closeModal();
       },
@@ -38,7 +38,7 @@ const ClassesPage = () => {
 
   const handleToggleActiveConfirm = () => {
     if (!modal.data) return;
-    toggleActive.mutate(modal.data.id, {
+    toggleActive(modal.data.id, {
       onSuccess: () => {
         closeModal();
       },

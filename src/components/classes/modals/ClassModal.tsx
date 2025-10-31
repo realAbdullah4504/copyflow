@@ -28,7 +28,7 @@ const ClassModal = ({
   switch (type) {
     case "newClass":
       return <NewClassModal open={open} onOpenChange={onOpenChange} />;
-    case "edit":
+    case "editClass":
       return (
         data && (
           <EditClassModal

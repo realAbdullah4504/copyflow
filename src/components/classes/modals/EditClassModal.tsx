@@ -1,11 +1,15 @@
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { useClassMutations } from "@/hooks/mutations";
-import { toast } from "sonner";
 import type { ClassEntity } from "@/types";
 
 interface EditClassModalProps {
@@ -20,14 +24,19 @@ interface ClassFormData {
   active: boolean;
 }
 
-const EditClassModal = ({ open, classData, onOpenChange }: EditClassModalProps) => {
+const EditClassModal = ({
+  open,
+  classData,
+  onOpenChange,
+}: EditClassModalProps) => {
   const { updateClass } = useClassMutations();
-  
-  const { 
-    register, 
-    handleSubmit, 
+
+  const {
+    register,
+    handleSubmit,
     reset,
-    formState: { errors, isSubmitting } 
+    control,
+    formState: { errors, isSubmitting },
   } = useForm<ClassFormData>({
     defaultValues: {
       subject: classData.subject,
@@ -36,22 +45,23 @@ const EditClassModal = ({ open, classData, onOpenChange }: EditClassModalProps) 
     },
   });
 
-  const onSubmit = async (data: ClassFormData) => {
-    try {
-      await updateClass.mutateAsync({
+  const onSubmit = (data: ClassFormData) => {
+    updateClass(
+      {
         id: classData.id,
         updates: {
           subject: data.subject.trim(),
           grade: data.grade.trim(),
           active: data.active,
         },
-      });
-      
-      toast.success("Class updated successfully");
-      onOpenChange(false);
-    } catch (error) {
-      toast.error("Failed to update class");
-    }
+      },
+      {
+        onSuccess: () => {
+          onOpenChange(false);
+          reset();
+        },
+      }
+    );
   };
 
   return (
@@ -60,7 +70,9 @@ const EditClassModal = ({ open, classData, onOpenChange }: EditClassModalProps) 
         <DialogHeader>
           <DialogTitle>Edit Class</DialogTitle>
         </DialogHeader>
+
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          {/* Subject */}
           <div className="space-y-2">
             <Label htmlFor="subject">Subject</Label>
             <Input
@@ -72,7 +84,8 @@ const EditClassModal = ({ open, classData, onOpenChange }: EditClassModalProps) 
               <p className="text-sm text-red-500">{errors.subject.message}</p>
             )}
           </div>
-          
+
+          {/* Grade */}
           <div className="space-y-2">
             <Label htmlFor="grade">Grade</Label>
             <Input
@@ -84,16 +97,30 @@ const EditClassModal = ({ open, classData, onOpenChange }: EditClassModalProps) 
               <p className="text-sm text-red-500">{errors.grade.message}</p>
             )}
           </div>
-          
+
+          {/* Active Switch */}
           <div className="flex items-center space-x-2">
-            <Switch id="active" {...register("active")} />
-            <Label htmlFor="active">Active</Label>
+            <Controller
+              name="active"
+              control={control}
+              render={({ field }) => (
+                <>
+                  <Switch
+                    id="active"
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                  <Label htmlFor="active">Active</Label>
+                </>
+              )}
+            />
           </div>
-          
+
+          {/* Actions */}
           <div className="flex justify-end space-x-2 pt-4">
-            <Button 
-              type="button" 
-              variant="outline" 
+            <Button
+              type="button"
+              variant="outline"
               onClick={() => onOpenChange(false)}
               disabled={isSubmitting}
             >
