@@ -12,6 +12,7 @@ import {
   SecretarySubmissionsPage,
   SecretaryCensorshipPage,
   AdminCensorshipPage,
+  TeacherClassesPage,
 } from "@/pages/dashboard";
 import { ProtectedRoute, RootRedirect } from "@/components/guards";
 
@@ -41,6 +42,7 @@ export const privateRoutes: RouteObject[] = [
         path: "teacher",
         children: [
           { index: true, element: <TeacherSubmissionsPage /> },
+          { path: "classes", element: <TeacherClassesPage /> },
           { path: "archive", element: <TeacherArchivePage /> },
         ],
       },

@@ -6,4 +6,5 @@ export * from "./useSubmissionsByTeacher";
 export * from "./useCensoredSubmissionsByTeachers"
 export * from "./useArchiveSubmissionsByTeacher"
 
+export * from "./useClassesByTeacher";
 

@@ -4,10 +4,10 @@ import {
   FileText,
   Archive,
   Users,
-  Settings,
   // File related
   FileArchive,
   FileCheck,
+  GraduationCap,
 } from "lucide-react";
 import type { NavItem } from "@/types/navigation";
 import { ROLES } from "./roles";
@@ -17,6 +17,12 @@ const TEACHER_NAV_ITEMS: NavItem[] = [
     title: "Submissions",
     href: "/dashboard/teacher",
     icon: FileText,
+    roles: [ROLES.TEACHER],
+  },
+  {
+    title: "Classes",
+    href: "/dashboard/teacher/classes",
+    icon: GraduationCap,
     roles: [ROLES.TEACHER],
   },
   {
