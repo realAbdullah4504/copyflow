@@ -12,6 +12,33 @@ export type FileType =
   | "lesson_plan"
   | "other";
 
+export type TimeFrame = 'today' | 'this_week' | 'this_month' | 'all';
+
+export type SubmissionFilters = {
+  grade?: string;
+  fileType?: FileType;
+  status?: SubmissionStatus;
+  timeFrame?: TimeFrame;
+};
+
+export type SortDirection = 'asc' | 'desc';
+
+export type SubmissionSort = {
+  id: string;
+  desc: boolean;
+};
+
+export type PaginationState = {
+  pageIndex: number;
+  pageSize: number;
+};
+
+export type SubmissionQueryParams = {
+  pagination?: PaginationState;
+  filters?: SubmissionFilters;
+  sorting?: SubmissionSort[];
+};
+
 export type PaperColor = "white" | "yellow" | "blue" | "green" | "pink";
 
 export interface Submission {

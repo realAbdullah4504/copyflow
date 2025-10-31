@@ -1,6 +1,5 @@
-import type { Submission } from "@/types";
+import type { Submission, SubmissionFilters } from "@/types";
 import type { PaginationState, SortingState } from "@tanstack/react-table";
-
 
 export const paginateData = <T>(
   data: T[],
@@ -44,7 +43,11 @@ export const sortData = (
       if (bValue == null) return sort.desc ? 1 : -1;
 
       // 🧮 Grade-specific sort logic
-      if (sort.id === "grade" && typeof aValue === "string" && typeof bValue === "string") {
+      if (
+        sort.id === "grade" &&
+        typeof aValue === "string" &&
+        typeof bValue === "string"
+      ) {
         const gradeRegex = /^(\d+)([A-Za-z]*)$/;
         const aMatch = aValue.match(gradeRegex);
         const bMatch = bValue.match(gradeRegex);
@@ -86,14 +89,7 @@ export const sortData = (
   return sorted;
 };
 
-interface Filters {
-  grade?: string;
-  fileType?: string;
-  status?: string;
-  timeFrame?: "today" | "7d" | "30d" | "this_month" | "all";
-}
-
-export const filterData = (data: Submission[], filters?: Filters) => {
+export const filterData = (data: Submission[], filters?: SubmissionFilters) => {
   if (!filters) return data;
 
   let filtered = [...data];

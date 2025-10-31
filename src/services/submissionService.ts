@@ -1,6 +1,5 @@
 import { mockSubmissions } from "@/constants";
-import type { SubmissionQueryParams } from "@/hooks/queries";
-import type { Submission } from "@/types";
+import type { Submission, SubmissionQueryParams } from "@/types";
 import { filterData, paginateData, sortData } from "@/utils";
 
 export const submissionService = {
@@ -15,7 +14,7 @@ export const submissionService = {
 
     // Apply sorting if specified
     filtered = sortData(filtered, sorting);
-    
+
     // Apply filters if specified
     filtered = filterData(filtered, filters);
 
@@ -37,14 +36,28 @@ export const submissionService = {
       );
   },
 
-  getArchivedSubmissions: async (): Promise<Submission[]> => {
+  getArchivedSubmissions: async (
+    params?: SubmissionQueryParams
+  ): Promise<{
+    data: Submission[];
+    total: number;
+  }> => {
+    const { pagination, filters, sorting } = params ?? {};
     await new Promise((resolve) => setTimeout(resolve, 300));
-    return mockSubmissions
-      .filter((s) => s.status === "printed")
-      .sort(
-        (a, b) =>
-          new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
-      );
+    let filtered = mockSubmissions.filter((sub) => sub.status === "printed");
+
+    // Apply sorting if specified
+    filtered = sortData(filtered, sorting);
+
+    // Apply filters if specified
+    filtered = filterData(filtered, filters);
+
+    //pagination stuff
+    const paginated = paginateData(filtered, pagination);
+    return {
+      data: paginated.data,
+      total: paginated.total,
+    };
   },
 
   getArchivedSubmissionsByTeacher: async (
@@ -59,10 +72,34 @@ export const submissionService = {
       );
   },
 
-  getCensoredSubmissions: async (): Promise<Submission[]> => {
+  getCensoredSubmissions: async (
+    params?: SubmissionQueryParams
+  ): Promise<{ data: Submission[]; total: number }> => {
+    const { pagination, filters, sorting } = params ?? {};
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    let filtered = mockSubmissions.filter((sub) => sub.status === "censored");
+
+    // Apply sorting if specified
+    filtered = sortData(filtered, sorting);
+
+    // Apply filters if specified
+    filtered = filterData(filtered, filters);
+
+    //pagination stuff
+    const paginated = paginateData(filtered, pagination);
+    console.log(paginated, "paginated");
+    return {
+      data: paginated.data,
+      total: paginated.total,
+    };
+  },
+
+  getCensoredSubmissionsByTeacher: async (
+    teacherId: string
+  ): Promise<Submission[]> => {
     await new Promise((resolve) => setTimeout(resolve, 300));
     return mockSubmissions
-      .filter((s) => s.status === "censored")
+      .filter((s) => s.teacherId === teacherId && s.status === "censored")
       .sort(
         (a, b) =>
           new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()

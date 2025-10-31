@@ -1,13 +1,18 @@
 import { useSubmissions } from "./useSubmissions";
 import { submissionService } from "@/services/submissionService";
 import { QUERY_KEYS } from "@/config";
+import type { SubmissionQueryParams } from "@/types";
 
-export const useCensoredSubmissions = () => {
+export const useCensoredSubmissions = (params?: SubmissionQueryParams) => {
+  const queryKey = params
+    ? [QUERY_KEYS.CENSORED_SUBMISSIONS, params]
+    : [QUERY_KEYS.CENSORED_SUBMISSIONS];
+
   const { data, isLoading, ...rest } = useSubmissions(
-    [QUERY_KEYS.CENSORED_SUBMISSIONS],
-    async () => {
-      const data = await submissionService.getCensoredSubmissions();
-      return { data, total: data.length };
+    queryKey,
+    () => submissionService.getCensoredSubmissions(params),
+    {
+      keepPreviousData: Boolean(params?.pagination),
     }
   );
 

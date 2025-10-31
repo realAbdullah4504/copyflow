@@ -11,7 +11,7 @@ import type { Submission } from "@/types";
 import { useSubmissionMutations } from "@/hooks/mutations";
 
 export default function SecretaryCensorshipPage() {
-  const { submissions } = useCensoredSubmissions();
+  const { submissions, isLoading } = useCensoredSubmissions();
   const { modal, openModal, closeModal } = useModal<Submission>();
 
   const { unCensorSubmission } = useSubmissionMutations();
@@ -36,7 +36,11 @@ export default function SecretaryCensorshipPage() {
   return (
     <>
       <PageHeader title="Censorship Queue" role={ROLES.SECRETARY} />
-      <SubmissionTable data={submissions} columns={columns} />
+      <SubmissionTable
+        data={submissions}
+        columns={columns}
+        isLoading={isLoading}
+      />
       <SubmissionModal
         data={modal.data}
         type={modal.type}

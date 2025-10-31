@@ -9,8 +9,22 @@ import { useArchivedSubmissions } from "@/hooks/queries";
 import { useModal } from "@/hooks/useModal";
 import type { Submission } from "@/types";
 import { useSubmissionMutations } from "@/hooks/mutations";
+import { useTableParams } from "@/hooks";
 export default function SecretaryArchivePage() {
-  const { submissions } = useArchivedSubmissions();
+  const {
+    pagination,
+    setPagination,
+    filters,
+    columnFilters,
+    setColumnFilters,
+    sorting,
+    setSorting,
+  } = useTableParams();
+  const { submissions, total, isLoading } = useArchivedSubmissions({
+    pagination,
+    filters,
+    sorting,
+  });
   const { deleteSubmission } = useSubmissionMutations();
   const { modal, openModal, closeModal } = useModal<Submission>();
   const handleDeleteConfirm = () => {
@@ -24,7 +38,21 @@ export default function SecretaryArchivePage() {
   return (
     <>
       <PageHeader title="Archive Submissions" role={ROLES.SECRETARY} />
-      <SubmissionTable data={submissions} columns={columns} />
+      <SubmissionTable
+        data={submissions}
+        columns={columns}
+        pagination={pagination}
+        columnFilters={columnFilters}
+        sorting={sorting}
+        total={total}
+        isLoading={isLoading}
+        onPaginationChange={setPagination}
+        onColumnFiltersChange={setColumnFilters}
+        onSortingChange={setSorting}
+        showFilters
+        showPagination
+        showSorting
+      />
       <SubmissionModal
         data={modal.data}
         type={modal.type}
