@@ -60,6 +60,7 @@ const SecretarySubmissionsPage = () => {
       <PageHeader
         title="All Submissions"
         role={ROLES.SECRETARY}
+        buttonTitle="New Submission"
         sideAction={() => openModal("newSubmission")}
       />
 

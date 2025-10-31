@@ -5,7 +5,7 @@ import { canCreate, type Role } from "@/config";
 interface PageHeaderProps {
   title: string;
   role: Role;
-  buttonTitle: string;
+  buttonTitle?: string;
   sideAction?: () => void;
 }
 

@@ -52,6 +52,7 @@ const SubmissionPage = () => {
       <PageHeader
         title="All Submissions"
         role={ROLES.TEACHER}
+        buttonTitle="New Submission"
         sideAction={() => openModal("newSubmission")}
       />
       <SubmissionTable
