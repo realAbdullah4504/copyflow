@@ -10,10 +10,16 @@ import {
 } from "@/config/permissions";
 
 const ROLE_COLUMNS: Record<Role, ColumnDef<Submission>[]> = {
-  admin: [{ accessorKey: "teacherName", header: "Teacher", enableSorting: true }],
+  admin: [
+    { accessorKey: "teacherName", header: "Teacher", enableSorting: true },
+  ],
   teacher: [],
-  secretary: [{ accessorKey: "teacherName", header: "Teacher", enableSorting: true }],
-  principal: [{ accessorKey: "teacherName", header: "Teacher", enableSorting: true }],
+  secretary: [
+    { accessorKey: "teacherName", header: "Teacher", enableSorting: true },
+  ],
+  principal: [
+    { accessorKey: "teacherName", header: "Teacher", enableSorting: true },
+  ],
 };
 
 export const getSubmissionColumns = (
@@ -26,8 +32,15 @@ export const getSubmissionColumns = (
 
   const baseColumns: ColumnDef<Submission>[] = [
     ...(ROLE_COLUMNS[role] ?? []),
-    { accessorKey: "subject", header: "Subject", enableSorting: true },
-    { accessorKey: "grade", header: "Grade", enableSorting: true },
+    {
+      accessorKey: "class",
+      header: "Class",
+      cell: ({ getValue }) => {
+        const val = getValue<string>();
+        return val.replace("_", " ");
+      },
+      enableSorting: true,
+    },
     {
       accessorKey: "fileType",
       header: "Type",

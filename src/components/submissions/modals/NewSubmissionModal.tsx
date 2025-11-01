@@ -18,6 +18,7 @@ import { useSubmissionMutations } from "@/hooks/mutations";
 import { grades, teachers } from "@/constants";
 import { getSubmissionFields, submissionFormSchema } from "../fields";
 import { format } from "date-fns";
+import { useClassesByTeacher } from "@/hooks/queries";
 
 interface NewSubmissionModalProps {
   open: boolean;
@@ -34,6 +35,7 @@ const NewSubmissionModal = ({
 }: NewSubmissionModalProps) => {
   const { createSubmission, isLoading: isSubmitting } =
     useSubmissionMutations();
+
   const [files, setFiles] = useState<File[]>([]);
 
   const form = useFormWithConfig<z.infer<typeof submissionFormSchema>>({
@@ -53,35 +55,41 @@ const NewSubmissionModal = ({
     },
     files: [],
   });
+  const { classes } = useClassesByTeacher(
+    teacherId || form.watch("teacherId")
+  );
+  
+  const classesList = classes?.map((c) => `Grade ${c.grade} - ${c.subject}`);
 
   const onSubmit = async (values: z.infer<typeof submissionFormSchema>) => {
-    const submissionData = {
-      ...values,
-      teacherId: values.teacherId,
-      subject: values.fileType, // Using fileType as subject for now
-      grade: values.class, // Using class as grade for now
-      notes: "", // Empty notes since it's required but not in our form
-      files: files.map((file) => ({
-        name: file.name,
-        size: file.size,
-        type: file.type,
-        lastModified: file.lastModified,
-      })),
-      status: "pending" as const,
-    };
+    console.log("values", values);
+    // const submissionData = {
+    //   ...values,
+    //   teacherId: values.teacherId,
+    //   subject: values.fileType, // Using fileType as subject for now
+    //   grade: values.class, // Using class as grade for now
+    //   notes: "", // Empty notes since it's required but not in our form
+    //   files: files.map((file) => ({
+    //     name: file.name,
+    //     size: file.size,
+    //     type: file.type,
+    //     lastModified: file.lastModified,
+    //   })),
+    //   status: "pending" as const,
+    // };
 
-    createSubmission(submissionData, {
-      onSuccess: () => {
-        toast.success("Print request submitted successfully!");
-        form.reset();
-        setFiles([]);
-        onOpenChange(false);
-      },
-    });
+    // createSubmission(submissionData, {
+    //   onSuccess: () => {
+    //     toast.success("Print request submitted successfully!");
+    //     form.reset();
+    //     setFiles([]);
+    //     onOpenChange(false);
+    //   },
+    // });
   };
 
   const formFields = getSubmissionFields({
-    classes: grades,
+    classes: classesList || [],
     fileTypes: ["Worksheet", "Exam", "Handout", "Lesson Plan", "Other"],
     paperColors: ["White", "Blue", "Green", "Yellow", "Pink"],
     teachers: teachers || [],

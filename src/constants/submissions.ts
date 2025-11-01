@@ -22,6 +22,12 @@ const getRandomDate = (start: Date, end: Date) => {
   );
 };
 
+const getRandomClass = () => {
+  const grade = getRandomElement(grades);
+  const subject = getRandomElement(subjects);
+  return `${grade} - ${subject}`;
+};
+
 const generateMockSubmissions = (count: number): Submission[] => {
   const submissions: Submission[] = [];
 
@@ -37,8 +43,9 @@ const generateMockSubmissions = (count: number): Submission[] => {
     submissions.push({
       id: i.toString(),
       teacherId: teacher.id,
-      subject,
-      grade: getRandomElement(grades),
+      classId: getRandomElement(grades).id,
+      teacherName: teacher.name,
+      class: getRandomClass(),
       fileType,
       files: [
         `${subject.toLowerCase().replace(/\s+/g, "_")}_${fileType}_${i}.pdf`,

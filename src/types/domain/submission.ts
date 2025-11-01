@@ -15,7 +15,7 @@ export type FileType =
 export type TimeFrame = "today" | "this_week" | "this_month" | "all";
 
 export type SubmissionFilters = {
-  grade?: string;
+  class?: string;
   fileType?: FileType;
   status?: SubmissionStatus;
   timeFrame?: TimeFrame;
@@ -44,9 +44,10 @@ export type PaperColor = "white" | "yellow" | "blue" | "green" | "pink";
 export interface Submission {
   id: string;
   teacherId: string;
+  classId: string;
+  teacherName: string;
+  class: string;
   lessonDate: Date;
-  subject: string;
-  grade: string;
   fileType: FileType;
   files: string[];
   notes: string;
