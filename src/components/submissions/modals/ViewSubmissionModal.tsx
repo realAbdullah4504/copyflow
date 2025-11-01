@@ -47,11 +47,11 @@ const ViewSubmissionModal = ({ open, onOpenChange, submission }: ViewSubmissionM
             </div>
             <div>
               <p className="text-sm font-medium text-gray-500">Subject</p>
-              <p className="mt-1">{submission.subject}</p>
+              <p className="mt-1">{submission.class}</p>
             </div>
             <div>
-              <p className="text-sm font-medium text-gray-500">Grade</p>
-              <p className="mt-1">{submission.grade}</p>
+              <p className="text-sm font-medium text-gray-500">File Type</p>
+              <p className="mt-1">{submission.fileType}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-gray-500">Copies</p>
@@ -74,8 +74,16 @@ const ViewSubmissionModal = ({ open, onOpenChange, submission }: ViewSubmissionM
               <p className="mt-1">{submission.printSettings.color ? 'Yes' : 'No'}</p>
             </div>
             <div>
-              <p className="text-sm font-medium text-gray-500">Urgency</p>
-              <p className="mt-1 capitalize">{submission.urgency}</p>
+              <p className="text-sm font-medium text-gray-500">Booklet</p>
+              <p className="mt-1">{submission.printSettings.booklet ? 'Yes' : 'No'}</p>
+            </div>
+            <div>
+              <p className="text-sm font-medium text-gray-500">Cover</p>
+              <p className="mt-1">{submission.printSettings.hasCover ? 'Yes' : 'No'}</p>
+            </div>
+            <div>
+              <p className="text-sm font-medium text-gray-500">Colored Cover</p>
+              <p className="mt-1">{submission.printSettings.coloredCover ? 'Yes' : 'No'}</p>
             </div>
             <div className="col-span-2">
               <p className="text-sm font-medium text-gray-500">Notes</p>

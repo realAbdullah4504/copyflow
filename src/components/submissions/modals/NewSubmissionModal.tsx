@@ -55,37 +55,35 @@ const NewSubmissionModal = ({
     },
     files: [],
   });
-  const { classes } = useClassesByTeacher(
-    teacherId || form.watch("teacherId")
-  );
-  
+  const { classes } = useClassesByTeacher(teacherId || form.watch("teacherId"));
+
   const classesList = classes?.map((c) => `Grade ${c.grade} - ${c.subject}`);
 
   const onSubmit = async (values: z.infer<typeof submissionFormSchema>) => {
-    console.log("values", values);
-    // const submissionData = {
-    //   ...values,
-    //   teacherId: values.teacherId,
-    //   subject: values.fileType, // Using fileType as subject for now
-    //   grade: values.class, // Using class as grade for now
-    //   notes: "", // Empty notes since it's required but not in our form
-    //   files: files.map((file) => ({
-    //     name: file.name,
-    //     size: file.size,
-    //     type: file.type,
-    //     lastModified: file.lastModified,
-    //   })),
-    //   status: "pending" as const,
-    // };
+    const submissionData = {
+      ...values,
+      teacherId: values.teacherId,
+      teacherName: teachers?.find((t) => t.id === values.teacherId)?.name,
+      subject: values.fileType, // Using fileType as subject for now
+      grade: values.class, // Using class as grade for now
+      notes: "", // Empty notes since it's required but not in our form
+      files: files.map((file) => ({
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        lastModified: file.lastModified,
+      })),
+      status: "pending" as const,
+    };
 
-    // createSubmission(submissionData, {
-    //   onSuccess: () => {
-    //     toast.success("Print request submitted successfully!");
-    //     form.reset();
-    //     setFiles([]);
-    //     onOpenChange(false);
-    //   },
-    // });
+    createSubmission(submissionData, {
+      onSuccess: () => {
+        toast.success("Print request submitted successfully!");
+        form.reset();
+        setFiles([]);
+        onOpenChange(false);
+      },
+    });
   };
 
   const formFields = getSubmissionFields({
