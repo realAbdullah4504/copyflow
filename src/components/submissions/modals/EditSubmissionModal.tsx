@@ -16,6 +16,7 @@ import {
 import type { Submission } from "@/types";
 import { grades, teachers } from "@/constants";
 import { format } from "date-fns";
+import { useClassesByTeacher } from "@/hooks";
 
 interface EditSubmissionModalProps {
   readonly open: boolean;
@@ -79,8 +80,10 @@ const EditSubmissionModal = ({
     );
   };
 
+  
+  const {classes}=useClassesByTeacher(form.watch("teacherId"))
   const formFields = getSubmissionFields({
-    classes: grades,
+    classes: classes?.map((c) => `Grade ${c.grade} - ${c.subject}`),
     fileTypes: ["Worksheet", "Exam", "Handout", "Lesson Plan", "Other"],
     paperColors: ["White", "Blue", "Green", "Yellow", "Pink"],
     teachers: teachers || [],
