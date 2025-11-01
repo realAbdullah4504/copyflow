@@ -25,7 +25,7 @@ const getRandomDate = (start: Date, end: Date) => {
 const getRandomClass = () => {
   const grade = getRandomElement(grades);
   const subject = getRandomElement(subjects);
-  return `${grade} - ${subject}`;
+  return `Grade ${grade} - ${subject}`;
 };
 
 const generateMockSubmissions = (count: number): Submission[] => {

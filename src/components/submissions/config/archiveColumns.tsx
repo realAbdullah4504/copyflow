@@ -26,8 +26,15 @@ export const getArchiveColumns = (
 
   const baseColumns: ColumnDef<Submission>[] = [
     ...(ROLE_COLUMNS[role] ?? []),
-    { accessorKey: "subject", header: "Subject" },
-    { accessorKey: "grade", header: "Grade" },
+    {
+      accessorKey: "class",
+      header: "Class",
+      cell: ({ getValue }) => {
+        const val = getValue<string>();
+        return val.replace("_", " ");
+      },
+      enableSorting: true,
+    },
     {
       accessorKey: "fileType",
       header: "Type",
