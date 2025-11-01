@@ -1,124 +1,126 @@
-import { z } from 'zod';
+import { z } from "zod";
 
 export const submissionFormSchema = z.object({
-  subject: z.string().min(1, 'Subject is required'),
-  grade: z.string().min(1, 'Grade is required'),
-  fileType: z.string().min(1, 'File type is required'),
-  files: z.string().min(1, 'At least one file is required'),
-  notes: z.string(),
-  copies: z.string().min(1, 'Number of copies is required'),
-  paperColor: z.string().min(1, 'Paper color is required'),
-  doubleSided: z.boolean(),
-  stapled: z.boolean(),
-  color: z.boolean(),
-  teacherId: z.string().min(1, 'Teacher is required'),
-  urgency: z.enum(['low', 'medium', 'high']),
+  class: z.string().min(1, "Class is required"),
+  fileType: z.string().min(1, "File type is required"),
+  lessonDate: z.string().min(1, "Lesson date is required"),
+  copies: z.number().min(1, "At least one copy is required"),
+  paperColor: z.string().min(1, "Paper color is required"),
+  printSettings: z.object({
+    doubleSided: z.boolean(),
+    stapled: z.boolean(),
+    color: z.boolean(),
+    orientation: z.enum(["portrait", "landscape"]),
+    pagesPerSheet: z.enum(["1", "2", "4"]),
+  }),
+  files: z.array(z.instanceof(File)).min(1, "At least one file is required"),
 });
 
 export type SubmissionFormValues = z.infer<typeof submissionFormSchema>;
 
 export const getSubmissionFields = (options: {
-  teachers: Array<{ id: string; name: string }>;
-  subjects: string[];
-  grades: string[];
+  classes: string[];
   fileTypes: string[];
   paperColors: string[];
 }) => [
   {
-    name: 'teacherId',
-    label: 'Teacher',
-    type: 'select' as const,
-    options: options.teachers.map((teacher) => ({
-      value: teacher.id,
-      label: teacher.name,
+    name: "class",
+    label: "Class",
+    type: "select" as const,
+    options: options.classes.map((cls) => ({
+      value: cls,
+      label: cls,
     })),
-    placeholder: 'Select teacher',
+    placeholder: "Select class",
+    className: "md:col-span-1",
   },
   {
-    name: 'subject',
-    label: 'Subject',
-    type: 'select' as const,
-    options: options.subjects.map((subject) => ({
-      value: subject,
-      label: subject,
-    })),
-    placeholder: 'Select subject',
-    className: 'md:col-span-1', // Half width on medium screens and up
+    name: "lessonDate",
+    label: "Lesson Date",
+    type: "date" as const,
+    placeholder: "Select lesson date",
+    className: "md:col-span-1",
   },
   {
-    name: 'grade',
-    label: 'Grade',
-    type: 'select' as const,
-    options: options.grades.map((grade) => ({
-      value: grade,
-      label: grade,
-    })),
-    placeholder: 'Select grade',
-    className: 'md:col-span-1', // Half width on medium screens and up
-  },
-  {
-    name: 'fileType',
-    label: 'File Type',
-    type: 'select' as const,
+    name: "fileType",
+    label: "File Type",
+    type: "select" as const,
     options: options.fileTypes.map((type) => ({
       value: type.toLowerCase(),
       label: type,
     })),
-    placeholder: 'Select file type',
+    placeholder: "Select file type",
   },
   {
-    name: 'files',
-    label: 'File Names',
-    type: 'text' as const,
-    placeholder: 'e.g., worksheet.pdf, answer_key.pdf',
+    name: "copies",
+    label: "Number of Copies",
+    type: "number" as const,
+    min: 1,
+    placeholder: "Enter number of copies",
+    className: "md:col-span-1",
   },
   {
-    name: 'copies',
-    label: 'Number of Copies',
-    type: 'number' as const,
-    placeholder: 'Enter number of copies',
-  },
-  {
-    name: 'paperColor',
-    label: 'Paper Color',
-    type: 'select' as const,
+    name: "paperColor",
+    label: "Paper Color",
+    type: "select" as const,
     options: options.paperColors.map((color) => ({
       value: color.toLowerCase(),
       label: color,
     })),
-    placeholder: 'Select paper color',
+    placeholder: "Select paper color",
+    className: "md:col-span-1",
   },
   {
-    name: 'urgency',
-    label: 'Urgency',
-    type: 'select' as const,
-    options: [
-      { value: 'low', label: 'Low' },
-      { value: 'medium', label: 'Medium' },
-      { value: 'high', label: 'High' },
-    ],
-    placeholder: 'Select urgency',
+    name: "printSettings.doubleSided",
+    label: "Double Sided",
+    type: "checkbox" as const,
+    className: "md:col-span-1",
   },
   {
-    name: 'notes',
-    label: 'Notes (Optional)',
-    type: 'textarea' as const,
-    placeholder: 'Any special instructions...',
+    name: "printSettings.stapled",
+    label: "Stapled",
+    type: "checkbox" as const,
+    className: "md:col-span-1",
   },
   {
-    name: 'doubleSided',
-    label: 'Double Sided',
-    type: 'checkbox' as const,
+    name: "printSettings.booklet",
+    label: "Booklet",
+    type: "checkbox" as const,
+    className: "md:col-span-1",
   },
   {
-    name: 'stapled',
-    label: 'Stapled',
-    type: 'checkbox' as const,
+    name: "printSettings.hasCover",
+    label: "Has Cover",
+    type: "checkbox" as const,
+    className: "md:col-span-1",
   },
   {
-    name: 'color',
-    label: 'Color Print',
-    type: 'checkbox' as const,
+    name: "printSettings.coloredCover",
+    label: "Colored Cover",
+    type: "checkbox" as const,
+    className: "md:col-span-1",
+  },
+
+  {
+    name: "printSettings.color",
+    label: "Color Print",
+    type: "checkbox" as const,
+    className: "md:col-span-1",
+  },
+  {
+    name: "notes",
+    label: "Notes (Optional)",
+    type: "textarea" as const,
+    placeholder: "Any special instructions...",
+  },
+  {
+    name: "files",
+    label: "Upload Files",
+    type: "file" as const,
+    multiple: true,
+    accept: ".pdf,.doc,.docx,.jpg,.jpeg,.png",
+    placeholder: "Drag and drop files here or click to browse",
+    className: "md:col-span-2",
   },
 ];
 
