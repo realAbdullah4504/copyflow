@@ -16,10 +16,7 @@ import {
 import { toast } from "sonner";
 import { useSubmissionMutations } from "@/hooks/mutations";
 import { grades, teachers } from "@/constants";
-import {
-  getSubmissionFields,
-  submissionFormSchema,
-} from "../fields";
+import { getSubmissionFields, submissionFormSchema } from "../fields";
 import { format } from "date-fns";
 
 interface NewSubmissionModalProps {
@@ -39,10 +36,8 @@ const NewSubmissionModal = ({
     useSubmissionMutations();
   const [files, setFiles] = useState<File[]>([]);
 
-  const teacher = teachers?.find((t) => t.id === teacherId);
-
   const form = useFormWithConfig<z.infer<typeof submissionFormSchema>>({
-    teacherId:teacherId || "",
+    teacherId: teacherId || "",
     class: "",
     fileType: "",
     lessonDate: format(new Date(), "yyyy-MM-dd"),
@@ -92,7 +87,7 @@ const NewSubmissionModal = ({
     teachers: teachers || [],
     disabledFields: !allowTeacherSelection && teacherId ? ["teacherId"] : [],
   });
-  
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">

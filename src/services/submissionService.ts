@@ -144,18 +144,6 @@ export const submissionService = {
     };
   },
 
-  getCensoredSubmissionsByTeacher: async (
-    teacherId: string
-  ): Promise<Submission[]> => {
-    await new Promise((resolve) => setTimeout(resolve, 300));
-    return mockSubmissions
-      .filter((s) => s.teacherId === teacherId && s.status === "censored")
-      .sort(
-        (a, b) =>
-          new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
-      );
-  },
-
   createSubmission: async (
     submission: Omit<Submission, "id" | "createdAt" | "updatedAt">
   ): Promise<Submission> => {

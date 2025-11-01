@@ -46,7 +46,7 @@ const generateMockSubmissions = (count: number): Submission[] => {
       notes:
         i % 3 === 0 ? `Special instructions for ${subject} ${fileType}` : "",
       copies,
-      lessonDate: getRandomDate(new Date(2025, 0, 1), new Date()).toISOString(),
+      lessonDate: getRandomDate(new Date(2025, 0, 1), new Date()),
       paperColor: getRandomElement(paperColors),
       printSettings: {
         doubleSided: Math.random() > 0.3,

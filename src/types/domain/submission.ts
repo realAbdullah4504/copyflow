@@ -44,7 +44,7 @@ export type PaperColor = "white" | "yellow" | "blue" | "green" | "pink";
 export interface Submission {
   id: string;
   teacherId: string;
-  lessonDate: string;
+  lessonDate: Date;
   subject: string;
   grade: string;
   fileType: FileType;
