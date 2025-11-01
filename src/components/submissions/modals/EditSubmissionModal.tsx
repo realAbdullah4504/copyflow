@@ -80,13 +80,13 @@ const EditSubmissionModal = ({
     );
   };
 
-  
-  const {classes}=useClassesByTeacher(form.watch("teacherId"))
+  const { classes } = useClassesByTeacher(form.watch("teacherId"));
   const formFields = getSubmissionFields({
     classes: classes?.map((c) => `Grade ${c.grade} - ${c.subject}`),
     fileTypes: ["Worksheet", "Exam", "Handout", "Lesson Plan", "Other"],
     paperColors: ["White", "Blue", "Green", "Yellow", "Pink"],
     teachers: teachers || [],
+    disabledFields: ["teacherId"],
   });
 
   return (

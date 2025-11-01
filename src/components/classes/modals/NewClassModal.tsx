@@ -19,6 +19,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useClassMutations } from "@/hooks/mutations";
 import { toast } from "sonner";
 import { subjects, grades } from "@/constants";
+import { useClassesByTeacher } from "@/hooks";
 
 interface NewClassModalProps {
   open: boolean;
@@ -34,6 +35,7 @@ interface ClassFormData {
 const NewClassModal = ({ open, onOpenChange }: NewClassModalProps) => {
   const { user } = useAuth();
   const { createClass } = useClassMutations();
+  const { classes } = useClassesByTeacher(user?.id || "");
 
   const {
     control,
@@ -50,6 +52,10 @@ const NewClassModal = ({ open, onOpenChange }: NewClassModalProps) => {
   });
 
   const onSubmit = (data: ClassFormData) => {
+    if (classes?.some((c) => c.subject === data.subject && c.grade === data.grade)) {
+      toast.error("Class already exists");
+      return;
+    }
     if (!user?.id) return;
     createClass(
       {
