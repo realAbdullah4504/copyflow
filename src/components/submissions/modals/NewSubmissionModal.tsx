@@ -1,5 +1,3 @@
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import {
   Dialog,
@@ -9,45 +7,19 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
+  useFormWithConfig,
+  Form as RHFForm,
+  FormField as SimpleFormField,
+} from "../forms";
 import { toast } from "sonner";
-import { Loader as Loader2 } from "lucide-react";
 import type { FileType, PaperColor } from "@/types";
 import { useSubmissionMutations } from "@/hooks/mutations";
 import { grades, subjects, teachers } from "@/constants";
-
-const formSchema = z.object({
-  subject: z.string().min(1, "Subject is required"),
-  grade: z.string().min(1, "Grade is required"),
-  fileType: z.string().min(1, "File type is required"),
-  files: z.string().min(1, "At least one file is required"),
-  notes: z.string(),
-  copies: z.string().min(1, "Number of copies is required"),
-  paperColor: z.string().min(1, "Paper color is required"),
-  doubleSided: z.boolean(),
-  stapled: z.boolean(),
-  color: z.boolean(),
-  teacherId: z.string().min(1, "Teacher is required"),
-  classId: z.string().min(1, "Class is required"),
-  urgency: z.enum(["low", "medium", "high"]),
-});
+import {
+  getSubmissionFields,
+  submissionFormSchema,
+  type SubmissionFormValues,
+} from "../fields";
 
 interface NewSubmissionModalProps {
   open: boolean;
@@ -62,30 +34,28 @@ const NewSubmissionModal = ({
   teacherId,
   allowTeacherSelection,
 }: NewSubmissionModalProps) => {
-  const { createSubmission } = useSubmissionMutations();
+  const { createSubmission, isLoading: isSubmitting } =
+    useSubmissionMutations();
   const selectedTeacher =
     (!allowTeacherSelection && teachers?.find((t) => t.id === teacherId)) ||
     null;
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      subject: "",
-      grade: "",
-      fileType: "",
-      files: "",
-      notes: "",
-      copies: "30",
-      paperColor: "white",
-      doubleSided: false,
-      stapled: false,
-      teacherId: selectedTeacher?.id || "",
-      color: false,
-      urgency: "medium",
-    },
+  const form = useFormWithConfig<SubmissionFormValues>({
+    subject: "",
+    grade: "",
+    fileType: "",
+    files: "",
+    notes: "",
+    copies: "1",
+    paperColor: "white",
+    doubleSided: false,
+    stapled: false,
+    color: false,
+    teacherId: teacherId || "",
+    urgency: "medium",
   });
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
+  const onSubmit = (values: z.infer<typeof submissionFormSchema>) => {
     createSubmission(
       {
         teacherId: values.teacherId,
@@ -114,7 +84,13 @@ const NewSubmissionModal = ({
       }
     );
   };
-
+  const formFields = getSubmissionFields({
+    teachers: teachers || [],
+    subjects: subjects || [],
+    grades: grades || [],
+    fileTypes: ["Worksheet", "Exam", "Handout", "Lesson Plan", "Other"],
+    paperColors: ["White", "Blue", "Green", "Yellow", "Pink"],
+  });
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -125,281 +101,16 @@ const NewSubmissionModal = ({
           </DialogDescription>
         </DialogHeader>
 
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="teacherId"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Teacher</FormLabel>
-                  {allowTeacherSelection ? (
-                    <Select
-                      onValueChange={(value) => {
-                        field.onChange(value);
-                        form.setValue("classId", ""); // Reset class when teacher changes
-                      }}
-                      value={field.value}
-                      defaultValue={teacherId}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select teacher" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {teachers?.map((t) => (
-                          <SelectItem key={t.id} value={t.id}>
-                            {t.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  ) : (
-                    <Input value={selectedTeacher?.name || ""} disabled />
-                  )}
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="subject"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Subject</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      value={field.value}
-                      disabled={subjects?.length === 0}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select Subject" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {subjects?.map((subject) => (
-                          <SelectItem key={subject} value={subject}>
-                            {subject}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="classId"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Grade</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      value={field.value}
-                      disabled={grades?.length === 0}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder={"Select Grade"} />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {grades?.map((grade) => (
-                          <SelectItem key={grade} value={grade}>
-                            {grade}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="fileType"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>File Type</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select type" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="worksheet">Worksheet</SelectItem>
-                        <SelectItem value="exam">Exam</SelectItem>
-                        <SelectItem value="handout">Handout</SelectItem>
-                        <SelectItem value="lesson_plan">Lesson Plan</SelectItem>
-                        <SelectItem value="other">Other</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <FormField
-              control={form.control}
-              name="files"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>File Names</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="e.g., worksheet.pdf, answer_key.pdf"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="notes"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Notes (Optional)</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Any special instructions..."
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="copies"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Number of Copies</FormLabel>
-                    <FormControl>
-                      <Input type="number" min="1" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="paperColor"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Paper Color</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="white">White</SelectItem>
-                        <SelectItem value="yellow">Yellow</SelectItem>
-                        <SelectItem value="blue">Blue</SelectItem>
-                        <SelectItem value="green">Green</SelectItem>
-                        <SelectItem value="pink">Pink</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <div className="space-y-3">
-              <FormLabel>Print Settings</FormLabel>
-              <div className="flex flex-col gap-3">
-                <FormField
-                  control={form.control}
-                  name="doubleSided"
-                  render={({ field }) => (
-                    <FormItem className="flex items-center space-x-2 space-y-0">
-                      <FormControl>
-                        <Checkbox
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                      <FormLabel className="font-normal">
-                        Double-sided printing
-                      </FormLabel>
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="stapled"
-                  render={({ field }) => (
-                    <FormItem className="flex items-center space-x-2 space-y-0">
-                      <FormControl>
-                        <Checkbox
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                      <FormLabel className="font-normal">Stapled</FormLabel>
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="color"
-                  render={({ field }) => (
-                    <FormItem className="flex items-center space-x-2 space-y-0">
-                      <FormControl>
-                        <Checkbox
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                      <FormLabel className="font-normal">
-                        Color printing
-                      </FormLabel>
-                    </FormItem>
-                  )}
-                />
-              </div>
-            </div>
-
-            <div className="flex justify-end gap-2 pt-4">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => onOpenChange(false)}
-              >
-                Cancel
-              </Button>
-              <Button type="submit" disabled={createSubmission.isPending}>
-                {createSubmission.isPending && (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                )}
-                Submit Request
-              </Button>
-            </div>
-          </form>
-        </Form>
+        <RHFForm
+          form={form}
+          onSubmit={onSubmit}
+          isSubmitting={isSubmitting}
+          submitText="Create Submission"
+        >
+          {formFields.map((field) => (
+            <SimpleFormField key={field.name} {...field} form={form} />
+          ))}
+        </RHFForm>
       </DialogContent>
     </Dialog>
   );
