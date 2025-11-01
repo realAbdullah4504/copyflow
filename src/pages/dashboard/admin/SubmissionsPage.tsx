@@ -7,7 +7,7 @@ import {
 import { useAllSubmissions } from "@/hooks/queries";
 
 const SubmissionPage = () => {
-  const { submissions, total, isLoading } = useAllSubmissions();
+  const { submissions, isLoading } = useAllSubmissions();
 
 
   const columns = getSubmissionColumns(ROLES.ADMIN);
