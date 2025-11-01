@@ -31,7 +31,7 @@ import { toast } from "sonner";
 import { Loader as Loader2 } from "lucide-react";
 import type { FileType, PaperColor } from "@/types";
 import { useSubmissionMutations } from "@/hooks/mutations";
-import { teachers } from "@/constants";
+import { grades, subjects, teachers } from "@/constants";
 
 const formSchema = z.object({
   subject: z.string().min(1, "Subject is required"),
@@ -45,6 +45,7 @@ const formSchema = z.object({
   stapled: z.boolean(),
   color: z.boolean(),
   teacherId: z.string().min(1, "Teacher is required"),
+  classId: z.string().min(1, "Class is required"),
   urgency: z.enum(["low", "medium", "high"]),
 });
 
@@ -62,7 +63,9 @@ const NewSubmissionModal = ({
   allowTeacherSelection,
 }: NewSubmissionModalProps) => {
   const { createSubmission } = useSubmissionMutations();
-  const selectedTeacher = teachers.find((t) => t.id === teacherId) || null;
+  const selectedTeacher =
+    (!allowTeacherSelection && teachers?.find((t) => t.id === teacherId)) ||
+    null;
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -124,35 +127,6 @@ const NewSubmissionModal = ({
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="subject"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Subject</FormLabel>
-                    <FormControl>
-                      <Input placeholder="e.g., Mathematics" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="grade"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Grade</FormLabel>
-                    <FormControl>
-                      <Input placeholder="e.g., 10A" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
             <FormField
               control={form.control}
               name="teacherId"
@@ -161,31 +135,89 @@ const NewSubmissionModal = ({
                   <FormLabel>Teacher</FormLabel>
                   {allowTeacherSelection ? (
                     <Select
-                      onValueChange={field.onChange}
-                      defaultValue={selectedTeacher?.id}
+                      onValueChange={(value) => {
+                        field.onChange(value);
+                        form.setValue("classId", ""); // Reset class when teacher changes
+                      }}
+                      value={field.value}
+                      defaultValue={teacherId}
                     >
                       <SelectTrigger>
-                      <SelectValue placeholder="Select teacher" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {teachers?.map((t) => (
-                        <SelectItem key={t.id} value={t.id}>
-                          {t.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                        <SelectValue placeholder="Select teacher" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {teachers?.map((t) => (
+                          <SelectItem key={t.id} value={t.id}>
+                            {t.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   ) : (
-                    <Input
-                      placeholder="e.g., Mathematics"
-                      value={selectedTeacher?.name || ""}
-                      disabled
-                    />
+                    <Input value={selectedTeacher?.name || ""} disabled />
                   )}
                   <FormMessage />
                 </FormItem>
               )}
             />
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="subject"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Subject</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value}
+                      disabled={subjects?.length === 0}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select Subject" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {subjects?.map((subject) => (
+                          <SelectItem key={subject} value={subject}>
+                            {subject}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="classId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Grade</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value}
+                      disabled={grades?.length === 0}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder={"Select Grade"} />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {grades?.map((grade) => (
+                          <SelectItem key={grade} value={grade}>
+                            {grade}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
             <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}
@@ -208,32 +240,6 @@ const NewSubmissionModal = ({
                         <SelectItem value="handout">Handout</SelectItem>
                         <SelectItem value="lesson_plan">Lesson Plan</SelectItem>
                         <SelectItem value="other">Other</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="urgency"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Urgency</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="low">Low</SelectItem>
-                        <SelectItem value="medium">Medium</SelectItem>
-                        <SelectItem value="high">High</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
