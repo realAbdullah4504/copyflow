@@ -43,6 +43,7 @@ export const getSubmissionFields = (options: {
       label: subject,
     })),
     placeholder: 'Select subject',
+    className: 'md:col-span-1', // Half width on medium screens and up
   },
   {
     name: 'grade',
@@ -53,6 +54,7 @@ export const getSubmissionFields = (options: {
       label: grade,
     })),
     placeholder: 'Select grade',
+    className: 'md:col-span-1', // Half width on medium screens and up
   },
   {
     name: 'fileType',

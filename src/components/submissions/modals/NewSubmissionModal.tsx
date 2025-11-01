@@ -106,10 +106,18 @@ const NewSubmissionModal = ({
           onSubmit={onSubmit}
           isSubmitting={isSubmitting}
           submitText="Create Submission"
+          className="space-y-6"
         >
-          {formFields.map((field) => (
-            <SimpleFormField key={field.name} {...field} form={form} />
-          ))}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {formFields.map((field) => (
+              <div
+                key={field.name}
+                className={field.className || "md:col-span-2"}
+              >
+                <SimpleFormField {...field} form={form} />
+              </div>
+            ))}
+          </div>
         </RHFForm>
       </DialogContent>
     </Dialog>

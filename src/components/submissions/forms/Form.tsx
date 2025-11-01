@@ -2,14 +2,16 @@ import { FormProvider, type UseFormReturn } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import type { ReactNode } from "react";
+import type { SubmissionFormValues } from "../fields";
 
 interface FormProps {
-  children: React.ReactNode;
-  onSubmit: (data: any) => void | Promise<void>;
+  children: ReactNode;
+  onSubmit: (data: SubmissionFormValues) => void | Promise<void>;
   submitText?: string;
   isSubmitting?: boolean;
   className?: string;
-  form: UseFormReturn<any>;
+  form: UseFormReturn<SubmissionFormValues>;
 }
 
 const Form = ({
@@ -29,7 +31,7 @@ const Form = ({
         className={cn('space-y-6', className)}
         noValidate
       >
-        <div className="space-y-4">{children}</div>
+        {children}
         <Button type="submit" disabled={isSubmitting} className="w-full">
           {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
           {submitText}
@@ -38,6 +40,13 @@ const Form = ({
     </FormProvider>
   );
 };
+
+// FormFieldGroup component for grouping related fields
+export const FormFieldGroup = ({ children, className = '' }: { children: ReactNode; className?: string }) => (
+  <div className={cn("space-y-4", className)}>
+    {children}
+  </div>
+);
 
 export { Form };
 
