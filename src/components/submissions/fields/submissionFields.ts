@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 export const submissionFormSchema = z.object({
+  teacherId: z.string().min(1, "Teacher is required"),
   class: z.string().min(1, "Class is required"),
   fileType: z.string().min(1, "File type is required"),
   lessonDate: z.string().min(1, "Lesson date is required"),
@@ -9,9 +10,10 @@ export const submissionFormSchema = z.object({
   printSettings: z.object({
     doubleSided: z.boolean(),
     stapled: z.boolean(),
+    booklet: z.boolean(),
+    hasCover: z.boolean(),
+    coloredCover: z.boolean(),
     color: z.boolean(),
-    orientation: z.enum(["portrait", "landscape"]),
-    pagesPerSheet: z.enum(["1", "2", "4"]),
   }),
   files: z.array(z.instanceof(File)).min(1, "At least one file is required"),
 });
@@ -22,7 +24,20 @@ export const getSubmissionFields = (options: {
   classes: string[];
   fileTypes: string[];
   paperColors: string[];
+  teachers: { id: string; name: string }[];
+  disabledFields?: string[];
 }) => [
+  {
+    name: "teacherId",
+    label: "Teacher",
+    type: "select" as const,
+    options: options.teachers.map((teacher) => ({
+      value: teacher.id,
+      label: teacher.name,
+    })),
+    placeholder: "Select teacher",
+    disabled: options.disabledFields?.includes('teacherId'),
+  },
   {
     name: "class",
     label: "Class",

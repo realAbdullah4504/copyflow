@@ -1,5 +1,6 @@
 import * as z from "zod";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
 import {
   Dialog,
   DialogContent,
@@ -35,66 +36,71 @@ const NewSubmissionModal = ({
   teacherId,
   allowTeacherSelection,
 }: NewSubmissionModalProps) => {
-  const { createSubmission, isLoading: isSubmitting } = useSubmissionMutations();
+  const { createSubmission, isLoading: isSubmitting } =
+    useSubmissionMutations();
   const [files, setFiles] = useState<File[]>([]);
-  
-  const selectedTeacher = (!allowTeacherSelection && teachers?.find((t) => t.id === teacherId)) || null;
+
+  // Get teacher name for display
+  const teacherName = teachers?.find((t) => t.id === teacherId)?.name || "";
 
   const form = useFormWithConfig<z.infer<typeof submissionFormSchema>>({
+    teacherId: teacherId || "",
     class: "",
     fileType: "",
-    lessonDate: format(new Date(), 'yyyy-MM-dd'),
+    lessonDate: format(new Date(), "yyyy-MM-dd"),
     copies: 1,
     paperColor: "white",
     printSettings: {
       doubleSided: false,
       stapled: false,
       color: false,
-      orientation: "portrait",
-      pagesPerSheet: "1",
+      booklet: false,
+      hasCover: false,
+      coloredCover: false,
     },
-    files: []
+    files: [],
   });
 
   const onSubmit = async (values: z.infer<typeof submissionFormSchema>) => {
-    try {
-      console.log(values,"values");
-      // Handle file uploads here if needed
-      const submissionData = {
-        ...values,
-        files: files.map(file => ({
-          name: file.name,
-          size: file.size,
-          type: file.type,
-          lastModified: file.lastModified,
-        })),
-      };
+    const submissionData = {
+      ...values,
+      teacherName: teachers?.find((t) => t.id === values.teacherId)?.name || "",
+      subject: values.fileType, // Using fileType as subject for now
+      grade: values.class, // Using class as grade for now
+      notes: "", // Empty notes since it's required but not in our form
+      files: files.map((file) => ({
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        lastModified: file.lastModified,
+      })),
+      status: "pending" as const,
+    };
 
-      createSubmission(
-        {
-          ...submissionData,
-          status: "pending",
-        },
-        {
-          onSuccess: () => {
-            toast.success("Print request submitted successfully!");
-            form.reset();
-            setFiles([]);
-            onOpenChange(false);
-          },
-        }
-      );
-    } catch (error) {
-      console.error("Error submitting form:", error);
-      toast.error("Failed to submit print request. Please try again.");
-    }
+    createSubmission(submissionData, {
+      onSuccess: () => {
+        toast.success("Print request submitted successfully!");
+        form.reset();
+        setFiles([]);
+        onOpenChange(false);
+      },
+    });
   };
 
   const formFields = getSubmissionFields({
     classes: grades,
     fileTypes: ["Worksheet", "Exam", "Handout", "Lesson Plan", "Other"],
     paperColors: ["White", "Blue", "Green", "Yellow", "Pink"],
+    teachers: teachers || [],
+    disabledFields: !allowTeacherSelection && teacherId ? ["teacherId"] : [],
   });
+
+  // Set default teacher if provided and not allowed to select
+  useEffect(() => {
+    if (teacherId && !allowTeacherSelection) {
+      form.setValue("teacherId", teacherId);
+    }
+  }, [teacherId, allowTeacherSelection, form]);
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
@@ -115,24 +121,30 @@ const NewSubmissionModal = ({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {formFields.map((field) => {
               // Handle file uploads separately to manage the files state
-              if (field.type === 'file') {
+              if (field.type === "file") {
                 return (
-                  <div key={field.name} className={field.className || 'md:col-span-2'}>
-                    <SimpleFormField 
-                      {...field} 
-                      form={form} 
+                  <div
+                    key={field.name}
+                    className={field.className || "md:col-span-2"}
+                  >
+                    <SimpleFormField
+                      {...field}
+                      form={form}
                       value={files}
                       onChange={(e) => {
                         const newFiles = Array.from(e.target.files || []);
-                        setFiles(prev => [...prev, ...newFiles]);
-                        form.setValue('files', [...files, ...newFiles]);
+                        setFiles((prev) => [...prev, ...newFiles]);
+                        form.setValue("files", [...files, ...newFiles]);
                       }}
                     />
                   </div>
                 );
               }
               return (
-                <div key={field.name} className={field.className || 'md:col-span-2'}>
+                <div
+                  key={field.name}
+                  className={field.className || "md:col-span-2"}
+                >
                   <SimpleFormField {...field} form={form} />
                 </div>
               );
