@@ -10,26 +10,11 @@ import {
 import { useModal } from "@/hooks/useModal";
 import { useSubmissionsByTeacher } from "@/hooks/queries";
 import { useSubmissionMutations } from "@/hooks/mutations";
-import { useTableParams } from "@/hooks";
 
 const SubmissionPage = () => {
   const { user } = useAuth();
-  const {
-    pagination,
-    setPagination,
-    filters,
-    columnFilters,
-    setColumnFilters,
-    sorting,
-    setSorting,
-  } = useTableParams();
   const { submissions, isLoading, total } = useSubmissionsByTeacher(
-    user?.id || "",
-    {
-      pagination,
-      filters,
-      sorting,
-    }
+    user?.id || ""
   );
   const { deleteSubmission } = useSubmissionMutations();
   const { modal, openModal, closeModal } = useModal<Submission>();
@@ -59,16 +44,7 @@ const SubmissionPage = () => {
         data={submissions}
         columns={columns}
         isLoading={isLoading}
-        pagination={pagination}
-        columnFilters={columnFilters}
-        sorting={sorting}
         total={total}
-        onPaginationChange={setPagination}
-        onColumnFiltersChange={setColumnFilters}
-        onSortingChange={setSorting}
-        showFilters
-        showPagination
-        showSorting
       />
       <SubmissionModal
         data={modal.data}

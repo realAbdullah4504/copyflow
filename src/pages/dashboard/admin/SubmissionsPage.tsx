@@ -5,23 +5,9 @@ import {
   SubmissionTable,
 } from "@/components/submissions";
 import { useAllSubmissions } from "@/hooks/queries";
-import { useTableParams } from "@/hooks";
 
 const SubmissionPage = () => {
-  const {
-      pagination,
-      setPagination,
-      filters,
-      columnFilters,
-      setColumnFilters,
-      sorting,
-      setSorting,
-    } = useTableParams();
-  const { submissions, total, isLoading } = useAllSubmissions({
-    pagination,
-    filters,
-    sorting,
-  });
+  const { submissions, total, isLoading } = useAllSubmissions();
 
 
   const columns = getSubmissionColumns(ROLES.ADMIN);
@@ -34,17 +20,7 @@ const SubmissionPage = () => {
       <SubmissionTable
         data={submissions}
         columns={columns}
-        pagination={pagination}
-        columnFilters={columnFilters}
-        sorting={sorting}
-        total={total}
         isLoading={isLoading}
-        onPaginationChange={setPagination}
-        onColumnFiltersChange={setColumnFilters}
-        onSortingChange={setSorting}
-        showFilters
-        showPagination
-        showSorting
       />
     </>
   );
