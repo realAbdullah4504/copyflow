@@ -3,7 +3,7 @@ import type { Submission } from "@/types";
 import NewSubmissionModal from "./NewSubmissionModal";
 import EditSubmissionModal from "./EditSubmissionModal";
 import ViewSubmissionModal from "./ViewSubmissionModal";
-import ConfirmModal from "./ConfirmModal";
+import { ConfirmModal } from "@/components/common";
 
 interface Props {
   type: ModalActionType;
@@ -69,6 +69,7 @@ const SubmissionModal = ({
         data && (
           <ConfirmModal
             open={open}
+            onOpenChange={onOpenChange}
             title="Delete Submission"
             buttonTitle="Delete"
             description="Are you sure you want to delete this submission?"
@@ -83,6 +84,7 @@ const SubmissionModal = ({
         data && (
           <ConfirmModal
             open={open}
+            onOpenChange={onOpenChange}
             title="Printed Submission"
             buttonTitle="Printed"
             description="Are you sure you want to change the status of this submission to printed?"
@@ -97,6 +99,7 @@ const SubmissionModal = ({
         data && (
           <ConfirmModal
             open={open}
+            onOpenChange={onOpenChange}
             title="Censor Submission"
             buttonTitle="Censor"
             description="Are you sure you want to censor this submission?"

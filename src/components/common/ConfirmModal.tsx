@@ -53,9 +53,9 @@ const ConfirmModal = ({
           <Button
             variant={variant}
             className={
-              buttonTitle === "Delete"
-                ? "bg-red-600 hover:bg-red-700"
-                : "bg-blue-600 hover:bg-blue-700"
+              buttonTitle.toLowerCase() === "delete"
+                ? "bg-red-600 hover:bg-red-700 text-white"
+                : ""
             }
             onClick={handleConfirm}
           >
