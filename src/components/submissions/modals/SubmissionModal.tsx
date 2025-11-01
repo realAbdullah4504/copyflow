@@ -9,6 +9,7 @@ interface Props {
   type: ModalActionType;
   data?: Submission;
   open: boolean;
+  allowTeacherSelection?: boolean;
   onOpenChange: (open: boolean) => void;
   onClose: () => void;
   handlers: {
@@ -17,6 +18,7 @@ interface Props {
     onCensorshipConfirm?: () => void;
     onUnCensorshipConfirm?: () => void;
   };
+  teacherId?: string;
 }
 
 const SubmissionModal = ({
@@ -26,12 +28,21 @@ const SubmissionModal = ({
   onOpenChange,
   onClose,
   handlers,
+  teacherId,
+  allowTeacherSelection = false,
 }: Props) => {
   if (!type) return null;
 
   switch (type) {
     case "newSubmission":
-      return <NewSubmissionModal open={open} onOpenChange={onOpenChange} />;
+      return (
+        <NewSubmissionModal
+          open={open}
+          onOpenChange={onOpenChange}
+          allowTeacherSelection={allowTeacherSelection}
+          teacherId={teacherId}
+        />
+      );
     case "edit":
       return (
         data && (
@@ -94,20 +105,20 @@ const SubmissionModal = ({
           />
         )
       );
-        case "approve":
-          return (
-            handlers.onUnCensorshipConfirm &&
-            data && (
-              <ConfirmModal
-                open={open}
-                title="Approve Submission"
-                buttonTitle="Approve"
-                description="Are you sure you want to approve this submission?"
-                onConfirm={() => handlers.onUnCensorshipConfirm?.()}
-                onCancel={onClose}
-              />
-            )
-          );
+    case "approve":
+      return (
+        handlers.onUnCensorshipConfirm &&
+        data && (
+          <ConfirmModal
+            open={open}
+            title="Approve Submission"
+            buttonTitle="Approve"
+            description="Are you sure you want to approve this submission?"
+            onConfirm={() => handlers.onUnCensorshipConfirm?.()}
+            onCancel={onClose}
+          />
+        )
+      );
     default:
       return null;
   }

@@ -63,6 +63,7 @@ const SecretarySubmissionsPage = () => {
         onOpenChange={closeModal}
         onClose={closeModal}
         handlers={handlers}
+        allowTeacherSelection={!!ROLES.SECRETARY}
       />
     </>
   );

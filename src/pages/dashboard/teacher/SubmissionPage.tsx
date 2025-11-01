@@ -52,6 +52,7 @@ const SubmissionPage = () => {
         open={modal.isOpen}
         onOpenChange={closeModal}
         onClose={closeModal}
+        teacherId={user?.id || ""}
         handlers={{
           onDeleteConfirm: handleDeleteConfirm,
         }}

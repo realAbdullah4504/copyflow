@@ -31,6 +31,7 @@ import { toast } from "sonner";
 import { Loader as Loader2 } from "lucide-react";
 import type { FileType, PaperColor } from "@/types";
 import { useSubmissionMutations } from "@/hooks/mutations";
+import { teachers } from "@/constants";
 
 const formSchema = z.object({
   subject: z.string().min(1, "Subject is required"),
@@ -43,25 +44,25 @@ const formSchema = z.object({
   doubleSided: z.boolean(),
   stapled: z.boolean(),
   color: z.boolean(),
+  teacherId: z.string().min(1, "Teacher is required"),
   urgency: z.enum(["low", "medium", "high"]),
 });
 
 interface NewSubmissionModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  teacherOptions?: { id: string; name: string }[];
-  teacherId?: string | undefined;
-  teacherName?: string | undefined;
+  teacherId?: string;
+  allowTeacherSelection?: boolean;
 }
 
 const NewSubmissionModal = ({
   open,
   onOpenChange,
-  teacherOptions,
   teacherId,
-  teacherName,
+  allowTeacherSelection,
 }: NewSubmissionModalProps) => {
   const { createSubmission } = useSubmissionMutations();
+  const selectedTeacher = teachers.find((t) => t.id === teacherId) || null;
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -75,6 +76,7 @@ const NewSubmissionModal = ({
       paperColor: "white",
       doubleSided: false,
       stapled: false,
+      teacherId: selectedTeacher?.id || "",
       color: false,
       urgency: "medium",
     },
@@ -83,14 +85,14 @@ const NewSubmissionModal = ({
   const onSubmit = (values: z.infer<typeof formSchema>) => {
     createSubmission(
       {
-        teacherId: teacherId || "",
-        teacherName: teacherName || "",
+        teacherId: values.teacherId,
+        teacherName: selectedTeacher?.name || "",
         subject: values.subject,
         grade: values.grade,
         fileType: values.fileType as FileType,
         files: values.files.split(",").map((f) => f.trim()),
         notes: values.notes,
-        copies: parseInt(values.copies),
+        copies: Number.parseInt(values.copies),
         paperColor: values.paperColor as PaperColor,
         printSettings: {
           doubleSided: values.doubleSided,
@@ -151,40 +153,39 @@ const NewSubmissionModal = ({
                 )}
               />
             </div>
-            {teacherOptions && teacherOptions.length > 0 ? (
-              <FormField
-                control={form.control}
-                name="teacherId"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Teacher</FormLabel>
+            <FormField
+              control={form.control}
+              name="teacherId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Teacher</FormLabel>
+                  {allowTeacherSelection ? (
                     <Select
                       onValueChange={field.onChange}
-                      defaultValue={field.value || teacherId}
+                      defaultValue={selectedTeacher?.id}
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Select teacher" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {teacherOptions.map((t) => (
-                          <SelectItem key={t.id} value={t.id}>
-                            {t.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            ) : (
-              // For teacher role: hidden or read-only
-              <input
-                type="hidden"
-                value={teacherId}
-                {...form.register("teacherId")}
-              />
-            )}
+                      <SelectValue placeholder="Select teacher" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {teachers?.map((t) => (
+                        <SelectItem key={t.id} value={t.id}>
+                          {t.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  ) : (
+                    <Input
+                      placeholder="e.g., Mathematics"
+                      value={selectedTeacher?.name || ""}
+                      disabled
+                    />
+                  )}
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}
