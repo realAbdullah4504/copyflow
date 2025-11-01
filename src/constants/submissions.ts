@@ -20,7 +20,6 @@ const generateMockSubmissions = (count: number): Submission[] => {
     const createdAt = getRandomDate(new Date(2025, 0, 1), new Date());
     const updatedAt = getRandomDate(createdAt, new Date());
     const status = getRandomElement(statuses);
-    const urgency = getRandomElement(['low', 'medium', 'high']);
     const fileType = getRandomElement(fileTypes);
     const copies = getRandomInt(15, 40);
     const subject = getRandomElement(subjects);
@@ -42,7 +41,6 @@ const generateMockSubmissions = (count: number): Submission[] => {
         color: Math.random() > 0.7
       },
       status,
-      urgency,
       createdAt,
       updatedAt: status === 'pending' ? createdAt : updatedAt
     });

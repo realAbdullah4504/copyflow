@@ -58,7 +58,6 @@ export interface Submission {
     color: boolean;
   };
   status: SubmissionStatus;
-  urgency: "low" | "medium" | "high";
   createdAt: Date;
   updatedAt: Date;
 }
