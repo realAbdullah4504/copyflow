@@ -19,7 +19,6 @@ import { grades, teachers } from "@/constants";
 import {
   getSubmissionFields,
   submissionFormSchema,
-  type SubmissionFormValues,
 } from "../fields";
 import { format } from "date-fns";
 
@@ -40,11 +39,10 @@ const NewSubmissionModal = ({
     useSubmissionMutations();
   const [files, setFiles] = useState<File[]>([]);
 
-  // Get teacher name for display
-  const teacherName = teachers?.find((t) => t.id === teacherId)?.name || "";
+  const teacher = teachers?.find((t) => t.id === teacherId);
 
   const form = useFormWithConfig<z.infer<typeof submissionFormSchema>>({
-    teacherId: teacherId || "",
+    teacherId:teacherId || "",
     class: "",
     fileType: "",
     lessonDate: format(new Date(), "yyyy-MM-dd"),
@@ -64,7 +62,7 @@ const NewSubmissionModal = ({
   const onSubmit = async (values: z.infer<typeof submissionFormSchema>) => {
     const submissionData = {
       ...values,
-      teacherName: teachers?.find((t) => t.id === values.teacherId)?.name || "",
+      teacherId: values.teacherId,
       subject: values.fileType, // Using fileType as subject for now
       grade: values.class, // Using class as grade for now
       notes: "", // Empty notes since it's required but not in our form
@@ -94,13 +92,7 @@ const NewSubmissionModal = ({
     teachers: teachers || [],
     disabledFields: !allowTeacherSelection && teacherId ? ["teacherId"] : [],
   });
-
-  // Set default teacher if provided and not allowed to select
-  useEffect(() => {
-    if (teacherId && !allowTeacherSelection) {
-      form.setValue("teacherId", teacherId);
-    }
-  }, [teacherId, allowTeacherSelection, form]);
+  
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">

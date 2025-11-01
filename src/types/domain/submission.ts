@@ -12,7 +12,7 @@ export type FileType =
   | "lesson_plan"
   | "other";
 
-export type TimeFrame = 'today' | 'this_week' | 'this_month' | 'all';
+export type TimeFrame = "today" | "this_week" | "this_month" | "all";
 
 export type SubmissionFilters = {
   grade?: string;
@@ -21,7 +21,7 @@ export type SubmissionFilters = {
   timeFrame?: TimeFrame;
 };
 
-export type SortDirection = 'asc' | 'desc';
+export type SortDirection = "asc" | "desc";
 
 export type SubmissionSort = {
   id: string;
@@ -44,7 +44,7 @@ export type PaperColor = "white" | "yellow" | "blue" | "green" | "pink";
 export interface Submission {
   id: string;
   teacherId: string;
-  teacherName: string;
+  lessonDate: string;
   subject: string;
   grade: string;
   fileType: FileType;
@@ -56,6 +56,9 @@ export interface Submission {
     doubleSided: boolean;
     stapled: boolean;
     color: boolean;
+    booklet: boolean;
+    hasCover: boolean;
+    coloredCover: boolean;
   };
   status: SubmissionStatus;
   createdAt: Date;

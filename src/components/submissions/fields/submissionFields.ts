@@ -16,6 +16,7 @@ export const submissionFormSchema = z.object({
     color: z.boolean(),
   }),
   files: z.array(z.instanceof(File)).min(1, "At least one file is required"),
+  notes: z.string().optional(),
 });
 
 export type SubmissionFormValues = z.infer<typeof submissionFormSchema>;
@@ -36,7 +37,7 @@ export const getSubmissionFields = (options: {
       label: teacher.name,
     })),
     placeholder: "Select teacher",
-    disabled: options.disabledFields?.includes('teacherId'),
+    disabled: options.disabledFields?.includes("teacherId"),
   },
   {
     name: "class",
@@ -61,7 +62,7 @@ export const getSubmissionFields = (options: {
     label: "File Type",
     type: "select" as const,
     options: options.fileTypes.map((type) => ({
-      value: type.toLowerCase(),
+      value: type.toLowerCase().replaceAll(" ", "_"),
       label: type,
     })),
     placeholder: "Select file type",
@@ -140,3 +141,4 @@ export const getSubmissionFields = (options: {
 ];
 
 export type SubmissionField = ReturnType<typeof getSubmissionFields>[number];
+

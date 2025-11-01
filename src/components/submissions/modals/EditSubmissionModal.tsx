@@ -1,56 +1,20 @@
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
-import { useForm, type SubmitHandler } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Loader2 } from "lucide-react";
-import type { PaperColor, Submission } from "@/types";
-import { toast } from "sonner";
 import { useSubmissionMutations } from "@/hooks/mutations";
-
-type FormValues = {
-  subject: string;
-  grade: string;
-  notes: string;
-  copies: number;
-  paperColor: PaperColor;
-  printSettings: {
-    doubleSided: boolean;
-    stapled: boolean;
-    color: boolean;
-  };
-  urgency: "low" | "medium" | "high";
-};
-
-const formSchema = z.object({
-  subject: z.string().min(1, "Subject is required"),
-  grade: z.string().min(1, "Grade is required"),
-  notes: z.string(),
-  copies: z.coerce.number().min(1, "At least 1 copy is required"),
-  paperColor: z.enum(["white", "yellow", "blue", "green", "pink"]),
-  printSettings: z.object({
-    doubleSided: z.boolean(),
-    stapled: z.boolean(),
-    color: z.boolean(),
-  }),
-  urgency: z.enum(["low", "medium", "high"]),
-});
+import { getSubmissionFields, type submissionFormSchema } from "../fields";
+import {
+  useFormWithConfig,
+  Form as RHFForm,
+  FormField as SimpleFormField,
+} from "../forms";
+import type { Submission } from "@/types";
+import { grades, teachers } from "@/constants";
 
 interface EditSubmissionModalProps {
   readonly open: boolean;
@@ -65,35 +29,44 @@ const EditSubmissionModal = ({
   submission,
   onSuccess,
 }: EditSubmissionModalProps) => {
-  const { updateSubmission } = useSubmissionMutations();
+  const { updateSubmission, updateLoading: isSubmitting } =
+    useSubmissionMutations();
 
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema) as any,
-    defaultValues: {
-      subject: submission?.subject || "",
-      grade: submission?.grade || "",
-      notes: submission?.notes || "",
-      copies: submission?.copies || 1,
-      paperColor: submission?.paperColor || "white",
-      printSettings: {
-        doubleSided: submission?.printSettings.doubleSided || false,
-        stapled: submission?.printSettings.stapled || false,
-        color: submission?.printSettings.color || false,
-      },
-      urgency: submission?.urgency || "medium",
+  const form = useFormWithConfig<z.infer<typeof submissionFormSchema>>({
+    teacherId: submission?.teacherId,
+    class: submission?.grade,
+    fileType: submission?.fileType,
+    lessonDate: submission?.lessonDate,
+    copies: Number(submission?.copies),
+    paperColor: submission?.paperColor || "white",
+    printSettings: {
+      doubleSided: submission?.printSettings?.doubleSided || false,
+      stapled: submission?.printSettings?.stapled || false,
+      color: submission?.printSettings?.color || false,
+      booklet: submission?.printSettings?.booklet || false,
+      hasCover: submission?.printSettings?.hasCover || false,
+      coloredCover: submission?.printSettings?.coloredCover || false,
     },
+    notes: submission?.notes || "",
   });
 
-  const onSubmit = async (values: FormValues) => {
-    if (!submission) return;
+  const onSubmit = async (values: z.infer<typeof submissionFormSchema>) => {
+    const updates: Partial<Submission> = {
+      teacherId: values.teacherId,
+      grade: values.class,
+      fileType: values.fileType as Submission["fileType"],
+      lessonDate: values.lessonDate,
+      copies: values.copies,
+      paperColor: values.paperColor as Submission["paperColor"],
+      printSettings: values.printSettings,
+      notes: values.notes ?? "",
+      updatedAt: new Date(),
+    };
 
     updateSubmission(
       {
         id: submission.id,
-        updates: {
-          ...values,
-          updatedAt: new Date(),
-        },
+        updates,
       },
       {
         onSuccess: () => {
@@ -104,169 +77,44 @@ const EditSubmissionModal = ({
     );
   };
 
-  if (!submission) return null;
+
+  const formFields = getSubmissionFields({
+    classes: grades,
+    fileTypes: ["Worksheet", "Exam", "Handout", "Lesson Plan", "Other"],
+    paperColors: ["White", "Blue", "Green", "Yellow", "Pink"],
+    teachers: teachers || [],
+  });
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-xl font-semibold">
-            Edit Submission
-          </DialogTitle>
+          <DialogTitle>Edit Submission</DialogTitle>
+          <DialogDescription>
+            Fill in the details below to update the print request
+          </DialogDescription>
         </DialogHeader>
-
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 py-2">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="subject">Subject</Label>
-              <Input
-                id="subject"
-                {...form.register("subject")}
-                placeholder="Enter subject"
-              />
-              {form.formState.errors.subject && (
-                <p className="text-sm text-red-500">
-                  {form.formState.errors.subject.message}
-                </p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="grade">Grade</Label>
-              <Input
-                id="grade"
-                {...form.register("grade")}
-                placeholder="Enter grade"
-              />
-              {form.formState.errors.grade && (
-                <p className="text-sm text-red-500">
-                  {form.formState.errors.grade.message}
-                </p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="copies">Copies</Label>
-              <Input
-                id="copies"
-                type="number"
-                min={1}
-                {...form.register("copies", { valueAsNumber: true })}
-              />
-              {form.formState.errors.copies && (
-                <p className="text-sm text-red-500">
-                  {form.formState.errors.copies.message}
-                </p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="paperColor">Paper Color</Label>
-              <Select
-                onValueChange={(value: PaperColor) =>
-                  form.setValue("paperColor", value)
-                }
-                value={form.watch("paperColor")}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select paper color" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="white">White</SelectItem>
-                  <SelectItem value="yellow">Yellow</SelectItem>
-                  <SelectItem value="blue">Blue</SelectItem>
-                  <SelectItem value="green">Green</SelectItem>
-                  <SelectItem value="pink">Pink</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="urgency">Urgency</Label>
-              <Select
-                onValueChange={(value: "low" | "medium" | "high") =>
-                  form.setValue("urgency", value)
-                }
-                value={form.watch("urgency")}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select urgency" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="low">Low</SelectItem>
-                  <SelectItem value="medium">Medium</SelectItem>
-                  <SelectItem value="high">High</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="col-span-2 space-y-4 pt-2">
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="doubleSided"
-                  checked={form.watch("printSettings.doubleSided")}
-                  onCheckedChange={(checked) =>
-                    form.setValue("printSettings.doubleSided", Boolean(checked))
-                  }
-                />
-                <Label htmlFor="doubleSided">Double Sided</Label>
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="stapled"
-                  checked={form.watch("printSettings.stapled")}
-                  onCheckedChange={(checked) =>
-                    form.setValue("printSettings.stapled", Boolean(checked))
-                  }
-                />
-                <Label htmlFor="stapled">Stapled</Label>
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="color"
-                  checked={form.watch("printSettings.color")}
-                  onCheckedChange={(checked) =>
-                    form.setValue("printSettings.color", Boolean(checked))
-                  }
-                />
-                <Label htmlFor="color">Color Print</Label>
-              </div>
-            </div>
-
-            <div className="col-span-2 space-y-2">
-              <Label htmlFor="notes">Notes</Label>
-              <Textarea
-                id="notes"
-                {...form.register("notes")}
-                placeholder="Any additional notes or instructions"
-                className="min-h-[100px]"
-              />
-            </div>
+        <RHFForm
+          key={submission?.id || "new"}
+          form={form}
+          onSubmit={onSubmit}
+          isSubmitting={isSubmitting}
+          submitText="Update Print Request"
+          className="space-y-6"
+        >
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {formFields.map((field) => {
+              return (
+                <div
+                  key={field.name}
+                  className={field.className || "md:col-span-2"}
+                >
+                  <SimpleFormField {...field} form={form} />
+                </div>
+              );
+            })}
           </div>
-
-          <div className="flex justify-end space-x-4 pt-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-              disabled={updateSubmission.isPending}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" disabled={updateSubmission.isPending}>
-              {updateSubmission.isPending ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Updating...
-                </>
-              ) : (
-                "Save Changes"
-              )}
-            </Button>
-          </div>
-        </form>
+        </RHFForm>
       </DialogContent>
     </Dialog>
   );
