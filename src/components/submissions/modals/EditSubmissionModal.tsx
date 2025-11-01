@@ -15,6 +15,7 @@ import {
 } from "../forms";
 import type { Submission } from "@/types";
 import { grades, teachers } from "@/constants";
+import { format } from "date-fns";
 
 interface EditSubmissionModalProps {
   readonly open: boolean;
@@ -32,11 +33,12 @@ const EditSubmissionModal = ({
   const { updateSubmission, updateLoading: isSubmitting } =
     useSubmissionMutations();
 
+  console.log("submission", submission);
   const form = useFormWithConfig<z.infer<typeof submissionFormSchema>>({
     teacherId: submission?.teacherId,
-    class: submission?.grade,
+    class: submission?.class,
     fileType: submission?.fileType,
-    lessonDate: submission?.lessonDate,
+    lessonDate: format(new Date(), "yyyy-MM-dd"),
     copies: Number(submission?.copies),
     paperColor: submission?.paperColor || "white",
     printSettings: {
@@ -76,7 +78,6 @@ const EditSubmissionModal = ({
       }
     );
   };
-
 
   const formFields = getSubmissionFields({
     classes: grades,
