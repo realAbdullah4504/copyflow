@@ -14,7 +14,7 @@ import {
   FormField as SimpleFormField,
 } from "../forms";
 import type { Submission } from "@/types";
-import { grades, teachers } from "@/constants";
+import {teachers } from "@/constants";
 import { format } from "date-fns";
 import { useClassesByTeacher } from "@/hooks";
 
@@ -33,13 +33,12 @@ const EditSubmissionModal = ({
 }: EditSubmissionModalProps) => {
   const { updateSubmission, updateLoading: isSubmitting } =
     useSubmissionMutations();
-
-  console.log("submission", submission);
+  console.log("submission", submission)
   const form = useFormWithConfig<z.infer<typeof submissionFormSchema>>({
     teacherId: submission?.teacherId,
     class: submission?.class,
     fileType: submission?.fileType,
-    lessonDate: format(new Date(), "yyyy-MM-dd"),
+    lessonDate: format(submission?.lessonDate || new Date(), "yyyy-MM-dd"),
     copies: Number(submission?.copies),
     paperColor: submission?.paperColor || "white",
     printSettings: {
@@ -56,9 +55,9 @@ const EditSubmissionModal = ({
   const onSubmit = async (values: z.infer<typeof submissionFormSchema>) => {
     const updates: Partial<Submission> = {
       teacherId: values.teacherId,
-      grade: values.class,
+      class: values.class,
       fileType: values.fileType as Submission["fileType"],
-      lessonDate: values.lessonDate,
+      lessonDate: new Date(values.lessonDate),
       copies: values.copies,
       paperColor: values.paperColor as Submission["paperColor"],
       printSettings: values.printSettings,
