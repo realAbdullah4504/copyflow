@@ -1,6 +1,5 @@
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import {
@@ -9,9 +8,17 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useAuth } from "@/hooks/useAuth";
 import { useClassMutations } from "@/hooks/mutations";
 import { toast } from "sonner";
+import { subjects, grades } from "@/constants";
 
 interface NewClassModalProps {
   open: boolean;
@@ -29,9 +36,10 @@ const NewClassModal = ({ open, onOpenChange }: NewClassModalProps) => {
   const { createClass } = useClassMutations();
 
   const {
-    register,
+    control,
     handleSubmit,
     reset,
+    register,
     formState: { errors, isSubmitting },
   } = useForm<ClassFormData>({
     defaultValues: {
@@ -69,10 +77,24 @@ const NewClassModal = ({ open, onOpenChange }: NewClassModalProps) => {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="subject">Subject</Label>
-            <Input
-              id="subject"
-              placeholder="Enter subject name"
-              {...register("subject", { required: "Subject is required" })}
+            <Controller
+              name="subject"
+              control={control}
+              rules={{ required: "Subject is required" }}
+              render={({ field }) => (
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a subject" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {subjects.map((subject) => (
+                      <SelectItem key={subject} value={subject}>
+                        {subject}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
             />
             {errors.subject && (
               <p className="text-sm text-red-500">{errors.subject.message}</p>
@@ -81,10 +103,24 @@ const NewClassModal = ({ open, onOpenChange }: NewClassModalProps) => {
 
           <div className="space-y-2">
             <Label htmlFor="grade">Grade</Label>
-            <Input
-              id="grade"
-              placeholder="e.g., 9A, 10B"
-              {...register("grade", { required: "Grade is required" })}
+            <Controller
+              name="grade"
+              control={control}
+              rules={{ required: "Grade is required" }}
+              render={({ field }) => (
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a grade" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {grades.map((grade) => (
+                      <SelectItem key={grade} value={grade}>
+                        Grade {grade}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
             />
             {errors.grade && (
               <p className="text-sm text-red-500">{errors.grade.message}</p>

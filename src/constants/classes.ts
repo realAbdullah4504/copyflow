@@ -1,19 +1,5 @@
 import type { ClassEntity } from "@/types";
-
-const subjects = [
-  "Mathematics",
-  "English",
-  "Science",
-  "History",
-  "Physics",
-  "Chemistry",
-  "Biology",
-  "Geography",
-  "Computer Science",
-  "Art",
-];
-
-const grades = ["9A", "9B", "10A", "10B", "11A", "11B", "12A", "12B"];
+import { teachers, subjects, grades } from "./shared";
 
 const getRandomElement = <T,>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)];
 const getRandomDate = (start: Date, end: Date) =>
@@ -37,7 +23,6 @@ export const generateMockClasses = (teacherId: string, count: number): ClassEnti
 };
 
 // Seed a few teachers' classes for demo
-const teacherIds = ["1", "2", "3"];
-export const mockClasses: ClassEntity[] = teacherIds.flatMap((t) =>
-  generateMockClasses(t, 6)
+export const mockClasses: ClassEntity[] = teachers.flatMap((t) =>
+  generateMockClasses(t.id, 6)
 );

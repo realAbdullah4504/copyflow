@@ -1,22 +1,8 @@
 import type { Submission } from "@/types";
+import { teachers, grades, subjects } from "./shared";
 
-const teachers = [
-  { id: '1', name: 'Sarah Johnson' },
-  { id: '2', name: 'Michael Chen' },
-  { id: '3', name: 'Emily Rodriguez' },
-  { id: '4', name: 'David Kim' },
-  { id: '5', name: 'Jennifer Lee' },
-  { id: '6', name: 'Robert Wilson' }
-];
-
-const subjects = [
-  'Mathematics', 'English', 'Science', 'History', 'Physics', 
-  'Chemistry', 'Biology', 'Geography', 'Computer Science', 'Art',
-  'Music', 'Physical Education', 'Economics', 'Psychology', 'Sociology'
-];
 
 const fileTypes = ['worksheet', 'exam', 'handout', 'lesson_plan', 'quiz', 'study_guide'];
-const grades = ['9A', '9B', '10A', '10B', '11A', '11B', '12A', '12B'];
 const statuses = ['pending', 'printed', 'censored'];
 const paperColors = ['white', 'yellow', 'blue', 'green', 'pink'];
 

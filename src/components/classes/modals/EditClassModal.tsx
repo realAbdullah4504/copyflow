@@ -1,6 +1,5 @@
 import { useForm, Controller } from "react-hook-form";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import {
@@ -9,6 +8,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { subjects, grades } from "@/constants";
 import { useClassMutations } from "@/hooks/mutations";
 import type { ClassEntity } from "@/types";
 
@@ -32,7 +39,6 @@ const EditClassModal = ({
   const { updateClass } = useClassMutations();
 
   const {
-    register,
     handleSubmit,
     reset,
     control,
@@ -75,10 +81,24 @@ const EditClassModal = ({
           {/* Subject */}
           <div className="space-y-2">
             <Label htmlFor="subject">Subject</Label>
-            <Input
-              id="subject"
-              placeholder="Enter subject name"
-              {...register("subject", { required: "Subject is required" })}
+            <Controller
+              name="subject"
+              control={control}
+              rules={{ required: "Subject is required" }}
+              render={({ field }) => (
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a subject" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {subjects.map((subject) => (
+                      <SelectItem key={subject} value={subject}>
+                        {subject}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
             />
             {errors.subject && (
               <p className="text-sm text-red-500">{errors.subject.message}</p>
@@ -88,10 +108,24 @@ const EditClassModal = ({
           {/* Grade */}
           <div className="space-y-2">
             <Label htmlFor="grade">Grade</Label>
-            <Input
-              id="grade"
-              placeholder="e.g., 9A, 10B"
-              {...register("grade", { required: "Grade is required" })}
+            <Controller
+              name="grade"
+              control={control}
+              rules={{ required: "Grade is required" }}
+              render={({ field }) => (
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a grade" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {grades.map((grade) => (
+                      <SelectItem key={grade} value={grade}>
+                        Grade {grade}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
             />
             {errors.grade && (
               <p className="text-sm text-red-500">{errors.grade.message}</p>
