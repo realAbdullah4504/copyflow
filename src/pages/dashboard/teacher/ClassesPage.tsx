@@ -16,7 +16,7 @@ import { PageHeader } from "@/components/common";
 const ClassesPage = () => {
   const { user } = useAuth();
   const { classes, isLoading } = useClassesByTeacher(user?.id || "");
-  const { deleteClass, toggleActive } = useClassMutations();
+  const { deleteClass, toggleActive,toggleLoading,deleteLoading } = useClassMutations();
   const { modal, openModal, closeModal } = useModal<ClassEntity>();
 
   const handleAction = (action: string, row: ClassEntity) => {
@@ -64,6 +64,7 @@ const ClassesPage = () => {
         open={modal.isOpen}
         onOpenChange={closeModal}
         onClose={closeModal}
+        isSubmitting={toggleLoading || deleteLoading}
         handlers={{
           onDeleteConfirm: handleDeleteConfirm,
           onToggleActiveConfirm: handleToggleActiveConfirm,

@@ -6,25 +6,42 @@ import { mutationHandlers } from "./mutationHandlers";
 
 export const useClassMutations = () => {
   const createClass = useMutation({
-    mutationFn: (data: Omit<ClassEntity, "id" | "createdAt" | "updatedAt">) =>
+    mutationFn: (data: Omit<ClassEntity,"active" | "id" | "createdAt" | "updatedAt">) =>
       classesService.create(data),
-    ...mutationHandlers("Class Created", [QUERY_KEYS.TEACHER_CLASSES]),
+    ...mutationHandlers({
+      successMessage: "Class Created",
+      invalidateKeys: [QUERY_KEYS.TEACHER_CLASSES],
+    }),
   });
 
   const updateClass = useMutation({
-    mutationFn: ({ id, updates }: { id: string; updates: Partial<ClassEntity> }) =>
-      classesService.update(id, updates),
-    ...mutationHandlers("Class Updated", [QUERY_KEYS.TEACHER_CLASSES]),
+    mutationFn: ({
+      id,
+      updates,
+    }: {
+      id: string;
+      updates: Partial<ClassEntity>;
+    }) => classesService.update(id, updates),
+    ...mutationHandlers({
+      successMessage: "Class Updated",
+      invalidateKeys: [QUERY_KEYS.TEACHER_CLASSES],
+    }),
   });
 
   const toggleActive = useMutation({
     mutationFn: (id: string) => classesService.toggleActive(id),
-    ...mutationHandlers("Class Status Updated", [QUERY_KEYS.TEACHER_CLASSES]),
+    ...mutationHandlers({
+      successMessage: "Class Status Updated",
+      invalidateKeys: [QUERY_KEYS.TEACHER_CLASSES],
+    }),
   });
 
   const deleteClass = useMutation({
     mutationFn: (id: string) => classesService.delete(id),
-    ...mutationHandlers("Class Deleted", [QUERY_KEYS.TEACHER_CLASSES]),
+    ...mutationHandlers({
+      successMessage: "Class Deleted",
+      invalidateKeys: [QUERY_KEYS.TEACHER_CLASSES],
+    }),
   });
 
   return {

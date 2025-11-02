@@ -17,9 +17,10 @@ import {
 } from "@/components/ui/select";
 import { useAuth } from "@/hooks/useAuth";
 import { useClassMutations } from "@/hooks/mutations";
-import { toast } from "sonner";
 import { subjects, grades } from "@/constants";
 import { useClassesByTeacher } from "@/hooks";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
+import { toast } from "sonner";
 
 interface NewClassModalProps {
   open: boolean;
@@ -29,7 +30,6 @@ interface NewClassModalProps {
 interface ClassFormData {
   subject: string;
   grade: string;
-  active: boolean;
 }
 
 const NewClassModal = ({ open, onOpenChange }: NewClassModalProps) => {
@@ -47,12 +47,13 @@ const NewClassModal = ({ open, onOpenChange }: NewClassModalProps) => {
     defaultValues: {
       subject: "",
       grade: "",
-      active: true,
     },
   });
 
   const onSubmit = (data: ClassFormData) => {
-    if (classes?.some((c) => c.subject === data.subject && c.grade === data.grade)) {
+    if (
+      classes?.some((c) => c.subject === data.subject && c.grade === data.grade)
+    ) {
       toast.error("Class already exists");
       return;
     }
@@ -62,11 +63,9 @@ const NewClassModal = ({ open, onOpenChange }: NewClassModalProps) => {
         teacherId: user.id,
         subject: data.subject.trim(),
         grade: data.grade.trim(),
-        active: data.active,
       },
       {
         onSuccess: () => {
-          toast.success("Class created successfully");
           onOpenChange(false);
           reset();
         },
@@ -133,11 +132,6 @@ const NewClassModal = ({ open, onOpenChange }: NewClassModalProps) => {
             )}
           </div>
 
-          <div className="flex items-center space-x-2">
-            <Switch id="active" defaultChecked {...register("active")} />
-            <Label htmlFor="active">Active</Label>
-          </div>
-
           <div className="flex justify-end space-x-2 pt-4">
             <Button
               type="button"
@@ -148,7 +142,11 @@ const NewClassModal = ({ open, onOpenChange }: NewClassModalProps) => {
               Cancel
             </Button>
             <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "Creating..." : "Create Class"}
+              {isSubmitting ? (
+                <LoadingSpinner className="mr-2" />
+              ) : (
+                "Create Class"
+              )}
             </Button>
           </div>
         </form>

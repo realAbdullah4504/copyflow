@@ -16,8 +16,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { subjects, grades } from "@/constants";
-import { useClassMutations } from "@/hooks/mutations";
+import { useClassMutations, useClassesByTeacher } from "@/hooks";
 import type { ClassEntity } from "@/types";
+import { toast } from "sonner";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
 
 interface EditClassModalProps {
   open: boolean;
@@ -28,7 +30,6 @@ interface EditClassModalProps {
 interface ClassFormData {
   subject: string;
   grade: string;
-  active: boolean;
 }
 
 const EditClassModal = ({
@@ -36,7 +37,8 @@ const EditClassModal = ({
   classData,
   onOpenChange,
 }: EditClassModalProps) => {
-  const { updateClass } = useClassMutations();
+  const { updateClass, updateLoading } = useClassMutations();
+  const { classes } = useClassesByTeacher(classData.teacherId);
 
   const {
     handleSubmit,
@@ -47,18 +49,22 @@ const EditClassModal = ({
     defaultValues: {
       subject: classData.subject,
       grade: classData.grade,
-      active: classData.active,
     },
   });
 
   const onSubmit = (data: ClassFormData) => {
+    if (
+      classes?.some((c) => c.subject === data.subject && c.grade === data.grade)
+    ) {
+      toast.error("Class already exists");
+      return;
+    }
     updateClass(
       {
         id: classData.id,
         updates: {
           subject: data.subject.trim(),
           grade: data.grade.trim(),
-          active: data.active,
         },
       },
       {
@@ -132,36 +138,19 @@ const EditClassModal = ({
             )}
           </div>
 
-          {/* Active Switch */}
-          <div className="flex items-center space-x-2">
-            <Controller
-              name="active"
-              control={control}
-              render={({ field }) => (
-                <>
-                  <Switch
-                    id="active"
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                  <Label htmlFor="active">Active</Label>
-                </>
-              )}
-            />
-          </div>
-
           {/* Actions */}
           <div className="flex justify-end space-x-2 pt-4">
             <Button
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
-              disabled={isSubmitting}
+              disabled={updateLoading}
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "Saving..." : "Save Changes"}
+            <Button type="submit" disabled={updateLoading}>
+              {updateLoading && <LoadingSpinner className="mr-2" />} Save
+              Changes
             </Button>
           </div>
         </form>

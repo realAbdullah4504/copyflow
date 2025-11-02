@@ -9,6 +9,7 @@ interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onClose: () => void;
+  isSubmitting?: boolean;
   handlers: {
     onDeleteConfirm?: () => void;
     onToggleActiveConfirm?: () => void;
@@ -21,12 +22,13 @@ const ClassModal = ({
   open,
   onOpenChange,
   onClose,
+  isSubmitting,
   handlers,
 }: Props) => {
   if (!type) return null;
   switch (type) {
     case "newClass":
-      return <NewClassModal open={open} onOpenChange={onOpenChange} />;
+      return <NewClassModal open={open} onOpenChange={onOpenChange}  />;
     case "editClass":
       return (
         data && (
@@ -44,6 +46,7 @@ const ClassModal = ({
           <ConfirmModal
             open={open}
             onOpenChange={onOpenChange}
+            isSubmitting={isSubmitting}
             title="Delete Class"
             buttonTitle="Delete"
             description="Are you sure you want to delete this class? This action cannot be undone."
@@ -59,6 +62,7 @@ const ClassModal = ({
           <ConfirmModal
             open={open}
             onOpenChange={onOpenChange}
+            isSubmitting={isSubmitting}
             title={data.active ? "Deactivate Class" : "Activate Class"}
             buttonTitle={data.active ? "Deactivate" : "Activate"}
             description={`Are you sure you want to ${
