@@ -12,14 +12,13 @@ export const submissionService = {
     const { data: submissions } = await supabase
       .from("submissions")
       .select(
-        "file_type,lesson_date,copies,paper_color,notes,status,print_settings,created_at,updated_at,teacher:teacher_id(*),class:class_id(*)"
+        "id,file_type,lesson_date,copies,paper_color,notes,status,print_settings,created_at,updated_at,teacher:teacher_id(*),class:class_id(*)"
       )
       .neq("status", "printed")
       .order("created_at", { ascending: false });
 
-    console.log(submissions);
-
     const submissionsData = submissions?.map((s) => ({
+      id: s.id,
       class: `Grade ${s.class?.grade} - ${s.class?.subject}`,
       teacherName: s.teacher?.name,
       teacherId: s.teacher?.id,
@@ -206,19 +205,8 @@ export const submissionService = {
   createSubmission: async (
     submission: Omit<Submission, "id" | "createdAt" | "updatedAt">
   ): Promise<Submission> => {
-    console.log(submission);
-    const newSubmissions = {
-      teacher_id: submission.teacherId,
-      class_id: submission.classId,
-      file_type: submission.fileType,
-      lesson_date: submission.lessonDate,
-      copies: submission.copies,
-      paper_color: submission.paperColor,
-      notes: submission.notes,
-      status: submission.status,
-      print_settings: submission.printSettings,
-      // files: submission.files,
-    };
+    console.log(submission,"submission");
+    return null
     const { data: newSubmission } = await supabase
       .from("submissions")
       .insert(newSubmissions)
@@ -251,6 +239,8 @@ export const submissionService = {
     id: string,
     updates: Partial<Submission>
   ): Promise<Submission> => {
+    console.log(id,updates,"updates")
+    return null
     await new Promise((resolve) => setTimeout(resolve, 300));
 
     const index = mockSubmissions.findIndex((s) => s.id === id);

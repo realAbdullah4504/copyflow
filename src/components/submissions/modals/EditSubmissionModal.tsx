@@ -50,6 +50,9 @@ const EditSubmissionModal = ({
   });
 
   const onSubmit = async (values: z.infer<typeof submissionFormSchema>) => {
+    if (!submission) {
+      throw new Error("Submission not found");
+    }
     const updates: Partial<Submission> = {
       teacherId: values.teacherId,
       class: values.class,
