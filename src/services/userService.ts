@@ -1,10 +1,9 @@
-import { mockUsers } from "@/constants/mockUsers";
 import { supabase } from "@/lib/supabaseClient";
-import type { User } from "@/types";
+import type { CreateUserResponse, GetUsersResponse, User } from "@/types";
 import { AppError } from "@/utils/errorUtils";
 
 export const userService = {
-  getUsers: async (): Promise<{ data: User[]; total: number }> => {
+  getUsers: async (): Promise<GetUsersResponse> => {
     const { data, error } = await supabase
       .from("profiles")
       .select()
@@ -16,14 +15,14 @@ export const userService = {
     }
 
     return {
-      data,
+      users: data,
       total: data.length,
     };
   },
 
   createUser: async (
     user: Omit<User, "id" | "createdAt" | "updatedAt">
-  ): Promise<{ user: User; password: string }> => {
+  ): Promise<CreateUserResponse> => {
     const { data, error } = await supabase.functions.invoke("create-user", {
       body: user,
     });
@@ -62,7 +61,7 @@ export const userService = {
   deleteUser: async (id: string): Promise<void> => {
     const { error } = await supabase.functions.invoke("delete-user", {
       body: { userId: id },
-      method:"DELETE",
+      method: "DELETE",
     });
     if (error) {
       const appError = await AppError.from(error);

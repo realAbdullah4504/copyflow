@@ -8,7 +8,7 @@ export const useUsers = () => {
     queryFn: async () => userService.getUsers(),
   });
   return {
-    users: data?.data || [],
+    users: data?.users || [],
     isLoading,
     ...rest,
   };

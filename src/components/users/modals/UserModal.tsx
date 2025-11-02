@@ -21,7 +21,6 @@ interface UserModalProps {
     onAddConfirm?: (data: Omit<User, "id">) => void;
   };
   isSubmitting: boolean;
-  isDeletingUser: boolean;
 }
 
 const UserModal = ({
@@ -31,7 +30,6 @@ const UserModal = ({
   onOpenChange,
   onClose,
   handlers,
-
   isSubmitting,
 }: UserModalProps) => {
   if (type === "deleteUser" && user) {

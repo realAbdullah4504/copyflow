@@ -4,6 +4,7 @@ import { UserModal, UsersTable } from "@/components/users";
 import { useUsers, useUserMutations, useModal } from "@/hooks";
 import type { User } from "@/types";
 import { getUsersColumns } from "@/components/users/userColumns";
+import { showPasswordToast } from "@/components/users/PasswordToast";
 
 const UsersPage = () => {
   const { users, isLoading } = useUsers();
@@ -27,7 +28,12 @@ const UsersPage = () => {
       updateUser({ id: modal.data.id, ...data }, { onSuccess: closeModal });
     },
     onAddConfirm: (data: Omit<User, "id">) => {
-      createUser(data, { onSuccess: closeModal });
+      createUser(data, { 
+        onSuccess: (response) => {
+          closeModal();
+          showPasswordToast({ password: response.password });
+        }
+      });
     },
   };
   const handleEditUser = (user: User) => openModal("editUser", user);
