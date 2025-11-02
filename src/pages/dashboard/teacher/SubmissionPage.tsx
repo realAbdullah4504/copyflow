@@ -8,8 +8,7 @@ import {
   SubmissionTable,
 } from "@/components/submissions";
 import { useModal } from "@/hooks/useModal";
-import { useSubmissionsByTeacher } from "@/hooks/queries";
-import { useSubmissionMutations } from "@/hooks/mutations";
+import { useSubmissionsByTeacher,useSubmissionMutations } from "@/hooks";
 
 const SubmissionPage = () => {
   const { user } = useAuth();

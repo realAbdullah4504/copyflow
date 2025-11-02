@@ -7,9 +7,11 @@ import {
 import { ROLES } from "@/config/roles";
 import { useModal } from "@/hooks/useModal";
 import type { Submission } from "@/types";
-import { useSubmissionMutations } from "@/hooks/mutations";
-import { useAuth } from "@/hooks/useAuth";
-import { useCensoredSubmissionsByTeacher } from "@/hooks/queries";
+import {
+  useCensoredSubmissionsByTeacher,
+  useSubmissionMutations,
+  useAuth,
+} from "@/hooks";
 
 export default function TeacherCensorshipPage() {
   const { user } = useAuth();

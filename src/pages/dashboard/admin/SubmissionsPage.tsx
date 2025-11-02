@@ -4,7 +4,7 @@ import {
   getSubmissionColumns,
   SubmissionTable,
 } from "@/components/submissions";
-import { useAllSubmissions } from "@/hooks/queries";
+import { useAllSubmissions } from "@/hooks";
 
 const SubmissionPage = () => {
   const { submissions, isLoading } = useAllSubmissions();

@@ -1,9 +1,11 @@
 import { PageHeader } from "@/components/common";
 import { getArchiveColumns, SubmissionTable } from "@/components/submissions";
 import { ROLES } from "@/config/roles";
-import { useArchiveSubmissionsByTeacher } from "@/hooks/queries";
-import { useAuth } from "@/hooks/useAuth";
-import { useTableParams } from "@/hooks";
+import {
+  useArchiveSubmissionsByTeacher,
+  useAuth,
+  useTableParams,
+} from "@/hooks";
 export default function TeacherArchivePage() {
   const {
     pagination,

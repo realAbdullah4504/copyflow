@@ -4,7 +4,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Form } from "@/components/submissions/forms/Form";
+import { Form } from "@/components/common";
 import FormField from "@/components/common/FormField";
 import type { User } from "@/types";
 import { useForm } from "react-hook-form";
@@ -78,7 +78,7 @@ const UserModal = ({
         <DialogHeader>
           <DialogTitle>{user ? "Edit User" : "Add New User"}</DialogTitle>
         </DialogHeader>
-        <FormField
+        <Form
           form={form}
           onSubmit={handleFormSubmit}
           isSubmitting={isSubmitting}
@@ -105,7 +105,7 @@ const UserModal = ({
             options={roleOptions}
             form={form}
           />
-        </FormField>
+        </Form>
       </DialogContent>
     </Dialog>
   );

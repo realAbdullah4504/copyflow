@@ -1,8 +1,10 @@
-import { useAuth } from "@/hooks/useAuth";
 import { ROLES } from "@/config/roles";
-import { useClassesByTeacher } from "@/hooks/queries";
-import { useClassMutations } from "@/hooks/mutations";
-import { useModal } from "@/hooks/useModal";
+import {
+  useClassesByTeacher,
+  useClassMutations,
+  useModal,
+  useAuth,
+} from "@/hooks";
 import type { ClassEntity } from "@/types";
 import {
   ClassesTable,

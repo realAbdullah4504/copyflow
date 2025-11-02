@@ -1,8 +1,7 @@
 import { PageHeader } from "@/components/common";
 import { getArchiveColumns, SubmissionTable } from "@/components/submissions";
 import { ROLES } from "@/config/roles";
-import { useArchivedSubmissions } from "@/hooks/queries";
-import { useTableParams } from "@/hooks";
+import { useTableParams,useArchivedSubmissions } from "@/hooks";
 export default function AdminArchivePage() {
   const {
     pagination,

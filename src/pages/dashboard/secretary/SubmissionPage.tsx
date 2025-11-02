@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { ROLES } from "@/config/roles";
 import type { Submission } from "@/types";
 import {
@@ -7,9 +6,7 @@ import {
   SubmissionTable,
 } from "@/components/submissions";
 import { PageHeader } from "@/components/common";
-import { useModal } from "@/hooks/useModal";
-import { useAllSubmissions } from "@/hooks/queries";
-import { useSubmissionMutations } from "@/hooks/mutations";
+import { useAllSubmissions, useSubmissionMutations,useModal } from "@/hooks";
 
 const SecretarySubmissionsPage = () => {
   const { submissions, total, isLoading } = useAllSubmissions();

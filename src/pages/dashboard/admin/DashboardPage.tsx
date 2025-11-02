@@ -6,12 +6,9 @@ import {
   Users,
   Clock,
   CheckCircle,
-  Activity,
-  HardDrive,
   User,
 } from "lucide-react";
-import { submissionService } from "@/services/submissionService";
-import { useAllSubmissions } from "@/hooks/queries";
+import { useAllSubmissions } from "@/hooks";
 
 type StatsCardProps = {
   title: string;

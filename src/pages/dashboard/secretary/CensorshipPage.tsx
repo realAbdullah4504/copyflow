@@ -5,10 +5,9 @@ import {
   SubmissionTable,
 } from "@/components/submissions";
 import { ROLES } from "@/config/roles";
-import { useCensoredSubmissions } from "@/hooks/queries";
+import { useCensoredSubmissions, useSubmissionMutations } from "@/hooks";
 import { useModal } from "@/hooks/useModal";
 import type { Submission } from "@/types";
-import { useSubmissionMutations } from "@/hooks/mutations";
 
 export default function SecretaryCensorshipPage() {
   const { submissions, isLoading } = useCensoredSubmissions();

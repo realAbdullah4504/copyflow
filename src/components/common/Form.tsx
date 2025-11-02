@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
-import type { SubmissionFormValues } from "../fields";
+import type { SubmissionFormValues } from "../submissions/fields";
 
 interface FormProps {
   children: ReactNode;
@@ -48,5 +48,5 @@ export const FormFieldGroup = ({ children, className = '' }: { children: ReactNo
   </div>
 );
 
-export { Form };
+export default Form;
 

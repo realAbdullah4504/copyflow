@@ -4,7 +4,7 @@ import {
   SubmissionTable,
 } from "@/components/submissions";
 import { ROLES } from "@/config/roles";
-import { useCensoredSubmissions } from "@/hooks/queries";
+import { useCensoredSubmissions } from "@/hooks";
 
 export default function AdminCensorshipPage() {
   const { submissions } = useCensoredSubmissions();

@@ -1,5 +1,5 @@
 import * as z from "zod";
-import { useState, useEffect } from "react";
+import { useState} from "react";
 import {
   Dialog,
   DialogContent,
@@ -8,16 +8,16 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import {
-  useFormWithConfig,
   Form as RHFForm,
-} from "../forms";
+  FormField
+} from "@/components/common";
 import { toast } from "sonner";
 import { useSubmissionMutations } from "@/hooks/mutations";
 import { teachers } from "@/constants";
 import { getSubmissionFields, submissionFormSchema } from "../fields";
 import { format } from "date-fns";
 import { useClassesByTeacher } from "@/hooks/queries";
-import { FormField } from "@/components/common";
+import { useFormWithConfig } from "@/hooks";
 
 interface NewSubmissionModalProps {
   open: boolean;

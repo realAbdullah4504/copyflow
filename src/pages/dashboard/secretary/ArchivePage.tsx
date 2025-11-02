@@ -5,11 +5,13 @@ import {
   SubmissionTable,
 } from "@/components/submissions";
 import { ROLES } from "@/config/roles";
-import { useArchivedSubmissions } from "@/hooks/queries";
+import {
+  useArchivedSubmissions,
+  useSubmissionMutations,
+  useTableParams,
+} from "@/hooks";
 import { useModal } from "@/hooks/useModal";
 import type { Submission } from "@/types";
-import { useSubmissionMutations } from "@/hooks/mutations";
-import { useTableParams } from "@/hooks";
 export default function SecretaryArchivePage() {
   const {
     pagination,

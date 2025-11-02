@@ -1,9 +1,7 @@
 import { UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useUsers } from "@/hooks";
 import { UsersTable } from "@/components/users";
-import { useUserMutations } from "@/hooks/mutations/useUserMutations";
-import { useModal } from "@/hooks/useModal";
+import { useUsers, useUserMutations, useModal } from "@/hooks";
 import type { User } from "@/types";
 import UserModal from "@/components/users/UserModal";
 import { getUsersColumns } from "@/components/users/userColumns";

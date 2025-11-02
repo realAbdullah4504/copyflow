@@ -8,15 +8,12 @@ import {
 import { z } from "zod";
 import { useSubmissionMutations } from "@/hooks/mutations";
 import { getSubmissionFields, type submissionFormSchema } from "../fields";
-import {
-  useFormWithConfig,
-  Form as RHFForm,
-} from "../forms";
+import { useFormWithConfig } from "@/hooks";
 import type { Submission } from "@/types";
-import {teachers } from "@/constants";
+import { teachers } from "@/constants";
 import { format } from "date-fns";
 import { useClassesByTeacher } from "@/hooks";
-import { FormField } from "@/components/common";
+import { FormField, Form as RHFForm } from "@/components/common";
 
 interface EditSubmissionModalProps {
   readonly open: boolean;
@@ -33,7 +30,6 @@ const EditSubmissionModal = ({
 }: EditSubmissionModalProps) => {
   const { updateSubmission, updateLoading: isSubmitting } =
     useSubmissionMutations();
-  console.log("submission", submission)
   const form = useFormWithConfig<z.infer<typeof submissionFormSchema>>({
     teacherId: submission?.teacherId,
     class: submission?.class,

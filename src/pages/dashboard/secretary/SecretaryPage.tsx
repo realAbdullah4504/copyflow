@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, FileText, Archive, AlertTriangle, CheckCircle, Clock } from "lucide-react";
-import { useAllSubmissions, useArchivedSubmissions, useCensoredSubmissions } from "@/hooks/queries";
+import { useAllSubmissions, useArchivedSubmissions, useCensoredSubmissions } from "@/hooks";
 
 type StatsCardProps = {
   title: string;
