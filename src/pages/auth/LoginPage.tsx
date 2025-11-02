@@ -6,7 +6,7 @@ import { Divider } from "@/components/ui/divider";
 import { useAuth } from "@/hooks/useAuth";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 type LoginInputs = {
   email: string;
@@ -82,6 +82,13 @@ const LoginPage = () => {
 
       <p className="text-xs text-center text-slate-500 mt-2">
         Click any demo account to auto-fill credentials
+      </p>
+      
+      <p className="text-center text-sm mt-4">
+        Don't have an account?{" "}
+        <Link to="/auth/signup" className="text-primary hover:underline font-medium">
+          Sign up
+        </Link>
       </p>
     </CardContent>
   );

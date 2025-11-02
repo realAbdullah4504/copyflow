@@ -1,4 +1,5 @@
 export const QUERY_KEYS = {
+  CURRENT_USER: "currentUser",
   USERS: "users",
   USER: "user",
   SUBMISSIONS: "submissions",
@@ -11,4 +12,4 @@ export const QUERY_KEYS = {
   TEACHER_CLASSES: "classes:teacher",
 } as const;
 
-export type QueryKey = (typeof QUERY_KEYS)[keyof typeof QUERY_KEYS];
+export type QueryKeys = (typeof QUERY_KEYS)[keyof typeof QUERY_KEYS];

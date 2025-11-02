@@ -8,24 +8,27 @@ export const useUserMutations = () => {
   const createUser = useMutation({
     mutationFn: (user: Omit<User, "id" | "createdAt" | "updatedAt">) => 
       userService.createUser(user),
-    ...mutationHandlers("User created successfully", [
-      QUERY_KEYS.USERS
-    ]),
+    ...mutationHandlers({
+      successMessage: "User created successfully",
+      invalidateKeys: [QUERY_KEYS.USERS],
+    }),
   });
 
   const updateUser = useMutation({
     mutationFn: ({ id, ...updates }: { id: string } & Partial<User>) => 
       userService.updateUser(id, updates),
-    ...mutationHandlers("User updated successfully", [
-      QUERY_KEYS.USERS,
-    ]),
+    ...mutationHandlers({
+      successMessage: "User updated successfully",
+      invalidateKeys: [QUERY_KEYS.USERS],
+    }),
   });
 
   const deleteUser = useMutation({
     mutationFn: (id: string) => userService.deleteUser(id),
-    ...mutationHandlers("User deleted successfully", [
-      QUERY_KEYS.USERS,
-    ]),
+    ...mutationHandlers({
+      successMessage: "User deleted successfully",
+      invalidateKeys: [QUERY_KEYS.USERS],
+    }),
   });
 
   return {

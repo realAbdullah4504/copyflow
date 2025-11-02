@@ -1,67 +1,176 @@
-import type { User, LoginResponse, LoginCredentials } from '@/types';
+import { supabase } from "@/lib/supabaseClient";
+import type {
+  User,
+  LoginResponse,
+  LoginFormFields,
+  SignupFormFields,
+  SignupResponse,
+} from "@/types";
+import { AppError } from "@/utils";
 
 const mockUsers: User[] = [
   {
-    id: '1',
-    name: 'Sarah Johnson',
-    email: 'sarah.johnson@school.edu',
-    role: 'teacher'
+    id: "1",
+    name: "Sarah Johnson",
+    email: "sarah.johnson@school.edu",
+    role: "teacher",
+    active: true,
   },
   {
-    id: '2',
-    name: 'Michael Chen',
-    email: 'michael.chen@school.edu',
-    role: 'teacher'
+    id: "2",
+    name: "Michael Chen",
+    email: "michael.chen@school.edu",
+    role: "teacher",
+    active: true,
   },
   {
-    id: '3',
-    name: 'Emily Rodriguez',
-    email: 'emily.rodriguez@school.edu',
-    role: 'secretary'
+    id: "3",
+    name: "Emily Rodriguez",
+    email: "emily.rodriguez@school.edu",
+    role: "secretary",
+    active: true,
   },
   {
-    id: '4',
-    name: 'David Thompson',
-    email: 'david.thompson@school.edu',
-    role: 'admin'
-  }
+    id: "4",
+    name: "David Thompson",
+    email: "david.thompson@school.edu",
+    role: "admin",
+    active: true,
+  },
 ];
 
 export const authService = {
-  login: async (credentials: LoginCredentials): Promise<LoginResponse> => {
-    await new Promise(resolve => setTimeout(resolve, 500));
+  signUp: async (credentials: SignupFormFields): Promise<SignupResponse> => {
+    const { email, password, name } = credentials;
 
-    const user = mockUsers.find(u => u.email === credentials.email);
-    if (!user) {
-      throw new Error('Invalid credentials');
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          name,
+        },
+      },
+    });
+
+    if (error) {
+      const appError = await AppError.from(error);
+      throw appError;
     }
 
-    // In a real app, this would be returned from the server
-    const token = `mock-jwt-token-${user.id}`;
-    
-    return { user, token };
+    if (!data.user) {
+      const appError = await AppError.from(
+        "No user data returned from sign up"
+      );
+      throw appError;
+    }
+
+    const { error: profileError } = await supabase
+      .from("profiles")
+      .insert([
+        {
+          id: data.user.id,
+          email,
+          name,
+          role: "admin",
+          active: true,
+        },
+      ])
+      .select()
+      .single();
+
+    if (profileError) {
+      const appError = await AppError.from(profileError);
+      throw appError;
+    }
+    const user: User = {
+      id: data.user.id,
+      email: data.user.email || email,
+      name: name,
+      role: "admin",
+      active: true,
+    };
+
+    return { user };
+  },
+  login: async (credentials: LoginFormFields): Promise<LoginResponse> => {
+    const { email, password } = credentials;
+
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
+      const appError = await AppError.from(error);
+      throw appError;
+    }
+
+    if (!data.user) {
+      const appError = await AppError.from("No user data returned from login");
+      throw appError;
+    }
+
+    const { data: profile, error: profileError } = await supabase
+      .from("profiles")
+      .select()
+      .eq("id", data.user.id)
+      .single();
+
+    if (profileError) {
+      const appError = await AppError.from(profileError);
+      throw appError;
+    }
+    const user: User = {
+      id: data.user.id,
+      email: data.user.email || email,
+      name: profile.name,
+      role: profile.role,
+      active: profile.active,
+    };
+
+    return { user };
   },
 
   logout: async (): Promise<void> => {
-    await new Promise(resolve => setTimeout(resolve, 200));
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      const appError = await AppError.from(error);
+      throw appError;
+    }
   },
 
-  getCurrentUser: async (): Promise<User | null> => {
-    await new Promise(resolve => setTimeout(resolve, 100));
-    if (typeof window === 'undefined') return null;
-    const userData = localStorage.getItem('currentUser');
-    return userData ? JSON.parse(userData) : null;
+  getCurrentUser: async (): Promise<LoginResponse> => {
+    const { data } = await supabase.auth.getUser();
+    if (!data.user) {
+      const appError = await AppError.from("No user data returned from login");
+      throw appError;
+    }
+
+    const { data: profile, error: profileError } = await supabase
+      .from("profiles")
+      .select()
+      .eq("id", data.user.id)
+      .single();
+
+    if (profileError) {
+      const appError = await AppError.from(profileError);
+      throw appError;
+    }
+    const user: User = {
+      id: data.user.id,
+      email: data.user.email || profile.email,
+      name: profile.name,
+      role: profile.role,
+      active: profile.active,
+    };
+
+    return { user };
   },
 
   setCurrentUser: (data: { user: User; token: string }): void => {
-    if (typeof window === 'undefined') return;
-    localStorage.setItem('currentUser', JSON.stringify(data.user));
-    localStorage.setItem('token', data.token);
+    if (typeof globalThis.window === "undefined") return;
+    localStorage.setItem("currentUser", JSON.stringify(data.user));
+    localStorage.setItem("token", data.token);
   },
-
-  clearCurrentUser: (): void => {
-    if (typeof window === 'undefined') return;
-    localStorage.removeItem('currentUser');
-    localStorage.removeItem('token');
-  }
 };

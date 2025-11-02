@@ -1,39 +1,48 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { authService } from '@/services/authService';
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { authService } from "@/services/authService";
+import { mutationHandlers } from "./mutations";
 
 export function useAuth() {
-  const queryClient = useQueryClient();
-
-  const { data: user, isLoading } = useQuery({
-    queryKey: ['currentUser'],
+  const { data, isLoading } = useQuery({
+    queryKey: ["currentUser"],
     queryFn: () => authService.getCurrentUser(),
     staleTime: Infinity,
   });
 
   const loginMutation = useMutation({
     mutationFn: authService.login,
-    onSuccess: (data) => {
-      authService.setCurrentUser(data);
-      queryClient.setQueryData(['currentUser'], data.user);
-    },
+    ...mutationHandlers({
+      successMessage: "Login successful",
+      invalidateKeys: ["currentUser"],
+    }),
+  });
+
+  const signupMutation = useMutation({
+    mutationFn: authService.signUp,
+    ...mutationHandlers({
+      successMessage: "Account created successfully",
+      invalidateKeys: ["currentUser"],
+    }),
   });
 
   const logoutMutation = useMutation({
     mutationFn: authService.logout,
-    onSuccess: () => {
-      authService.clearCurrentUser();
-      queryClient.setQueryData(['currentUser'], null);
-      queryClient.clear();
-    },
+    ...mutationHandlers({
+      successMessage: "Logout successful",
+      invalidateKeys: ["currentUser"],
+    }),
   });
 
   return {
-    user: user || null,
+    user: data?.user || null,
     isLoading,
-    isAuthenticated: !!user,
+    isAuthenticated: !!data?.user,
     login: loginMutation.mutate,
     logout: logoutMutation.mutateAsync,
     isLoggingIn: loginMutation.isPending,
     loginError: loginMutation.error,
+    signup: signupMutation.mutate,
+    isSigningUp: signupMutation.isPending,
+    signupError: signupMutation.error,
   };
 }

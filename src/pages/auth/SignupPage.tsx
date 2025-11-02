@@ -2,18 +2,14 @@ import { AUTH_FIELDS, AuthForm, AuthPageHeader } from "@/components/auth";
 import { CardContent } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import { toast } from "sonner";
+import type { SignupFormFields } from "@/types";
+import { useAuth } from "@/hooks/useAuth";
 
-type SignupInputs = {
-  name: string;
-  email: string;
-  password: string;
-  confirmPassword: string;
-};
 const SignupPage = () => {
   const navigate = useNavigate();
+  const { signup, isSigningUp } = useAuth();
 
-  const form = useForm<SignupInputs>({
+  const form = useForm<SignupFormFields>({
     defaultValues: {
       name: "",
       email: "",
@@ -25,23 +21,18 @@ const SignupPage = () => {
 
   const config = AUTH_FIELDS.SIGNUP;
 
-  const onSubmit = async (data: SignupInputs): Promise<void> => {
-    // Replace with your actual signup API call
-    // Example:
-    // const response = await fetch('/api/signup', {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify(data)
-    // });
-
-    // For now, we'll simulate a successful signup
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        console.log("Signup data:", data);
-        toast.success("Account created successfully!");
-        navigate("/login");
-        resolve();
-      }, 1000);
+  const onSubmit = (data: SignupFormFields): void => {
+    if (data.password !== data.confirmPassword) {
+      form.setError("confirmPassword", {
+        type: "manual",
+        message: "Passwords do not match",
+      });
+      return;
+    }
+    signup(data, {
+      onSuccess: () => {
+        navigate("/");
+      },
     });
   };
   return (
@@ -54,7 +45,7 @@ const SignupPage = () => {
         config={config}
         form={form}
         onSubmit={onSubmit}
-        isSubmitting={false} // Set to true during form submission
+        isSubmitting={isSigningUp}
       />
     </CardContent>
   );

@@ -3,7 +3,7 @@
  * Request/response types for auth endpoints
  */
 
-import type { User } from '../domain';
+import type { User } from "@/types/domain";
 
 export interface LoginCredentials {
   email: string;
@@ -12,11 +12,12 @@ export interface LoginCredentials {
 
 export interface LoginResponse {
   user: User;
-  token: string;
+}
+export interface SignupResponse {
+  user: User;
 }
 
 export interface AuthResponse {
   user: User;
-  token: string;
   refreshToken?: string;
 }
