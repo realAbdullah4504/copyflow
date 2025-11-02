@@ -1,7 +1,6 @@
 import { useForm, Controller } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
 import {
   Dialog,
   DialogContent,
@@ -19,8 +18,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { useClassMutations } from "@/hooks/mutations";
 import { subjects, grades } from "@/constants";
 import { useClassesByTeacher } from "@/hooks";
-import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 
 interface NewClassModalProps {
   open: boolean;
@@ -143,7 +142,7 @@ const NewClassModal = ({ open, onOpenChange }: NewClassModalProps) => {
             </Button>
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting ? (
-                <LoadingSpinner className="mr-2" />
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               ) : (
                 "Create Class"
               )}

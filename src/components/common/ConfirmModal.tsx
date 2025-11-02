@@ -7,7 +7,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { LoadingSpinner } from "../ui/loading-spinner";
+import { Loader2 } from "lucide-react";
 
 interface ConfirmModalProps {
   open: boolean;
@@ -60,7 +60,7 @@ const ConfirmModal = ({
             onClick={handleConfirm}
             disabled={isSubmitting}
           >
-            {isSubmitting && <LoadingSpinner className="mr-2" />} {buttonTitle}
+            {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} {buttonTitle}
           </Button>
         </DialogFooter>
       </DialogContent>

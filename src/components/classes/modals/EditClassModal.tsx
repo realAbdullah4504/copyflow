@@ -1,7 +1,6 @@
 import { useForm, Controller } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
 import {
   Dialog,
   DialogContent,
@@ -19,7 +18,7 @@ import { subjects, grades } from "@/constants";
 import { useClassMutations, useClassesByTeacher } from "@/hooks";
 import type { ClassEntity } from "@/types";
 import { toast } from "sonner";
-import { LoadingSpinner } from "@/components/ui/loading-spinner";
+import { Loader2 } from "lucide-react";
 
 interface EditClassModalProps {
   open: boolean;
@@ -149,7 +148,7 @@ const EditClassModal = ({
               Cancel
             </Button>
             <Button type="submit" disabled={updateLoading}>
-              {updateLoading && <LoadingSpinner className="mr-2" />} Save
+              {updateLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Save
               Changes
             </Button>
           </div>
