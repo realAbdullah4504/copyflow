@@ -1,33 +1,30 @@
 import { queryClient } from "@/lib/queryClient";
 import { toast } from "sonner";
+import { AppError } from "@/utils";
 
 /**
  * Invalidates a list of React Query keys.
  */
 const invalidate = (keys: unknown[]) => {
-  keys.forEach((key) => {
+  for (const key of keys) {
     queryClient.invalidateQueries({ queryKey: [key] });
-  });
+  }
 };
 
 /**
  * Generic mutation handlers for useMutation hooks.
- * 
- * @template TError - Error type (defaults to Error)
+ *   
  * @template TData - Success data type
- * @template TVariables - Variables type passed to mutation
  */
 export const mutationHandlers = <
-  TError extends Error = Error,
   TData = unknown,
-  TVariables = unknown
 >(
   options: {
     successMessage?: string;
     errorMessage?: string;
     invalidateKeys?: unknown[];
     onSuccess?: (data: TData) => void;
-    onError?: (error: TError) => void;
+    onError?: (error: Error) => void;
   } = {}
 ) => {
   const {
@@ -44,9 +41,9 @@ export const mutationHandlers = <
       if (invalidateKeys.length > 0) invalidate(invalidateKeys);
       onSuccess?.(data);
     },
-    onError: (error: TError) => {
+    onError: (error: Error) => {
       console.error(error);
-      toast.error(errorMessage);
+      toast.error(error.message || errorMessage);
       onError?.(error);
     },
   };
