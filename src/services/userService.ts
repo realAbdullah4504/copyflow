@@ -19,6 +19,18 @@ export const userService = {
       total: data.length,
     };
   },
+  getTeachers: async (): Promise<User[]> => {
+    const { data, error } = await supabase
+      .from("profiles")
+      .select()
+      .eq("role", "teacher")
+      .order("created_at", { ascending: false });
+    if (error) {
+      const appError = await AppError.from(error);
+      throw appError;
+    }
+    return data;
+  },
 
   createUser: async (
     user: Omit<User, "id" | "createdAt" | "updatedAt">

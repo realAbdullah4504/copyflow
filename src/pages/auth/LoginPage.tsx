@@ -16,7 +16,7 @@ type LoginInputs = {
 const demoAccounts = [
   { email: "teacher@copyflow.com", name: "Teacher", role: "Teacher", password: "teacher1234" },
   {
-    email: "secretary@copyflow.com",
+    email: "idycziment@gmail.com",
     name: "Secretary",
     role: "Secretary",
     password: "gfd-25KC",

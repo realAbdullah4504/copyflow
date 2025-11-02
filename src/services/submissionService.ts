@@ -1,4 +1,5 @@
 import { mockSubmissions } from "@/constants";
+import { supabase } from "@/lib/supabaseClient";
 import type { Submission, SubmissionQueryParams } from "@/types";
 import { filterData, paginateData, sortData } from "@/utils";
 
@@ -8,12 +9,39 @@ export const submissionService = {
   ): Promise<{ data: Submission[]; total: number }> => {
     const { pagination, filters, sorting } = params ?? {};
 
-    await new Promise((resolve) => setTimeout(resolve, 300));
+    const { data: submissions } = await supabase
+      .from("submissions")
+      .select(
+        "file_type,lesson_date,copies,paper_color,notes,status,print_settings,created_at,updated_at,teacher:teacher_id(*),class:class_id(*)"
+      )
+      .neq("status", "printed")
+      .order("created_at", { ascending: false });
 
-    let filtered = mockSubmissions.filter((sub) => sub.status !== "printed");
+    console.log(submissions);
+
+    const submissionsData = submissions?.map((s) => ({
+      class: `Grade ${s.class?.grade} - ${s.class?.subject}`,
+      teacherName: s.teacher?.name,
+      teacherId: s.teacher?.id,
+      classId: s.class?.id,
+      fileType: s.file_type,
+      lessonDate: s.lesson_date,
+      copies: s.copies,
+      paperColor: s.paper_color,
+      notes: s.notes,
+      status: s.status,
+      printSettings: s.print_settings,
+      createdAt: s.created_at,
+      updatedAt: s.updated_at,
+      // files: s.files,
+    }));
+
+    if (!submissionsData) {
+      throw new Error("Failed to fetch submissions");
+    }
 
     // Apply sorting if specified
-    filtered = sortData(filtered, sorting);
+    let filtered = sortData(submissionsData, sorting);
 
     // Apply filters if specified
     filtered = filterData(filtered, filters);
@@ -31,13 +59,19 @@ export const submissionService = {
     params?: SubmissionQueryParams
   ): Promise<{ data: Submission[]; total: number }> => {
     const { pagination, filters, sorting } = params ?? {};
-    await new Promise((resolve) => setTimeout(resolve, 300));
-    let filtered = mockSubmissions.filter(
-      (s) => s.teacherId === teacherId && s.status !== "printed"
-    );
+    const { data: submissions } = await supabase
+      .from("submissions")
+      .select("*")
+      .neq("status", "printed")
+      .eq("teacher_id", teacherId)
+      .order("created_at", { ascending: false });
+
+    if (!submissions) {
+      throw new Error("Failed to fetch submissions");
+    }
 
     // Apply sorting if specified
-    filtered = sortData(filtered, sorting);
+    let filtered = sortData(submissions, sorting);
 
     // Apply filters if specified
     filtered = filterData(filtered, filters);
@@ -57,11 +91,18 @@ export const submissionService = {
     total: number;
   }> => {
     const { pagination, filters, sorting } = params ?? {};
-    await new Promise((resolve) => setTimeout(resolve, 300));
-    let filtered = mockSubmissions.filter((sub) => sub.status === "printed");
+    const { data: submissions } = await supabase
+      .from("submissions")
+      .select("*")
+      .eq("status", "printed")
+      .order("created_at", { ascending: false });
+
+    if (!submissions) {
+      throw new Error("Failed to fetch submissions");
+    }
 
     // Apply sorting if specified
-    filtered = sortData(filtered, sorting);
+    let filtered = sortData(submissions, sorting);
 
     // Apply filters if specified
     filtered = filterData(filtered, filters);
@@ -79,13 +120,19 @@ export const submissionService = {
     params?: SubmissionQueryParams
   ): Promise<{ data: Submission[]; total: number }> => {
     const { pagination, filters, sorting } = params ?? {};
-    await new Promise((resolve) => setTimeout(resolve, 300));
-    let filtered = mockSubmissions.filter(
-      (sub) => sub.teacherId === teacherId && sub.status === "printed"
-    );
+    const { data: submissions } = await supabase
+      .from("submissions")
+      .select("*")
+      .eq("status", "printed")
+      .eq("teacher_id", teacherId)
+      .order("created_at", { ascending: false });
+
+    if (!submissions) {
+      throw new Error("Failed to fetch submissions");
+    }
 
     // Apply sorting if specified
-    filtered = sortData(filtered, sorting);
+    let filtered = sortData(submissions, sorting);
 
     // Apply filters if specified
     filtered = filterData(filtered, filters);
@@ -102,11 +149,18 @@ export const submissionService = {
     params?: SubmissionQueryParams
   ): Promise<{ data: Submission[]; total: number }> => {
     const { pagination, filters, sorting } = params ?? {};
-    await new Promise((resolve) => setTimeout(resolve, 300));
-    let filtered = mockSubmissions.filter((sub) => sub.status === "censored");
+    const { data: submissions } = await supabase
+      .from("submissions")
+      .select("*")
+      .eq("status", "censored")
+      .order("created_at", { ascending: false });
+
+    if (!submissions) {
+      throw new Error("Failed to fetch submissions");
+    }
 
     // Apply sorting if specified
-    filtered = sortData(filtered, sorting);
+    let filtered = sortData(submissions, sorting);
 
     // Apply filters if specified
     filtered = filterData(filtered, filters);
@@ -124,13 +178,19 @@ export const submissionService = {
     params?: SubmissionQueryParams
   ): Promise<{ data: Submission[]; total: number }> => {
     const { pagination, filters, sorting } = params ?? {};
-    await new Promise((resolve) => setTimeout(resolve, 300));
-    let filtered = mockSubmissions.filter(
-      (s) => s.teacherId === teacherId && s.status === "censored"
-    );
+    const { data: submissions } = await supabase
+      .from("submissions")
+      .select("*")
+      .eq("status", "censored")
+      .eq("teacher_id", teacherId)
+      .order("created_at", { ascending: false });
+
+    if (!submissions) {
+      throw new Error("Failed to fetch submissions");
+    }
 
     // Apply sorting if specified
-    filtered = sortData(filtered, sorting);
+    let filtered = sortData(submissions, sorting);
 
     // Apply filters if specified
     filtered = filterData(filtered, filters);
@@ -146,17 +206,45 @@ export const submissionService = {
   createSubmission: async (
     submission: Omit<Submission, "id" | "createdAt" | "updatedAt">
   ): Promise<Submission> => {
-    await new Promise((resolve) => setTimeout(resolve, 400));
+    console.log(submission);
+    const newSubmissions = {
+      teacher_id: submission.teacherId,
+      class_id: submission.classId,
+      file_type: submission.fileType,
+      lesson_date: submission.lessonDate,
+      copies: submission.copies,
+      paper_color: submission.paperColor,
+      notes: submission.notes,
+      status: submission.status,
+      print_settings: submission.printSettings,
+      // files: submission.files,
+    };
+    const { data: newSubmission } = await supabase
+      .from("submissions")
+      .insert(newSubmissions)
+      .single();
 
-    const newSubmission: Submission = {
-      ...submission,
-      id: Math.random().toString(36).substring(2, 11),
-      createdAt: new Date(),
-      updatedAt: new Date(),
+    if (!newSubmission) {
+      throw new Error("Failed to create submission");
+    }
+
+    const newSubmissionData: Submission = {
+      teacherId: newSubmission.teacher_id,
+      classId: newSubmission.class_id,
+      fileType: newSubmission.file_type,
+      lessonDate: newSubmission.lesson_date,
+      copies: newSubmission.copies,
+      paperColor: newSubmission.paper_color,
+      notes: newSubmission.notes,
+      status: newSubmission.status,
+      printSettings: newSubmission.print_settings,
+      files: newSubmission.files,
+      id: newSubmission.id,
+      createdAt: newSubmission.created_at,
+      updatedAt: newSubmission.updated_at,
     };
 
-    mockSubmissions.push(newSubmission);
-    return newSubmission;
+    return newSubmissionData;
   },
 
   updateSubmission: async (

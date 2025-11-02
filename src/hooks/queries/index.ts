@@ -10,4 +10,7 @@ export * from "./useClassesByTeacher";
 
 export * from "./useUsers";
 
+export * from "./useTeachers";
+
+
 

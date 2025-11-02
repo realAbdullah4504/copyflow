@@ -1,5 +1,6 @@
 export const QUERY_KEYS = {
   CURRENT_USER: "currentUser",
+  TEACHERS: "teachers",
   USERS: "users",
   USER: "user",
   SUBMISSIONS: "submissions",

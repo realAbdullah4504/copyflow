@@ -35,10 +35,6 @@ export const getSubmissionColumns = (
     {
       accessorKey: "class",
       header: "Class",
-      cell: ({ getValue }) => {
-        const val = getValue<string>();
-        return val.replace("_", " ");
-      },
       enableSorting: true,
     },
     {

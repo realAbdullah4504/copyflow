@@ -45,14 +45,13 @@ export interface Submission {
   id: string;
   teacherId: string;
   classId: string;
-  teacherName: string;
   class: string;
-  lessonDate: Date;
   fileType: FileType;
-  files: string[];
-  notes: string;
+  lessonDate: Date;
   copies: number;
   paperColor: PaperColor;
+  notes: string;
+  status: SubmissionStatus;
   printSettings: {
     doubleSided: boolean;
     stapled: boolean;
@@ -61,7 +60,7 @@ export interface Submission {
     hasCover: boolean;
     coloredCover: boolean;
   };
-  status: SubmissionStatus;
+  files: string[];
   createdAt: Date;
   updatedAt: Date;
 }
