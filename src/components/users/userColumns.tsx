@@ -7,7 +7,7 @@ import { Pencil, Trash2 } from "lucide-react";
 
 export const getUsersColumns = (
   onEdit: (user: User) => void,
-  onDelete: (userId: string) => void
+  onDelete: (user: User) => void
 ): ColumnDef<User>[] => [
   {
     accessorKey: "name",

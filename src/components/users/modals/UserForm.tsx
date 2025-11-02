@@ -2,8 +2,12 @@ import { Form } from "@/components/common";
 import FormField from "@/components/common/FormField";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { userFormSchema, type UserFormValues, getUserFormFields } from "./userFields";
-import type { User } from "@/types";
+import {
+  userFormSchema,
+  type UserFormValues,
+  getUserFormFields,
+} from "./userFields";
+import type { User, UserRole } from "@/types";
 
 interface UserFormProps {
   user?: User;
@@ -23,14 +27,16 @@ const UserForm = ({
   const form = useForm<UserFormValues>({
     resolver: zodResolver(userFormSchema),
     defaultValues: {
+      id: user?.id || "",
       name: user?.name || "",
       email: user?.email || "",
-      role: user?.role || "teacher",
+      role:
+        (user?.role as Exclude<UserRole, "admin" | "principal">) ?? "teacher",
     },
   });
 
   const fields = getUserFormFields(user);
-  
+
   return (
     <Form
       form={form}

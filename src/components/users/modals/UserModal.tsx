@@ -7,17 +7,19 @@ import {
 import { ConfirmModal } from "@/components/common";
 import UserForm from "./UserForm";
 import type { User } from "@/types";
-
-type UserModalAction = "view" | "edit" | "delete" | "new";
+import type { ModalActionType } from "@/hooks";
 
 interface UserModalProps {
-  type: UserModalAction;
+  type: ModalActionType;
   user?: User;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onClose: () => void;
-  onSubmit: (userData: Omit<User, "id">, userId?: string) => void;
-  onDelete?: () => void;
+  handlers: {
+    onDeleteConfirm?: () => void;
+    onEditConfirm?: (data: User) => void;
+    onAddConfirm?: (data: Omit<User, "id">) => void;
+  };
   isSubmitting: boolean;
 }
 
@@ -27,14 +29,10 @@ const UserModal = ({
   open,
   onOpenChange,
   onClose,
-  onSubmit,
-  onDelete,
+  handlers,
+
   isSubmitting,
 }: UserModalProps) => {
-  const handleSubmit = (data: any) => {
-    onSubmit(data, user?.id);
-  };
-
   if (type === "delete" && user) {
     return (
       <ConfirmModal
@@ -43,19 +41,13 @@ const UserModal = ({
         title="Delete User"
         buttonTitle="Delete"
         description="Are you sure you want to delete this user? This action cannot be undone."
-        onConfirm={onDelete}
+        onConfirm={() => handlers.onDeleteConfirm?.()}
         onCancel={onClose}
       />
     );
   }
 
-  const isViewMode = type === "view";
-  const title = user
-    ? isViewMode
-      ? "User Details"
-      : "Edit User"
-    : "Add New User";
-
+  const title = user ? "Edit User" : "User Details";
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
@@ -64,10 +56,14 @@ const UserModal = ({
         </DialogHeader>
         <UserForm
           user={user}
-          onSubmit={handleSubmit}
+          onSubmit={(data) =>
+            user
+              ? handlers.onEditConfirm?.(data as User)
+              : handlers.onAddConfirm?.(data as Omit<User, "id">)
+          }
           isSubmitting={isSubmitting}
-          submitText={isViewMode ? "Close" : "Save"}
-          disabled={isViewMode}
+          submitText={"Save"}
+          disabled={false}
         />
       </DialogContent>
     </Dialog>

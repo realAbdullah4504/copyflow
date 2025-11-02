@@ -17,31 +17,26 @@ const UsersPage = () => {
   } = useUserMutations();
   const { modal, openModal, closeModal } = useModal<User>();
 
-  const handleAddUser = () => {
-    openModal("newUser");
+  const handlers = {
+    onDeleteConfirm: () => {
+      if (!modal.data) return;
+      deleteUser(modal.data.id);
+      closeModal();
+    },
+    onEditConfirm: (data: User) => {
+      updateUser(
+        { ...data },
+        { onSuccess: closeModal }
+      );
+    },
+    onAddConfirm: (data: Omit<User, "id">) => {
+      createUser(data, { onSuccess: closeModal });
+    },
   };
+  const handleEditUser = (user: User) => openModal("editUser", user);
+  const handleDeleteUser = (user: User) => openModal("deleteUser", user);
 
-  const handleEditUser = (user: User) => {
-    openModal("editUser", user);
-  };
-
-  const handleDeleteUser = (userId: string) => {
-    if (confirm("Are you sure you want to delete this user?")) {
-      deleteUser(userId);
-    }
-  };
-
-  const handleSubmit = async (userData: Omit<User, "id">, userId?: string) => {
-    if (userId) {
-      updateUser({
-        id: userId,
-        ...userData,
-      });
-    } else {
-      createUser(userData);
-    }
-    closeModal();
-  };
+  const columns = getUsersColumns(handleEditUser, handleDeleteUser);
 
   return (
     <div className="container mx-auto p-6">
@@ -52,7 +47,7 @@ const UsersPage = () => {
             Manage teachers and secretaries in your organization
           </p>
         </div>
-        <Button onClick={handleAddUser}>
+        <Button onClick={() => openModal("newUser")}>
           <UserPlus className="mr-2 h-4 w-4" />
           Add User
         </Button>
@@ -60,19 +55,19 @@ const UsersPage = () => {
 
       <UsersTable
         data={users}
-        columns={getUsersColumns(handleEditUser, handleDeleteUser)}
+        columns={columns}
         isLoading={isLoading}
         total={users.length}
       />
 
       <UserModal
+        user={modal.data}
+        type={modal.type}
         open={modal.isOpen}
         onOpenChange={closeModal}
         onClose={closeModal}
-        type={modal.type}
-        user={modal.data}
-        onSubmit={handleSubmit}
-        isSubmitting={isCreatingUser || isUpdatingUser}
+        handlers={handlers}
+        isSubmitting={isCreatingUser || isUpdatingUser || isDeletingUser}
       />
     </div>
   );

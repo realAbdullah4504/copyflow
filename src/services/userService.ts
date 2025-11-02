@@ -24,10 +24,8 @@ export const userService = {
     const newUser: User = {
       ...user,
       id: Math.random().toString(36).substr(2, 9),
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
     };
-    mockUsers.push(newUser);
+    mockUsers.unshift(newUser);
     return newUser;
   },
 
@@ -40,7 +38,6 @@ export const userService = {
     const updatedUser = {
       ...mockUsers[index],
       ...updates,
-      updatedAt: new Date().toISOString(),
     };
     mockUsers[index] = updatedUser;
     return updatedUser;

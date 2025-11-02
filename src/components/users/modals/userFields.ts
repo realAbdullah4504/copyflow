@@ -2,9 +2,10 @@ import { z } from "zod";
 import type { User } from "@/types";
 
 export const userFormSchema = z.object({
+  id: z.string().optional(),
   name: z.string().min(1, { message: "Name is required" }),
   email: z.string().email({ message: "Please enter a valid email" }),
-  role: z.enum(["teacher", "secretary", "admin", "principal"], {
+  role: z.enum(["teacher", "secretary"], {
     required_error: "Please select a role",
   }),
 });
@@ -20,8 +21,6 @@ export const defaultValues: Partial<UserFormValues> = {
 export const roleOptions = [
   { value: "teacher", label: "Teacher" },
   { value: "secretary", label: "Secretary" },
-  { value: "admin", label: "Admin" },
-  { value: "principal", label: "Principal" },
 ];
 
 export const getUserFormFields = (user?: User) => ({
