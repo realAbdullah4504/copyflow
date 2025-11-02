@@ -8,3 +8,6 @@ export * from "./useArchiveSubmissionsByTeacher"
 
 export * from "./useClassesByTeacher";
 
+export * from "./useUsers";
+
+

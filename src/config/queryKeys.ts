@@ -1,4 +1,6 @@
 export const QUERY_KEYS = {
+  USERS: "users",
+  USER: "user",
   SUBMISSIONS: "submissions",
   TEACHER_SUBMISSIONS: "submissions:teacher",
   ARCHIVED_SUBMISSIONS: "submissions:archived",
