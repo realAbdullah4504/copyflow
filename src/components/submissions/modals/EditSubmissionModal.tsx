@@ -11,12 +11,12 @@ import { getSubmissionFields, type submissionFormSchema } from "../fields";
 import {
   useFormWithConfig,
   Form as RHFForm,
-  FormField as SimpleFormField,
 } from "../forms";
 import type { Submission } from "@/types";
 import {teachers } from "@/constants";
 import { format } from "date-fns";
 import { useClassesByTeacher } from "@/hooks";
+import { FormField } from "@/components/common";
 
 interface EditSubmissionModalProps {
   readonly open: boolean;
@@ -112,7 +112,7 @@ const EditSubmissionModal = ({
                   key={field.name}
                   className={field.className || "md:col-span-2"}
                 >
-                  <SimpleFormField {...field} form={form} />
+                  <FormField {...field} form={form} />
                 </div>
               );
             })}

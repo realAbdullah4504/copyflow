@@ -4,18 +4,23 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Form } from "@/components/submissions/forms/Form";
+import FormField from "@/components/common/FormField";
 import type { User } from "@/types";
-import { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { useEffect } from "react";
+
+const userFormSchema = z.object({
+  name: z.string().min(1, { message: "Name is required" }),
+  email: z.string().email({ message: "Please enter a valid email" }),
+  role: z.enum(["teacher", "secretary", "admin", "principal"], {
+    required_error: "Please select a role",
+  }),
+});
+
+type UserFormValues = z.infer<typeof userFormSchema>;
 
 interface UserModalProps {
   isOpen: boolean;
@@ -25,6 +30,19 @@ interface UserModalProps {
   isSubmitting: boolean;
 }
 
+const defaultValues: Partial<UserFormValues> = {
+  name: "",
+  email: "",
+  role: "teacher",
+};
+
+const roleOptions = [
+  { value: "teacher", label: "Teacher" },
+  { value: "secretary", label: "Secretary" },
+  { value: "admin", label: "Admin" },
+  { value: "principal", label: "Principal" },
+];
+
 const UserModal = ({
   isOpen,
   onClose,
@@ -32,38 +50,26 @@ const UserModal = ({
   onSubmit,
   isSubmitting,
 }: UserModalProps) => {
-  const [formData, setFormData] = useState<Omit<User, "id">>({
-    name: "",
-    email: "",
-    role: "teacher",
+  const form = useForm<UserFormValues>({
+    resolver: zodResolver(userFormSchema),
+    defaultValues,
+    mode: "onChange",
   });
 
   useEffect(() => {
     if (user) {
-      setFormData({
+      form.reset({
         name: user.name,
         email: user.email,
         role: user.role,
       });
     } else {
-      setFormData({
-        name: "",
-        email: "",
-        role: "teacher",
-      });
+      form.reset(defaultValues);
     }
-  }, [user]);
+  }, [user, form]);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSubmit(formData, user?.id);
-  };
-
-  const handleChange = (field: keyof typeof formData, value: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
+  const handleFormSubmit = (data: UserFormValues) => {
+    onSubmit(data, user?.id);
   };
 
   return (
@@ -72,60 +78,34 @@ const UserModal = ({
         <DialogHeader>
           <DialogTitle>{user ? "Edit User" : "Add New User"}</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="name">Full Name</Label>
-            <Input
-              id="name"
-              value={formData.name}
-              onChange={(e) => handleChange("name", e.target.value)}
-              placeholder="John Doe"
-              required
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              value={formData.email}
-              onChange={(e) => handleChange("email", e.target.value)}
-              placeholder="email@example.com"
-              required
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="role">Role</Label>
-            <Select
-              value={formData.role}
-              onValueChange={(value: UserRole) => handleChange("role", value)}
-              required
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select a role" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="teacher">Teacher</SelectItem>
-                <SelectItem value="secretary">Secretary</SelectItem>
-                <SelectItem value="admin">Admin</SelectItem>
-                <SelectItem value="principal">Principal</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="flex justify-end space-x-2 pt-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onClose}
-              disabled={isSubmitting}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "Saving..." : "Save"}
-            </Button>
-          </div>
-        </form>
+        <FormField
+          form={form}
+          onSubmit={handleFormSubmit}
+          isSubmitting={isSubmitting}
+          submitText={isSubmitting ? "Saving..." : "Save"}
+        >
+          <FormField
+            type="text"
+            name="name"
+            label="Full Name"
+            placeholder="John Doe"
+            form={form}
+          />
+          <FormField
+            type="text"
+            name="email"
+            label="Email"
+            placeholder="email@example.com"
+            form={form}
+          />
+          <FormField
+            type="select"
+            name="role"
+            label="Role"
+            options={roleOptions}
+            form={form}
+          />
+        </FormField>
       </DialogContent>
     </Dialog>
   );

@@ -1,6 +1,5 @@
 import * as z from "zod";
 import { useState, useEffect } from "react";
-import { useForm } from "react-hook-form";
 import {
   Dialog,
   DialogContent,
@@ -11,14 +10,14 @@ import {
 import {
   useFormWithConfig,
   Form as RHFForm,
-  FormField as SimpleFormField,
 } from "../forms";
 import { toast } from "sonner";
 import { useSubmissionMutations } from "@/hooks/mutations";
-import { grades, teachers } from "@/constants";
+import { teachers } from "@/constants";
 import { getSubmissionFields, submissionFormSchema } from "../fields";
 import { format } from "date-fns";
 import { useClassesByTeacher } from "@/hooks/queries";
+import { FormField } from "@/components/common";
 
 interface NewSubmissionModalProps {
   open: boolean;
@@ -120,7 +119,7 @@ const NewSubmissionModal = ({
                     key={field.name}
                     className={field.className || "md:col-span-2"}
                   >
-                    <SimpleFormField
+                    <FormField
                       {...field}
                       form={form}
                       value={files}
@@ -138,7 +137,7 @@ const NewSubmissionModal = ({
                   key={field.name}
                   className={field.className || "md:col-span-2"}
                 >
-                  <SimpleFormField {...field} form={form} />
+                  <FormField {...field} form={form} />
                 </div>
               );
             })}
