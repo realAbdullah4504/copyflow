@@ -20,14 +20,11 @@ const UsersPage = () => {
   const handlers = {
     onDeleteConfirm: () => {
       if (!modal.data) return;
-      deleteUser(modal.data.id);
-      closeModal();
+      deleteUser(modal.data.id, { onSuccess: closeModal });
     },
-    onEditConfirm: (data: User) => {
-      updateUser(
-        { ...data },
-        { onSuccess: closeModal }
-      );
+    onEditConfirm: (data: Omit<User, "id">) => {
+      if (!modal.data) return;
+      updateUser({ id: modal.data.id, ...data }, { onSuccess: closeModal });
     },
     onAddConfirm: (data: Omit<User, "id">) => {
       createUser(data, { onSuccess: closeModal });

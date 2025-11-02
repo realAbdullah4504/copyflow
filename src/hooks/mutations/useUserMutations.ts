@@ -1,8 +1,8 @@
 import { useMutation } from "@tanstack/react-query";
 import { userService } from "@/services/userService";
-import type { User } from "@/types/user";
 import { QUERY_KEYS } from "@/config";
 import { mutationHandlers } from "./mutationHandlers";
+import type { User } from "@/types";
 
 export const useUserMutations = () => {
   const createUser = useMutation({

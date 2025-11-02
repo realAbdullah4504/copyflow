@@ -27,11 +27,10 @@ const UserForm = ({
   const form = useForm<UserFormValues>({
     resolver: zodResolver(userFormSchema),
     defaultValues: {
-      id: user?.id || "",
       name: user?.name || "",
       email: user?.email || "",
-      role:
-        (user?.role as Exclude<UserRole, "admin" | "principal">) ?? "teacher",
+      active: user ? user.active : true,
+      role: (user?.role as Exclude<UserRole, "admin" | "principal">) || "teacher",
     },
   });
 
@@ -65,6 +64,13 @@ const UserForm = ({
         name={fields.role.name}
         label={fields.role.label}
         options={fields.role.options}
+        form={form}
+        disabled={disabled}
+      />
+      <FormField
+        type={fields.active.type}
+        name={fields.active.name}
+        label={fields.active.label}
         form={form}
         disabled={disabled}
       />

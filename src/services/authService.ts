@@ -96,6 +96,27 @@ export const authService = {
   login: async (credentials: LoginFormFields): Promise<LoginResponse> => {
     const { email, password } = credentials;
 
+    if (!email || !password) {
+      const appError = await AppError.from("Email and password are required");
+      throw appError;
+    }
+
+    const { data: isActive, error: isActiveError } = await supabase
+      .from("profiles")
+      .select("active")
+      .eq("email", email)
+      .single();
+
+    if (isActiveError) {
+      const appError = await AppError.from(isActiveError);
+      throw appError;
+    }
+
+    if (!isActive.active) {
+      const appError = await AppError.from("User is not active");
+      throw appError;
+    }
+
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -121,6 +142,7 @@ export const authService = {
       const appError = await AppError.from(profileError);
       throw appError;
     }
+
     const user: User = {
       id: data.user.id,
       email: data.user.email || email,

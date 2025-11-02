@@ -1,13 +1,13 @@
 import { z } from "zod";
 import type { User } from "@/types";
 
+const userRole = z.enum(["teacher", "secretary"]);
+
 export const userFormSchema = z.object({
-  id: z.string().optional(),
   name: z.string().min(1, { message: "Name is required" }),
   email: z.string().email({ message: "Please enter a valid email" }),
-  role: z.enum(["teacher", "secretary"], {
-    required_error: "Please select a role",
-  }),
+  role: userRole,
+  active: z.boolean().default(true),
 });
 
 export type UserFormValues = z.infer<typeof userFormSchema>;
@@ -16,6 +16,7 @@ export const defaultValues: Partial<UserFormValues> = {
   name: "",
   email: "",
   role: "teacher",
+  active: true,
 };
 
 export const roleOptions = [
@@ -47,5 +48,14 @@ export const getUserFormFields = (user?: User) => ({
     options: roleOptions,
     disabled: false,
     value: user?.role || "teacher",
+  },
+  active: {
+    type: "switch" as const,
+    name: "active",
+    label: "Active",
+    description: "Enable or disable user access",
+    disabled: false,
+    value: user?.active ?? true,
+    className: "data-[state=checked]:bg-primary data-[state=unchecked]:bg-input"
   },
 });

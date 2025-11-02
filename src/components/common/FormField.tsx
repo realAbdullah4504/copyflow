@@ -7,9 +7,10 @@ import { cn } from "@/lib/utils";
 import { useCallback } from "react";
 import type { UseFormReturn } from "react-hook-form";
 import { Upload, FileText, X } from "lucide-react";
+import { Switch } from "../ui/switch";
 
 type FormFieldProps = {
-  type: 'text' | 'select' | 'textarea' | 'number' | 'checkbox' | 'date' | 'file';
+  type: 'text' | 'select' | 'switch' | 'textarea' | 'number' | 'checkbox' | 'date' | 'file';
   name: string;
   label: string;
   placeholder?: string;
@@ -111,6 +112,15 @@ const FormField = ({
       case 'checkbox':
         return (
           <Checkbox
+            checked={!!value}
+            onCheckedChange={(checked) => setValue(name, checked, { shouldValidate: true })}
+            disabled={disabled}
+            className={className}
+          />
+        );
+      case 'switch':
+        return (
+          <Switch
             checked={!!value}
             onCheckedChange={(checked) => setValue(name, checked, { shouldValidate: true })}
             disabled={disabled}

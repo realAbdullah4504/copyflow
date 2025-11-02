@@ -1,53 +1,72 @@
 import { mockUsers } from "@/constants/mockUsers";
+import { supabase } from "@/lib/supabaseClient";
 import type { User } from "@/types";
+import { AppError } from "@/utils/errorUtils";
 
 export const userService = {
   getUsers: async (): Promise<{ data: User[]; total: number }> => {
-    await new Promise((resolve) => setTimeout(resolve, 300));
-    const users = mockUsers;
+    const { data, error } = await supabase
+      .from("profiles")
+      .select()
+      .neq("role", "admin")
+      .order("created_at", { ascending: false });
+    if (error) {
+      const appError = await AppError.from(error);
+      throw appError;
+    }
 
     return {
-      data: users,
-      total: users.length,
+      data,
+      total: data.length,
     };
-  },
-
-  getUserById: async (id: string): Promise<User | undefined> => {
-    await new Promise((resolve) => setTimeout(resolve, 100));
-    return mockUsers.find((user) => user.id === id);
   },
 
   createUser: async (
     user: Omit<User, "id" | "createdAt" | "updatedAt">
-  ): Promise<User> => {
-    await new Promise((resolve) => setTimeout(resolve, 300));
-    const newUser: User = {
-      ...user,
-      id: Math.random().toString(36).substr(2, 9),
-    };
-    mockUsers.unshift(newUser);
-    return newUser;
+  ): Promise<{ user: User; password: string }> => {
+    const { data, error } = await supabase.functions.invoke("create-user", {
+      body: user,
+    });
+    if (error) {
+      const appError = await AppError.from(error);
+      throw appError;
+    }
+    const newUser = data.user;
+    const password = data.temporaryPassword;
+    return { user: newUser, password };
   },
 
   updateUser: async (id: string, updates: Partial<User>): Promise<User> => {
-    await new Promise((resolve) => setTimeout(resolve, 300));
-    const index = mockUsers.findIndex((user) => user.id === id);
-    if (index === -1) {
-      throw new Error("User not found");
+    const { data, error } = await supabase
+      .from("profiles")
+      .update(updates)
+      .eq("id", id)
+      .select()
+      .single();
+    if (error) {
+      const appError = await AppError.from(error);
+      throw appError;
     }
     const updatedUser = {
-      ...mockUsers[index],
-      ...updates,
+      name: data.name,
+      email: data.email,
+      role: data.role,
+      active: data.active,
+      id: data.id,
+      createdAt: data.created_at,
+      updatedAt: data.updated_at,
     };
-    mockUsers[index] = updatedUser;
     return updatedUser;
   },
 
   deleteUser: async (id: string): Promise<void> => {
-    await new Promise((resolve) => setTimeout(resolve, 300));
-    const index = mockUsers.findIndex((user) => user.id === id);
-    if (index !== -1) {
-      mockUsers.splice(index, 1);
+    const { error } = await supabase.functions.invoke("delete-user", {
+      body: { userId: id },
+      method:"DELETE",
+    });
+    if (error) {
+      const appError = await AppError.from(error);
+      throw appError;
     }
   },
 };

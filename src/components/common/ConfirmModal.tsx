@@ -7,6 +7,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { LoadingSpinner } from "../ui/loading-spinner";
 
 interface ConfirmModalProps {
   open: boolean;
@@ -17,6 +18,7 @@ interface ConfirmModalProps {
   onConfirm: () => void;
   onCancel?: () => void;
   variant?: "default" | "destructive";
+  isSubmitting?: boolean;
 }
 
 const ConfirmModal = ({
@@ -28,17 +30,15 @@ const ConfirmModal = ({
   onConfirm,
   onCancel,
   variant = "default",
+  isSubmitting,
 }: ConfirmModalProps) => {
   const handleCancel = () => {
     onCancel?.();
-    onOpenChange(false);
   };
 
   const handleConfirm = () => {
     onConfirm();
-    onOpenChange(false);
   };
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
@@ -58,8 +58,9 @@ const ConfirmModal = ({
                 : ""
             }
             onClick={handleConfirm}
+            disabled={isSubmitting}
           >
-            {buttonTitle}
+            {isSubmitting && <LoadingSpinner className="mr-2" />} {buttonTitle}
           </Button>
         </DialogFooter>
       </DialogContent>

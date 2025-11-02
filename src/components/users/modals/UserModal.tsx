@@ -21,6 +21,7 @@ interface UserModalProps {
     onAddConfirm?: (data: Omit<User, "id">) => void;
   };
   isSubmitting: boolean;
+  isDeletingUser: boolean;
 }
 
 const UserModal = ({
@@ -33,7 +34,7 @@ const UserModal = ({
 
   isSubmitting,
 }: UserModalProps) => {
-  if (type === "delete" && user) {
+  if (type === "deleteUser" && user) {
     return (
       <ConfirmModal
         open={open}
@@ -42,6 +43,7 @@ const UserModal = ({
         buttonTitle="Delete"
         description="Are you sure you want to delete this user? This action cannot be undone."
         onConfirm={() => handlers.onDeleteConfirm?.()}
+        isSubmitting={isSubmitting}
         onCancel={onClose}
       />
     );

@@ -113,7 +113,6 @@ export const submissionService = {
 
     //pagination stuff
     const paginated = paginateData(filtered, pagination);
-    console.log(paginated, "paginated");
     return {
       data: paginated.data,
       total: paginated.total,

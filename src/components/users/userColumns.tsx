@@ -4,6 +4,7 @@ import { getRoleBadgeVariant } from "./tableUtils";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Pencil, Trash2 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export const getUsersColumns = (
   onEdit: (user: User) => void,
@@ -40,10 +41,29 @@ export const getUsersColumns = (
     ),
   },
   {
+    accessorKey: "active",
+    header: "Status",
+    cell: ({ row }) => {
+      const isActive = row.original.active ?? true;
+      return (
+        <span
+          className={cn(
+            "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium",
+            isActive
+              ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+              : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
+          )}
+        >
+          {isActive ? "Active" : "Inactive"}
+        </span>
+      );
+    },
+  },
+  {
     id: "actions",
     header: "Actions",
     cell: ({ row }) => (
-      <div className="flex justify-end space-x-2">
+      <div className="flex ">
         <Button
           variant="ghost"
           size="icon"
@@ -54,7 +74,7 @@ export const getUsersColumns = (
         <Button
           variant="ghost"
           size="icon"
-          onClick={() => onDelete?.(row.original.id)}
+          onClick={() => onDelete?.(row.original)}
         >
           <Trash2 className="h-4 w-4 text-destructive" />
         </Button>

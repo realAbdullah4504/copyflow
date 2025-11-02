@@ -24,7 +24,6 @@ const ClassModal = ({
   handlers,
 }: Props) => {
   if (!type) return null;
-  console.log("type", type);
   switch (type) {
     case "newClass":
       return <NewClassModal open={open} onOpenChange={onOpenChange} />;
