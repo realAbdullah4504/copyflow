@@ -41,7 +41,6 @@ const LoginPage = () => {
       { email, password },
       {
         onSuccess: (data) => {
-          console.log(data);
           navigate(`/dashboard/${data.user.role}`);
           toast.success("Welcome back!");
         },
