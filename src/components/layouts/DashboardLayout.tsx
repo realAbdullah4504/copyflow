@@ -8,6 +8,8 @@ const DashboardLayout = () => {
   const { user, logout, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
+
+
   useEffect(() => {
     if (!isAuthenticated) {
       navigate("/auth/login");
@@ -19,11 +21,8 @@ const DashboardLayout = () => {
   }
 
   const handleLogout = async () => {
-    logout(undefined, {
-      onSuccess: () => {
-        navigate("/auth/login");
-      },
-    });
+    await logout();
+    navigate("/auth/login");
   };
 
   return (
@@ -35,11 +34,7 @@ const DashboardLayout = () => {
       />
 
       <div className="flex flex-1 flex-col overflow-hidden">
-        <Header
-          title={<BreadcrumbNavigation />}
-          userName={user.name}
-          onLogout={handleLogout}
-        />
+        <Header title={<BreadcrumbNavigation />} userName={user.name} onLogout={handleLogout} />
 
         <main className="flex-1 overflow-y-auto bg-slate-100 p-6">
           <Outlet />

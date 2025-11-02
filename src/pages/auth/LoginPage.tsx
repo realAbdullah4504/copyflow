@@ -14,13 +14,14 @@ type LoginInputs = {
 };
 
 const demoAccounts = [
-  { email: "sarah.johnson@school.edu", name: "Sarah Johnson", role: "Teacher" },
+  { email: "teacher@copyflow.com", name: "Teacher", role: "Teacher", password: "teacher1234" },
   {
-    email: "emily.rodriguez@school.edu",
-    name: "Emily Rodriguez",
+    email: "secretary@copyflow.com",
+    name: "Secretary",
     role: "Secretary",
+    password: "gfd-25KC",
   },
-  { email: "david.thompson@school.edu", name: "David Thompson", role: "Admin" },
+  { email: "abdullahjaved4504@gmail.com", name: "admin", role: "Admin", password: "11111111@" },
 ];
 
 const LoginPage = () => {
@@ -40,6 +41,7 @@ const LoginPage = () => {
       { email, password },
       {
         onSuccess: (data) => {
+          console.log(data);
           navigate(`/dashboard/${data.user.role}`);
           toast.success("Welcome back!");
         },
@@ -50,7 +52,7 @@ const LoginPage = () => {
 
   const quickLogin = (userEmail: string) => {
     setValue("email", userEmail, { shouldValidate: true });
-    setValue("password", "password", { shouldValidate: true });
+    setValue("password", demoAccounts.find((acc) => acc.email === userEmail)?.password, { shouldValidate: true });
   };
   return (
     <CardContent className="space-y-6">
@@ -83,10 +85,13 @@ const LoginPage = () => {
       <p className="text-xs text-center text-slate-500 mt-2">
         Click any demo account to auto-fill credentials
       </p>
-      
+
       <p className="text-center text-sm mt-4">
         Don't have an account?{" "}
-        <Link to="/auth/signup" className="text-primary hover:underline font-medium">
+        <Link
+          to="/auth/signup"
+          className="text-primary hover:underline font-medium"
+        >
           Sign up
         </Link>
       </p>

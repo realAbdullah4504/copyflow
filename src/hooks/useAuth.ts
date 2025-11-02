@@ -1,6 +1,7 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { authService } from "@/services/authService";
 import { mutationHandlers } from "./mutations";
+import { queryClient } from "@/lib/queryClient";
 
 export function useAuth() {
   const { data, isLoading } = useQuery({
@@ -13,7 +14,9 @@ export function useAuth() {
     mutationFn: authService.login,
     ...mutationHandlers({
       successMessage: "Login successful",
-      invalidateKeys: ["currentUser"],
+      onSuccess: (data) => {
+        queryClient.setQueryData(["currentUser"], data);
+      },
     }),
   });
 
