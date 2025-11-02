@@ -1,9 +1,8 @@
 import { UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { UsersTable } from "@/components/users";
+import { UserModal, UsersTable } from "@/components/users";
 import { useUsers, useUserMutations, useModal } from "@/hooks";
 import type { User } from "@/types";
-import UserModal from "@/components/users/UserModal";
 import { getUsersColumns } from "@/components/users/userColumns";
 
 const UsersPage = () => {
@@ -67,20 +66,13 @@ const UsersPage = () => {
       />
 
       <UserModal
-        isOpen={
-          modal.isOpen &&
-          (modal.type === "newUser" || modal.type === "editUser")
-        }
+        open={modal.isOpen}
+        onOpenChange={closeModal}
         onClose={closeModal}
+        type={modal.type}
         user={modal.data}
         onSubmit={handleSubmit}
-        isSubmitting={
-          modal.type === "newUser"
-            ? isCreatingUser
-            : modal.type === "editUser"
-            ? isUpdatingUser
-            : false
-        }
+        isSubmitting={isCreatingUser || isUpdatingUser}
       />
     </div>
   );

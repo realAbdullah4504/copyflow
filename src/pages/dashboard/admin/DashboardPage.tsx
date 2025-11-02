@@ -8,7 +8,7 @@ import {
   CheckCircle,
   User,
 } from "lucide-react";
-import { useAllSubmissions } from "@/hooks";
+import { useAllSubmissions, useUsers } from "@/hooks";
 
 type StatsCardProps = {
   title: string;
@@ -58,36 +58,9 @@ const StatsCard = ({
 
 export default function AdminDashboardPage() {
   const { submissions, isLoading: isLoadingSubmissions } = useAllSubmissions();
+  const { users, isLoading: isLoadingUsers } = useUsers();
 
-  const { data: users = [] } = useQuery({
-    queryKey: ["users"],
-    queryFn: async () => {
-      // In a real app, this would be an API call to get all users
-      await new Promise((resolve) => setTimeout(resolve, 300));
-      return [
-        {
-          id: "1",
-          name: "Sarah Johnson",
-          role: "teacher",
-          email: "sarah@example.com",
-        },
-        {
-          id: "2",
-          name: "Michael Chen",
-          role: "teacher",
-          email: "michael@example.com",
-        },
-        {
-          id: "3",
-          name: "Admin User",
-          role: "admin",
-          email: "admin@example.com",
-        },
-      ];
-    },
-  });
-
-  if (isLoadingSubmissions) {
+  if (isLoadingSubmissions || isLoadingUsers) {
     return (
       <div className="flex items-center justify-center h-64">
         <Loader2 className="h-8 w-8 animate-spin" />
@@ -100,9 +73,6 @@ export default function AdminDashboardPage() {
   );
   const printedSubmissions = submissions.filter(
     (sub) => sub.status === "printed"
-  );
-  const censoredSubmissions = submissions.filter(
-    (sub) => sub.status === "censored"
   );
   const teachers = users.filter((user) => user.role === "teacher");
 
