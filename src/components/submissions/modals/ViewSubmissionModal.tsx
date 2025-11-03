@@ -7,7 +7,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import type { Submission } from "@/types";
-import { FileText, Download, Loader2 } from "lucide-react";
+import { FileText, Download, Loader2, DownloadCloud } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { submissionService } from "@/services";
 import { useState } from "react";
@@ -27,6 +27,22 @@ const ViewSubmissionModal = ({
   const [downloadingFiles, setDownloadingFiles] = useState<
     Record<string, boolean>
   >({});
+  const [isDownloadingAll, setIsDownloadingAll] = useState(false);
+
+  const downloadFile = async (fileName: string): Promise<Blob> => {
+    if (!submission) throw new Error("No submission found");
+
+    const { data, error } = await submissionService.downloadFile(
+      submission.id,
+      fileName
+    );
+
+    if (error || !data) {
+      throw error || new Error(`Failed to download file: ${fileName}`);
+    }
+
+    return data;
+  };
 
   const handleDownload = async (fileName: string) => {
     if (!submission) return;
@@ -34,28 +50,15 @@ const ViewSubmissionModal = ({
     setDownloadingFiles((prev) => ({ ...prev, [fileName]: true }));
 
     try {
-      const { data, error } = await submissionService.downloadFile(
-        submission.id,
-        fileName
-      );
-
-      if (error || !data) {
-        throw error || new Error("Failed to download file");
-      }
-
-      // Create a URL for the blob
-      const url = window.URL.createObjectURL(data);
-
-      // Create a temporary anchor element
-      const a = document.createElement("a");
+      const blob = await downloadFile(fileName);
+      const url = globalThis.URL.createObjectURL(blob);
+      const a = document.createElement('a');
       a.href = url;
       a.download = fileName;
       document.body.appendChild(a);
       a.click();
-
-      // Cleanup
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
+      globalThis.URL.revokeObjectURL(url);
+      a.remove();
 
       toast.success(`Downloaded ${fileName} successfully`);
     } catch (error) {
@@ -63,6 +66,74 @@ const ViewSubmissionModal = ({
       toast.error(`Failed to download ${fileName}. Please try again.`);
     } finally {
       setDownloadingFiles((prev) => ({ ...prev, [fileName]: false }));
+    }
+  };
+
+  const handleDownloadAll = async () => {
+    if (!submission?.files?.length) return;
+
+    setIsDownloadingAll(true);
+    const toastId = toast.loading("Preparing files for download...");
+
+    try {
+      // Import JSZip dynamically to reduce initial bundle size
+      const JSZip = (await import('jszip')).default;
+      const zip = new JSZip();
+      
+      // Download all files and add them to the zip
+      const downloadPromises = submission.files.map(async (fileName) => {
+        try {
+          const blob = await downloadFile(fileName);
+          zip.file(fileName, blob);
+          return { success: true, fileName };
+        } catch (error) {
+          console.error(`Error downloading ${fileName}:`, error);
+          return { success: false, fileName, error };
+        }
+      });
+
+      const results = await Promise.all(downloadPromises);
+      const failedDownloads = results.filter(result => !result.success);
+      
+      if (failedDownloads.length > 0) {
+        const errorMessage = failedDownloads.length === results.length
+          ? 'Failed to download all files. Please try again.'
+          : `Failed to download ${failedDownloads.length} of ${results.length} files.`;
+        
+        toast.error(errorMessage, { id: toastId });
+        return;
+      }
+
+      // Generate the zip file with compression
+      const content = await zip.generateAsync({
+        type: 'blob',
+        compression: 'DEFLATE',
+        compressionOptions: { level: 6 } // Medium compression level
+      });
+      
+      // Create and trigger download
+      const url = globalThis.URL.createObjectURL(content);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `submission-${submission.id}-${new Date().toISOString().slice(0, 10)}.zip`;
+      document.body.appendChild(a);
+      a.click();
+      
+      // Cleanup
+      globalThis.URL.revokeObjectURL(url);
+      a.remove();
+      
+      toast.success(`Successfully downloaded ${results.length} file${results.length > 1 ? 's' : ''}`, { 
+        id: toastId 
+      });
+    } catch (error) {
+      console.error('Error creating zip file:', error);
+      toast.error('Failed to create zip file. Please try again.', { 
+        id: toastId,
+        description: error instanceof Error ? error.message : 'An unknown error occurred'
+      });
+    } finally {
+      setIsDownloadingAll(false);
     }
   };
   if (!submission) return null;
@@ -163,8 +234,26 @@ const ViewSubmissionModal = ({
               </p>
             </div>
             <div className="col-span-2">
-              <p className="text-sm font-medium text-gray-500">Files</p>
-              <div className="mt-1 space-y-2  pr-2 scrollbar-thin ">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-medium text-gray-500">Files</p>
+                {submission.files && submission.files.length > 1 && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-8 text-xs gap-2"
+                    onClick={handleDownloadAll}
+                    disabled={isDownloadingAll}
+                  >
+                    {isDownloadingAll ? (
+                      <Loader2 className="h-3 w-3 animate-spin" />
+                    ) : (
+                      <DownloadCloud className="h-3 w-3" />
+                    )}
+                    Download All
+                  </Button>
+                )}
+              </div>
+              <div className="mt-2 space-y-2 pr-2 scrollbar-thin">
                 {submission.files && submission.files.length > 0 ? (
                   submission.files.map((fileName) => (
                     <div

@@ -343,6 +343,36 @@ export const submissionService = {
     return fileStorageService.downloadFile(submissionId, fileName);
   },
 
+  updateSubmissionWithFiles: async (
+    id: string,
+    submission: Partial<CreateSubmissionInput>,
+    files: File[]
+  ): Promise<Submission> => {
+    // First upload the files if there are any
+    let uploadedFiles: string[] = [];
+    
+    if (files && files.length > 0) {
+      const { paths } = await fileStorageService.uploadFiles(id, files);
+      uploadedFiles = paths || [];
+    }
+
+    // Get the existing submission to merge files
+    const { data: existingSubmission } = await supabase
+      .from("submissions")
+      .select("files")
+      .eq("id", id)
+      .single();
+
+    const existingFiles = existingSubmission?.files || [];
+    const allFiles = [...existingFiles, ...uploadedFiles];
+
+    // Update the submission with the new files
+    return submissionService.updateSubmission(id, {
+      ...submission,
+      files: allFiles,
+    });
+  },
+
   updateSubmission: async (
     id: string,
     updates: Partial<Submission>
