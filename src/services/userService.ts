@@ -73,13 +73,23 @@ export const userService = {
   },
 
   deleteUser: async (id: string): Promise<void> => {
-    const { error } = await supabase.functions.invoke("delete-user", {
-      body: { userId: id },
-      method: "DELETE",
-    });
+    const { error } = await supabase.from("profiles").delete().eq("id", id);
     if (error) {
       const appError = await AppError.from(error);
       throw appError;
     }
+  },
+
+  requestPasswordReset: async (userId: string): Promise<{ temporaryPassword: string }> => {
+    const { data, error } = await supabase.functions.invoke("reset-user-password", {
+      body: { userId },
+    });
+    
+    if (error) {
+      const appError = await AppError.from(error);
+      throw appError;
+    }
+    
+    return { temporaryPassword: data.temporaryPassword };
   },
 };

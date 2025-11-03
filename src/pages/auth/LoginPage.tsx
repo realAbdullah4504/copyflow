@@ -51,7 +51,6 @@ const LoginPage = () => {
       {
         onSuccess: (data) => {
           navigate(`/dashboard/${data.user.role}`);
-          toast.success("Welcome back!");
         },
       }
     );

@@ -13,7 +13,7 @@ export function useAuth() {
   const loginMutation = useMutation({
     mutationFn: authService.login,
     ...mutationHandlers({
-      successMessage: "Login successful",
+      successMessage: "Welcome back!",
       onSuccess: (data) => {
         queryClient.setQueryData(["currentUser"], data);
       },

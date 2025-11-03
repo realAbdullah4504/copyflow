@@ -19,6 +19,7 @@ interface UserModalProps {
     onDeleteConfirm?: () => void;
     onEditConfirm?: (data: User) => void;
     onAddConfirm?: (data: Omit<User, "id">) => void;
+    onResetPasswordConfirm?: () => void;
   };
   isSubmitting: boolean;
 }
@@ -41,6 +42,20 @@ const UserModal = ({
         buttonTitle="Delete"
         description="Are you sure you want to delete this user? This action cannot be undone."
         onConfirm={() => handlers.onDeleteConfirm?.()}
+        isSubmitting={isSubmitting}
+        onCancel={onClose}
+      />
+    );
+  }
+  if(type === "resetPassword" && user) {
+    return (
+      <ConfirmModal
+        open={open}
+        onOpenChange={onOpenChange}
+        title="Reset Password"
+        buttonTitle="Reset"
+        description={`Are you sure you want to reset the password for ${user.name}? A new temporary password will be generated and shown to you.`}
+        onConfirm={() => handlers.onResetPasswordConfirm?.()}
         isSubmitting={isSubmitting}
         onCancel={onClose}
       />
