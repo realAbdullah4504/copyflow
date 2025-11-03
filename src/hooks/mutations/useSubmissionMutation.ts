@@ -15,6 +15,20 @@ export const useSubmissionMutations = () => {
     }),
   });
 
+  const createSubmissionWithFiles = useMutation({
+    mutationFn: ({
+      submission,
+      files,
+    }: {
+      submission: CreateSubmissionInput;
+      files: File[];
+    }) => submissionService.createSubmissionWithFiles(submission, files),
+    ...mutationHandlers({
+      successMessage: "Submission Created",
+      invalidateKeys: [QUERY_KEYS.SUBMISSIONS, QUERY_KEYS.TEACHER_SUBMISSIONS],
+    }),
+  });
+
   const updateSubmission = useMutation({
     mutationFn: ({
       id,
@@ -80,6 +94,8 @@ export const useSubmissionMutations = () => {
   return {
     createSubmission: createSubmission.mutate,
     isLoading: createSubmission.isPending,
+    createSubmissionWithFiles: createSubmissionWithFiles.mutate,
+    createWithFilesLoading: createSubmissionWithFiles.isPending,
 
     updateSubmission: updateSubmission.mutate,
     updateLoading: updateSubmission.isPending,

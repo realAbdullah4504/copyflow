@@ -1,5 +1,4 @@
 import * as z from "zod";
-import { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -8,7 +7,6 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Form as RHFForm, FormField } from "@/components/common";
-import { toast } from "sonner";
 import { useSubmissionMutations } from "@/hooks/mutations";
 import { getSubmissionFields, submissionFormSchema } from "../fields";
 import { format } from "date-fns";
@@ -31,10 +29,8 @@ const NewSubmissionModal = ({
   teacherId,
   allowTeacherSelection,
 }: NewSubmissionModalProps) => {
-  const { createSubmission, isLoading: isSubmitting } =
+  const { createSubmissionWithFiles, createWithFilesLoading: isSubmitting } =
     useSubmissionMutations();
-
-  const [files, setFiles] = useState<File[]>([]);
 
   const form = useFormWithConfig<z.infer<typeof submissionFormSchema>>({
     teacherId: teacherId || "",
@@ -85,9 +81,6 @@ const NewSubmissionModal = ({
     const paperColor = paperColorMap[values.paperColor] || "white";
     const lessonDate = new Date(values.lessonDate);
 
-    // Convert files to an array of file names (strings) as expected by the Submission type
-    const fileNames = files.map((file) => file.name);
-
     const submissionData = {
       classId: values.classId,
       teacherId: values.teacherId,
@@ -97,16 +90,19 @@ const NewSubmissionModal = ({
       notes: values.notes,
       copies: values.copies,
       printSettings: values.printSettings,
-      // files: fileNames, // Now this matches the string[] type
     };
 
-    createSubmission(submissionData, {
-      onSuccess: () => {
-        form.reset();
-        setFiles([]);
-        onOpenChange(false);
-      },
-    });
+    const selectedFiles = values.files;
+
+    createSubmissionWithFiles(
+      { submission: submissionData, files: selectedFiles },
+      {
+        onSuccess: () => {
+          form.reset();
+          onOpenChange(false);
+        },
+      }
+    );
   };
 
   const formFields = getSubmissionFields({
@@ -135,36 +131,14 @@ const NewSubmissionModal = ({
           className="space-y-6"
         >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {formFields.map((field) => {
-              // Handle file uploads separately to manage the files state
-              if (field.type === "file") {
-                return (
-                  <div
-                    key={field.name}
-                    className={field.className || "md:col-span-2"}
-                  >
-                    <FormField
-                      {...field}
-                      form={form}
-                      value={files}
-                      onChange={(e) => {
-                        const newFiles = Array.from(e.target.files || []);
-                        setFiles((prev) => [...prev, ...newFiles]);
-                        form.setValue("files", [...files, ...newFiles]);
-                      }}
-                    />
-                  </div>
-                );
-              }
-              return (
-                <div
-                  key={field.name}
-                  className={field.className || "md:col-span-2"}
-                >
-                  <FormField {...field} form={form} />
-                </div>
-              );
-            })}
+            {formFields.map((field) => (
+              <div
+                key={field.name}
+                className={field.className || "md:col-span-2"}
+              >
+                <FormField {...field} form={form} />
+              </div>
+            ))}
           </div>
         </RHFForm>
       </DialogContent>

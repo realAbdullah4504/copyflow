@@ -7,7 +7,11 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import type { Submission } from "@/types";
-import { FileText } from "lucide-react";
+import { FileText, Download, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { submissionService } from "@/services";
+import { useState } from "react";
+import { toast } from "sonner";
 
 interface ViewSubmissionModalProps {
   readonly open: boolean;
@@ -20,6 +24,47 @@ const ViewSubmissionModal = ({
   onOpenChange,
   submission,
 }: ViewSubmissionModalProps) => {
+  const [downloadingFiles, setDownloadingFiles] = useState<
+    Record<string, boolean>
+  >({});
+
+  const handleDownload = async (fileName: string) => {
+    if (!submission) return;
+
+    setDownloadingFiles((prev) => ({ ...prev, [fileName]: true }));
+
+    try {
+      const { data, error } = await submissionService.downloadFile(
+        submission.id,
+        fileName
+      );
+
+      if (error || !data) {
+        throw error || new Error("Failed to download file");
+      }
+
+      // Create a URL for the blob
+      const url = window.URL.createObjectURL(data);
+
+      // Create a temporary anchor element
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+
+      // Cleanup
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+
+      toast.success(`Downloaded ${fileName} successfully`);
+    } catch (error) {
+      console.error("Download error:", error);
+      toast.error(`Failed to download ${fileName}. Please try again.`);
+    } finally {
+      setDownloadingFiles((prev) => ({ ...prev, [fileName]: false }));
+    }
+  };
   if (!submission) return null;
 
   const getStatusBadge = (status: string) => {
@@ -43,15 +88,14 @@ const ViewSubmissionModal = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl">
-        <DialogHeader>
-          <DialogTitle className="text-xl font-semibold">
-            Submission Details
-          </DialogTitle>
-        </DialogHeader>
-
-        <div className="space-y-6 py-4">
-          <div className="grid grid-cols-2 gap-4">
+      <DialogContent className="max-w-3xl max-h-[90vh] flex flex-col p-0 overflow-hidden">
+        <div className="p-6 pb-0">
+          <DialogHeader>
+            <DialogTitle>Submission Details</DialogTitle>
+          </DialogHeader>
+        </div>
+        <div className="overflow-y-auto px-6 flex-1">
+          <div className="grid grid-cols-2 gap-6">
             <div>
               <p className="text-sm font-medium text-gray-500">Teacher</p>
               <p className="mt-1">{submission.teacher?.name}</p>
@@ -120,15 +164,36 @@ const ViewSubmissionModal = ({
             </div>
             <div className="col-span-2">
               <p className="text-sm font-medium text-gray-500">Files</p>
-              <div className="mt-1 space-y-2">
+              <div className="mt-1 space-y-2  pr-2 scrollbar-thin ">
                 {submission.files && submission.files.length > 0 ? (
                   submission.files.map((fileName) => (
                     <div
                       key={`file-${fileName}`}
-                      className="flex items-center gap-2"
+                      className="flex items-center justify-between group hover:bg-gray-50 p-2 rounded-md"
                     >
-                      <FileText className="h-4 w-4 text-gray-500" />
-                      <span className="text-sm">{fileName}</span>
+                      <div className="flex items-center gap-2">
+                        <FileText className="h-4 w-4 text-gray-500 flex-shrink-0" />
+                        <span className="text-sm text-gray-700 truncate max-w-xs">
+                          {fileName}
+                        </span>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 px-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDownload(fileName);
+                        }}
+                        disabled={downloadingFiles[fileName]}
+                      >
+                        {downloadingFiles[fileName] ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Download className="h-4 w-4" />
+                        )}
+                        <span className="sr-only">Download</span>
+                      </Button>
                     </div>
                   ))
                 ) : (
@@ -137,19 +202,18 @@ const ViewSubmissionModal = ({
               </div>
             </div>
           </div>
-
-          <div className="pt-4 border-t border-gray-200">
-            <p className="text-sm text-gray-500">
-              Submitted on{" "}
-              {format(new Date(submission.createdAt), "MMM d, yyyy h:mm a")}
+        </div>
+        <div className="p-6 pt-4 border-t border-gray-200">
+          <p className="text-sm text-gray-500">
+            Submitted on{" "}
+            {format(new Date(submission.createdAt), "MMM d, yyyy h:mm a")}
+          </p>
+          {submission.updatedAt !== submission.createdAt && (
+            <p className="text-sm text-gray-500 mt-1">
+              Last updated on{" "}
+              {format(new Date(submission.updatedAt), "MMM d, yyyy h:mm a")}
             </p>
-            {submission.updatedAt !== submission.createdAt && (
-              <p className="text-sm text-gray-500 mt-1">
-                Last updated on{" "}
-                {format(new Date(submission.updatedAt), "MMM d, yyyy h:mm a")}
-              </p>
-            )}
-          </div>
+          )}
         </div>
       </DialogContent>
     </Dialog>

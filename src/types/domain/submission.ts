@@ -64,6 +64,7 @@ export interface Submission {
     hasCover: boolean;
     coloredCover: boolean;
   };
+  files?: string[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -79,3 +80,34 @@ export type CreateSubmissionInput = Pick<
   | "notes"
   | "printSettings"
 >;
+
+
+export type SubmissionRow = {
+  id: string;
+  teacher_id: string;
+  class_id: string;
+  class: {
+    id: string;
+    teacher_id: string;
+    subject: string;
+    grade: string;
+    active: boolean;
+  };
+  teacher: {
+    id: string;
+    name: string;
+    email: string;
+    role: string;
+    active: boolean;
+  };
+  file_type: FileType;
+  lesson_date: string;
+  copies: number;
+  paper_color: PaperColor;
+  notes?: string | null;
+  status: SubmissionStatus;
+  print_settings: Submission["printSettings"];
+  files?: string[] | null;
+  created_at: string;
+  updated_at: string;
+};

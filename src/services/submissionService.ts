@@ -1,16 +1,17 @@
-import { supabase } from "@/lib/supabaseClient";
+import { mapSubmissionRow } from "./helpers/mappers";
 import type {
   CreateSubmissionInput,
   Submission,
   SubmissionQueryParams,
 } from "@/types";
+import { fileStorageService } from "./fileStorageService";
 import {
   applyFilters,
   applySorting,
   applyPagination,
 } from "@/utils/supabaseQueryBuilder";
-import { mapSubmissionRow } from "./helpers/mappers";
 import { AppError } from "@/utils";
+import { supabase } from "@/lib/supabaseClient";
 
 export const submissionService = {
   getSubmissions: async (
@@ -20,7 +21,7 @@ export const submissionService = {
 
     const SUBMISSION_SELECT = `
       id,file_type,lesson_date,copies,paper_color,class_id,teacher_id,notes,status,
-      print_settings,created_at,updated_at,
+      print_settings,files,created_at,updated_at,
       teacher:teacher_id(*),
       class:class_id(*)
     `;
@@ -60,7 +61,7 @@ export const submissionService = {
 
     const SUBMISSION_SELECT = `
       id,file_type,lesson_date,copies,paper_color,class_id,teacher_id,notes,status,
-      print_settings,created_at,updated_at,
+      print_settings,files,created_at,updated_at,
       teacher:teacher_id(*),
       class:class_id(*)
     `;
@@ -103,7 +104,7 @@ export const submissionService = {
 
     const SUBMISSION_SELECT = `
       id,file_type,lesson_date,copies,paper_color,class_id,teacher_id,notes,status,
-      print_settings,created_at,updated_at,
+      print_settings,files,created_at,updated_at,
       teacher:teacher_id(*),
       class:class_id(*)
     `;
@@ -143,7 +144,7 @@ export const submissionService = {
 
     const SUBMISSION_SELECT = `
       id,file_type,lesson_date,copies,paper_color,class_id,teacher_id,notes,status,
-      print_settings,created_at,updated_at,
+      print_settings,files,created_at,updated_at,
       teacher:teacher_id(*),
       class:class_id(*)
     `;
@@ -183,7 +184,7 @@ export const submissionService = {
 
     const SUBMISSION_SELECT = `
       id,file_type,lesson_date,copies,paper_color,class_id,teacher_id,notes,status,
-      print_settings,created_at,updated_at,
+      print_settings,files,created_at,updated_at,
       teacher:teacher_id(*),
       class:class_id(*)
     `;
@@ -223,7 +224,7 @@ export const submissionService = {
 
     const SUBMISSION_SELECT = `
       id,file_type,lesson_date,copies,paper_color,class_id,teacher_id,notes,status,
-      print_settings,created_at,updated_at,
+      print_settings,files,created_at,updated_at,
       teacher:teacher_id(*),
       class:class_id(*)
     `;
@@ -273,11 +274,11 @@ export const submissionService = {
 
     const SUBMISSION_SELECT = `
     id,file_type,lesson_date,copies,paper_color,class_id,teacher_id,notes,status,
-    print_settings,created_at,updated_at,
+    print_settings,files,created_at,updated_at,
       teacher:teacher_id(*),
       class:class_id(*)
     `;
-    const { data: newSubmission,error: createError } = await supabase
+    const { data: newSubmission, error: createError } = await supabase
       .from("submissions")
       .insert(dbSubmission)
       .select(SUBMISSION_SELECT)
@@ -291,13 +292,64 @@ export const submissionService = {
     return submissionData;
   },
 
+  createSubmissionWithFiles: async (
+    submission: CreateSubmissionInput,
+    files: File[]
+  ): Promise<Submission> => {
+    // 1) Create submission row first
+    const created = await submissionService.createSubmission(submission);
+    const submissionId = created.id;
+
+    if (files && files.length > 0) {
+      const { paths: uploadedNames, errors } =
+        await fileStorageService.uploadFiles(submissionId, files);
+
+      if (errors.length > 0) {
+        console.error("Some files failed to upload:", errors);
+        // Continue with the submission even if some files failed to upload
+      }
+
+      if (uploadedNames.length > 0) {
+        // 2) Update submission row with successfully uploaded filenames
+        const SUBMISSION_SELECT = `
+        id,file_type,lesson_date,copies,paper_color,class_id,teacher_id,notes,status,
+        print_settings,files,created_at,updated_at,
+          teacher:teacher_id(*),
+          class:class_id(*)
+        `;
+        const { data: updatedSubmission, error: updateError } = await supabase
+          .from("submissions")
+          .update({ files: uploadedNames })
+          .eq("id", submissionId)
+          .select(SUBMISSION_SELECT)
+          .single();
+
+        if (updateError) {
+          console.error(
+            "Error updating submission with file names:",
+            updateError
+          );
+          // Continue without failing the whole operation
+        } else {
+          return mapSubmissionRow(updatedSubmission);
+        }
+      }
+    }
+
+    return created;
+  },
+
+  downloadFile: async (submissionId: string, fileName: string) => {
+    return fileStorageService.downloadFile(submissionId, fileName);
+  },
+
   updateSubmission: async (
     id: string,
     updates: Partial<Submission>
   ): Promise<Submission> => {
     const SUBMISSION_SELECT = `
     id,file_type,lesson_date,copies,paper_color,class_id,teacher_id,notes,status,
-    print_settings,created_at,updated_at,
+    print_settings,files,created_at,updated_at,
       teacher:teacher_id(*),
       class:class_id(*)
     `;
@@ -317,10 +369,11 @@ export const submissionService = {
         print_settings: updates.printSettings,
       }),
       ...(updates.status !== undefined && { status: updates.status }),
+      ...(updates.files !== undefined && { files: updates.files }),
       ...(updates.notes !== undefined && { notes: updates.notes }),
     };
 
-    const { data: updatedSubmission,error: updateError } = await supabase
+    const { data: updatedSubmission, error: updateError } = await supabase
       .from("submissions")
       .update(dbSubmission)
       .select(SUBMISSION_SELECT)
@@ -337,6 +390,20 @@ export const submissionService = {
   },
 
   deleteSubmission: async (id: string): Promise<void> => {
+    // First, try to delete any associated files
+    const { error: fileError } = await fileStorageService.deleteSubmissionFiles(
+      id
+    );
+
+    if (fileError) {
+      console.error(
+        "Error deleting submission files, continuing with submission deletion:",
+        fileError
+      );
+      // Continue with submission deletion even if file deletion fails
+    }
+
+    // Delete the submission record
     const { error: deleteError } = await supabase
       .from("submissions")
       .delete()

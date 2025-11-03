@@ -1,38 +1,39 @@
-import type { Submission, ClassEntity, User } from "@/types";
+import type { Submission, ClassEntity, User, SubmissionRow } from "@/types";
 
 export function buildClassLabel(c: { subject: string; grade: string }) {
   return `Grade ${c.grade} - ${c.subject}`;
 }
 
-
-export function mapSubmissionRow(s: any): Submission {
+export function mapSubmissionRow(s: unknown): Submission {
+  const row = s as SubmissionRow;
   return {
-    id: s.id,
-    teacherId: s.teacher_id,
-    classId: s.class_id,
+    id: row.id,
+    teacherId: row.teacher_id,
+    classId: row.class_id,
     class: {
-      id: s.class.id,
-      teacherId: s.class.teacher_id,
-      subject: s.class.subject,
-      grade: s.class.grade,
-      active: s.class.active,
-      label: buildClassLabel(s.class),
+      id: row.class.id,
+      teacherId: row.class.teacher_id,
+      subject: row.class.subject,
+      grade: row.class.grade,
+      active: row.class.active,
+      label: buildClassLabel(row.class),
     } as ClassEntity,
     teacher: {
-      id: s.teacher.id,
-      name: s.teacher.name,
-      email: s.teacher.email,
-      role: s.teacher.role,
-      active: s.teacher.active,
+      id: row.teacher.id,
+      name: row.teacher.name,
+      email: row.teacher.email,
+      role: row.teacher.role,
+      active: row.teacher.active,
     } as User,
-    fileType: s.file_type,
-    lessonDate: s.lesson_date,
-    copies: s.copies,
-    paperColor: s.paper_color,
-    notes: s.notes,
-    status: s.status,
-    printSettings: s.print_settings,
-    createdAt: s.created_at,
-    updatedAt: s.updated_at,
+    fileType: row.file_type,
+    lessonDate: new Date(row.lesson_date),
+    copies: row.copies,
+    paperColor: row.paper_color,
+    notes: row.notes ?? undefined,
+    status: row.status,
+    printSettings: row.print_settings,
+    files: row.files ?? undefined,
+    createdAt: new Date(row.created_at),
+    updatedAt: new Date(row.updated_at),
   };
 }
