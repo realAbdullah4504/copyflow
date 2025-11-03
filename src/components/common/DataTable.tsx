@@ -31,10 +31,11 @@ const DataTable = <TData,>({
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
-                <TableHead 
+                <TableHead
                   key={header.id}
                   className={cn({
-                    'cursor-pointer select-none': header.column.getCanSort() && showSorting,
+                    "cursor-pointer select-none":
+                      header.column.getCanSort() && showSorting,
                   })}
                   onClick={header.column.getToggleSortingHandler()}
                 >
@@ -47,7 +48,7 @@ const DataTable = <TData,>({
                       <span className="ml-2">
                         {(() => {
                           const isSorted = header.column.getIsSorted();
-                          if (isSorted === 'desc' || isSorted === 'asc') {
+                          if (isSorted === "desc" || isSorted === "asc") {
                             return <ArrowUpDown className="h-4 w-4" />;
                           }
                           return <ArrowUpDown className="h-4 w-4 opacity-30" />;

@@ -49,12 +49,23 @@ export function applySorting(
   query: any,
   sorting?: SubmissionQueryParams["sorting"]
 ) {
+  const SORT_MAP: Record<string, string> = {
+    createdAt: "created_at",
+    updatedAt: "updated_at",
+    fileType: "file_type",
+    paperColor: "paper_color",
+    lessonDate: "lesson_date",
+  };
+
   if (sorting && sorting.length > 0) {
     const sort = sorting[0];
-    return query.order(sort.id, { ascending: !sort.desc });
+    const column = SORT_MAP[sort.id] ?? sort.id; // fallback to raw key
+    return query.order(column, { ascending: !sort.desc });
   }
+
   return query.order("created_at", { ascending: false });
 }
+
 
 export function applyPagination(
   query: any,

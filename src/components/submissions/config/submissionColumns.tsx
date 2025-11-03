@@ -18,7 +18,6 @@ const ROLE_COLUMNS: Record<Role, ColumnDef<Submission>[]> = {
         const val = getValue<User>();
         return val.name;
       },
-      enableSorting: true,
     },
   ],
   teacher: [],
@@ -30,7 +29,7 @@ const ROLE_COLUMNS: Record<Role, ColumnDef<Submission>[]> = {
         const val = getValue<User>();
         return val.name;
       },
-      enableSorting: true,
+      enableSorting: false,
     },
   ],
   principal: [
@@ -41,7 +40,6 @@ const ROLE_COLUMNS: Record<Role, ColumnDef<Submission>[]> = {
         const val = getValue<User>();
         return val.name;
       },
-      enableSorting: true,
     },
   ],
 };
@@ -63,7 +61,7 @@ export const getSubmissionColumns = (
         const val = getValue<ClassEntity>();
         return val.label;
       },
-      enableSorting: true,
+      enableSorting: false,
     },
     {
       accessorKey: "fileType",
@@ -84,7 +82,6 @@ export const getSubmissionColumns = (
     {
       accessorKey: "createdAt",
       header: "Created",
-      enableSorting: true,
       cell: ({ getValue }) => new Date(getValue<string>()).toLocaleString(),
     },
   ];
