@@ -1,5 +1,5 @@
 import type { ColumnDef } from "@tanstack/react-table";
-import type { Submission, SubmissionStatus,ClassEntity } from "@/types";
+import type { Submission, SubmissionStatus, ClassEntity, User } from "@/types";
 import ActionCell from "../cells/ActionCell";
 import type { Role } from "@/config";
 import { StatusBadge } from "../ui/status-badge";
@@ -11,14 +11,38 @@ import {
 
 const ROLE_COLUMNS: Record<Role, ColumnDef<Submission>[]> = {
   admin: [
-    { accessorKey: "teacherName", header: "Teacher", enableSorting: true },
+    {
+      accessorKey: "teacher",
+      header: "Teacher",
+      cell: ({ getValue }) => {
+        const val = getValue<User>();
+        return val.name;
+      },
+      enableSorting: true,
+    },
   ],
   teacher: [],
   secretary: [
-    { accessorKey: "teacherName", header: "Teacher", enableSorting: true },
+    {
+      accessorKey: "teacher",
+      header: "Teacher",
+      cell: ({ getValue }) => {
+        const val = getValue<User>();
+        return val.name;
+      },
+      enableSorting: true,
+    },
   ],
   principal: [
-    { accessorKey: "teacherName", header: "Teacher", enableSorting: true },
+    {
+      accessorKey: "teacher",
+      header: "Teacher",
+      cell: ({ getValue }) => {
+        const val = getValue<User>();
+        return val.name;
+      },
+      enableSorting: true,
+    },
   ],
 };
 

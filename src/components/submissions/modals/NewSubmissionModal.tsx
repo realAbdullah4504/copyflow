@@ -16,6 +16,7 @@ import { useClassesByTeacher } from "@/hooks/queries";
 import { useFormWithConfig } from "@/hooks";
 import { useTeachers } from "@/hooks/queries/useTeachers";
 import type { FileType, PaperColor } from "@/types/domain/submission";
+import { filterTypes, paperColors } from "@/constants";
 
 interface NewSubmissionModalProps {
   open: boolean;
@@ -112,8 +113,8 @@ const NewSubmissionModal = ({
 
   const formFields = getSubmissionFields({
     classes: classes || [],
-    fileTypes: ["Worksheet", "Exam", "Handout", "Lesson Plan", "Other"],
-    paperColors: ["White", "Blue", "Green", "Yellow", "Pink"],
+    fileTypes:filterTypes,
+    paperColors: paperColors,
     teachers: teachers || [],
     disabledFields: !allowTeacherSelection && teacherId ? ["teacherId"] : [],
   });

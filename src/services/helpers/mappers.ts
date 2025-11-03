@@ -1,8 +1,9 @@
-import type { Submission, ClassEntity } from "@/types";
+import type { Submission, ClassEntity, User } from "@/types";
 
 export function buildClassLabel(c: { subject: string; grade: string }) {
   return `Grade ${c.grade} - ${c.subject}`;
 }
+
 
 export function mapSubmissionRow(s: any): Submission {
   return {
@@ -17,6 +18,13 @@ export function mapSubmissionRow(s: any): Submission {
       active: s.class.active,
       label: buildClassLabel(s.class),
     } as ClassEntity,
+    teacher: {
+      id: s.teacher.id,
+      name: s.teacher.name,
+      email: s.teacher.email,
+      role: s.teacher.role,
+      active: s.teacher.active,
+    } as User,
     fileType: s.file_type,
     lessonDate: s.lesson_date,
     copies: s.copies,

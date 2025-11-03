@@ -4,6 +4,7 @@
  */
 
 import type { ClassEntity } from "./class";
+import type { User } from "./user";
 
 export type SubmissionStatus = "pending" | "printed" | "censored";
 
@@ -48,6 +49,7 @@ export interface Submission {
   teacherId: string;
   classId: string;
   class?: ClassEntity;
+  teacher?: User;
   fileType: FileType;
   lessonDate: Date;
   copies: number;

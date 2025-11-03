@@ -6,10 +6,17 @@ export function applyFilters(
 ) {
   if (!filters) return query;
 
-  const { fileType, status, timeFrame } = filters;
+  const { class: classFilter, fileType, status, timeFrame } = filters;
 
-  if (status) query = query.eq("status", status);
-  if (fileType) query = query.eq("file_type", fileType);
+  if (classFilter) {
+    query = query.eq("class_id", classFilter);
+  }
+  if (status) {
+    query = query.eq("status", status);
+  }
+  if (fileType) {
+    query = query.eq("file_type", fileType);
+  }
 
   if (timeFrame && timeFrame !== "all") {
     const now = new Date();
@@ -38,7 +45,10 @@ export function applyFilters(
   return query;
 }
 
-export function applySorting(query: any, sorting?: SubmissionQueryParams["sorting"]) {
+export function applySorting(
+  query: any,
+  sorting?: SubmissionQueryParams["sorting"]
+) {
   if (sorting && sorting.length > 0) {
     const sort = sorting[0];
     return query.order(sort.id, { ascending: !sort.desc });
@@ -46,7 +56,10 @@ export function applySorting(query: any, sorting?: SubmissionQueryParams["sortin
   return query.order("created_at", { ascending: false });
 }
 
-export function applyPagination(query: any, pagination?: SubmissionQueryParams["pagination"]) {
+export function applyPagination(
+  query: any,
+  pagination?: SubmissionQueryParams["pagination"]
+) {
   if (!pagination) return query;
   const { pageIndex, pageSize } = pagination;
   const from = pageIndex * pageSize;

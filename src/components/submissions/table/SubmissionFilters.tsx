@@ -1,15 +1,15 @@
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import type { FileType, Submission, SubmissionStatus } from "@/types";
 import { useMemo } from "react";
 import type { Table } from "@tanstack/react-table";
 
-const timeFrameOptions = [
-  "all",
-  "today",
-  "7d",
-  "30d",
-  "this_month",
-] as const;
+const timeFrameOptions = ["all", "today", "7d", "30d", "this_month"] as const;
 
 type TimeFrame = (typeof timeFrameOptions)[number];
 
@@ -21,29 +21,42 @@ interface SubmissionFiltersProps {
 const SubmissionFilters = ({ table, data }: SubmissionFiltersProps) => {
   // Derive grade options from data
   const gradeOptions = useMemo(() => {
-    const set = new Set<string>();
-    for (const s of data ?? []) set.add(s.grade);
-    return Array.from(set).sort((a, b) => a.localeCompare(b));
+    const map = new Map<string, string>();
+
+    for (const s of data ?? []) {
+      const id = s.class?.id;
+      const label = s.class?.label;
+
+      if (id && label && !map.has(id)) {
+        map.set(id, label);
+      }
+    }
+
+    // Convert Map → array of objects for dropdowns
+    return Array.from(map, ([id, label]) => ({ id, label }));
   }, [data]);
 
   // Helpers to set column filters
   const setColumnValue = (id: keyof Submission, value: string | undefined) => {
-    table.getColumn(String(id))?.setFilterValue(value === 'all' ? undefined : value);
+    table
+      .getColumn(String(id))
+      ?.setFilterValue(value === "all" ? undefined : value);
   };
 
   // Time frame filter uses the createdAt column's filter with a custom token
   const createdAtCol = table.getColumn("createdAt");
-  const currentTimeFrame = (createdAtCol?.getFilterValue() as TimeFrame) ?? "all";
+  const currentTimeFrame =
+    (createdAtCol?.getFilterValue() as TimeFrame) ?? "all";
 
   const handleTimeFrame = (value: TimeFrame) => {
-    createdAtCol?.setFilterValue(value === 'all' ? undefined : value);
+    createdAtCol?.setFilterValue(value === "all" ? undefined : value);
   };
 
   return (
     <div className="mb-4 grid grid-cols-1 md:grid-cols-4 gap-3">
       <Select
-        value={(table.getColumn("grade")?.getFilterValue() as string) ?? ""}
-        onValueChange={(v) => setColumnValue("grade", v || undefined)}
+        value={(table.getColumn("class")?.getFilterValue() as string) ?? ""}
+        onValueChange={(v) => setColumnValue("class", v || undefined)}
       >
         <SelectTrigger className="w-full">
           <SelectValue placeholder="Class" />
@@ -51,35 +64,50 @@ const SubmissionFilters = ({ table, data }: SubmissionFiltersProps) => {
         <SelectContent>
           <SelectItem value="all">All Classes</SelectItem>
           {gradeOptions.map((g) => (
-            <SelectItem key={g} value={g}>
-              {g}
+            <SelectItem key={g.id} value={g.id}>
+              {g.label}
             </SelectItem>
           ))}
         </SelectContent>
       </Select>
 
       <Select
-        value={(table.getColumn("fileType")?.getFilterValue() as FileType) ?? ""}
-        onValueChange={(v) => setColumnValue("fileType", (v as FileType) || undefined)}
+        value={
+          (table.getColumn("fileType")?.getFilterValue() as FileType) ?? ""
+        }
+        onValueChange={(v) =>
+          setColumnValue("fileType", (v as FileType) || undefined)
+        }
       >
         <SelectTrigger className="w-full">
           <SelectValue placeholder="File Type" />
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">All Types</SelectItem>
-          {(["worksheet", "exam", "handout", "lesson_plan", "other"] as FileType[]).map(
-            (t) => (
-              <SelectItem key={t} value={t}>
-                {t.replace("_", " ")}
-              </SelectItem>
-            )
-          )}
+          {(
+            [
+              "worksheet",
+              "exam",
+              "handout",
+              "lesson_plan",
+              "other",
+            ] as FileType[]
+          ).map((t) => (
+            <SelectItem key={t} value={t}>
+              {t.replace("_", " ")}
+            </SelectItem>
+          ))}
         </SelectContent>
       </Select>
 
       <Select
-        value={(table.getColumn("status")?.getFilterValue() as SubmissionStatus) ?? ""}
-        onValueChange={(v) => setColumnValue("status", (v as SubmissionStatus) || undefined)}
+        value={
+          (table.getColumn("status")?.getFilterValue() as SubmissionStatus) ??
+          ""
+        }
+        onValueChange={(v) =>
+          setColumnValue("status", (v as SubmissionStatus) || undefined)
+        }
       >
         <SelectTrigger className="w-full">
           <SelectValue placeholder="Status" />
@@ -94,7 +122,10 @@ const SubmissionFilters = ({ table, data }: SubmissionFiltersProps) => {
         </SelectContent>
       </Select>
 
-      <Select value={currentTimeFrame} onValueChange={(v) => handleTimeFrame(v as TimeFrame)}>
+      <Select
+        value={currentTimeFrame}
+        onValueChange={(v) => handleTimeFrame(v as TimeFrame)}
+      >
         <SelectTrigger className="w-full">
           <SelectValue placeholder="Time Frame" />
         </SelectTrigger>

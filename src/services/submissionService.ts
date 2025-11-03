@@ -40,12 +40,12 @@ export const submissionService = {
     query = applyPagination(query, pagination);
     const { data, count, error } = await query;
 
+    console.log("data", data);
     if (error) throw new Error(error.message);
     if (!data) throw new Error("Failed to fetch submissions");
 
     const mapped: Submission[] = data.map(mapSubmissionRow);
 
-    console.log(mapped, "mapped");
     return { data: mapped, total: count ?? mapped.length };
   },
 
@@ -201,15 +201,27 @@ export const submissionService = {
   createSubmission: async (
     submission: CreateSubmissionInput
   ): Promise<Submission> => {
+    const dbSubmission = {
+      teacher_id: submission.teacherId,
+      class_id: submission.classId,
+      file_type: submission.fileType,
+      lesson_date: submission.lessonDate,
+      copies: submission.copies,
+      paper_color: submission.paperColor,
+      print_settings: submission.printSettings,
+      status: "pending",
+      notes: submission.notes,
+    };
+
     const SUBMISSION_SELECT = `
-      id,file_type,lesson_date,copies,paper_color,class_id,teacher_id,notes,status,
-      print_settings,created_at,updated_at,
+    id,file_type,lesson_date,copies,paper_color,class_id,teacher_id,notes,status,
+    print_settings,created_at,updated_at,
       teacher:teacher_id(*),
       class:class_id(*)
     `;
     const { data: newSubmission } = await supabase
       .from("submissions")
-      .insert(submission)
+      .insert(dbSubmission)
       .select(SUBMISSION_SELECT)
       .single();
 
