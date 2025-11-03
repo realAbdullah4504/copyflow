@@ -1,5 +1,5 @@
 import type { ColumnDef } from "@tanstack/react-table";
-import type { Submission, SubmissionStatus } from "@/types";
+import type { ClassEntity, Submission, SubmissionStatus, User } from "@/types";
 import ActionCell from "../cells/ActionCell";
 import type { Role } from "@/config";
 import { StatusBadge } from "../ui/status-badge";
@@ -10,10 +10,37 @@ import {
 } from "@/config/permissions";
 
 const ROLE_COLUMNS: Record<Role, ColumnDef<Submission>[]> = {
-  admin: [{ accessorKey: "teacherName", header: "Teacher" }],
+  admin: [
+    {
+      accessorKey: "teacher",
+      header: "Teacher",
+      cell: ({ getValue }) => {
+        const val = getValue<User>();
+        return val.name;
+      },
+    },
+  ],
   teacher: [],
-  secretary: [{ accessorKey: "teacherName", header: "Teacher" }],
-  principal: [{ accessorKey: "teacherName", header: "Teacher" }],
+  secretary: [
+    {
+      accessorKey: "teacher",
+      header: "Teacher",
+      cell: ({ getValue }) => {
+        const val = getValue<User>();
+        return val.name;
+      },
+    },
+  ],
+  principal: [
+    {
+      accessorKey: "teacher",
+      header: "Teacher",
+      cell: ({ getValue }) => {
+        const val = getValue<User>();
+        return val.name;
+      },
+    },
+  ],
 };
 
 export const getArchiveColumns = (
@@ -30,10 +57,10 @@ export const getArchiveColumns = (
       accessorKey: "class",
       header: "Class",
       cell: ({ getValue }) => {
-        const val = getValue<string>();
-        return val.replace("_", " ");
+        const val = getValue<ClassEntity>();
+        return val.label;
       },
-      enableSorting: true,
+      enableSorting: false,
     },
     {
       accessorKey: "fileType",

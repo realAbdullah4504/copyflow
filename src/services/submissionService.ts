@@ -10,11 +10,7 @@ import {
   applyPagination,
 } from "@/utils/supabaseQueryBuilder";
 import { mapSubmissionRow } from "./helpers/mappers";
-import {
-  filterData,
-  paginateData,
-  sortData,
-} from "./helpers/submissionHelpers";
+import { AppError } from "@/utils";
 
 export const submissionService = {
   getSubmissions: async (
@@ -39,8 +35,17 @@ export const submissionService = {
     query = applyPagination(query, pagination);
     const { data, count, error } = await query;
 
-    if (error) throw new Error(error.message);
-    if (!data) throw new Error("Failed to fetch submissions");
+    if (error) {
+      const appError = await AppError.from(error);
+      throw appError;
+    }
+    if (!data) {
+      const appError = await AppError.from({
+        message: "Failed to fetch submissions",
+        status: 500,
+      });
+      throw appError;
+    }
 
     const mapped: Submission[] = data.map(mapSubmissionRow);
 
@@ -51,30 +56,41 @@ export const submissionService = {
     teacherId: string,
     params?: SubmissionQueryParams
   ): Promise<{ data: Submission[]; total: number }> => {
-    const { pagination, filters, sorting } = params ?? {};
-    const { data: submissions } = await supabase
-      .from("submissions")
-      .select(SUBMISSION_SELECT)
-      .neq("status", "printed")
-      .eq("teacher_id", teacherId)
-      .order("created_at", { ascending: false });
+    const { filters, sorting, pagination } = params ?? {};
 
-    if (!submissions) {
-      throw new Error("Failed to fetch submissions");
+    const SUBMISSION_SELECT = `
+      id,file_type,lesson_date,copies,paper_color,class_id,teacher_id,notes,status,
+      print_settings,created_at,updated_at,
+      teacher:teacher_id(*),
+      class:class_id(*)
+    `;
+
+    let query = supabase
+      .from("submissions")
+      .select(SUBMISSION_SELECT, { count: "exact" })
+      .neq("status", "printed")
+      .eq("teacher_id", teacherId);
+
+    query = applyFilters(query, filters);
+    query = applySorting(query, sorting);
+    query = applyPagination(query, pagination);
+    const { data, count, error } = await query;
+
+    if (error) {
+      const appError = await AppError.from(error);
+      throw appError;
+    }
+    if (!data) {
+      const appError = await AppError.from({
+        message: "Failed to fetch submissions",
+        status: 500,
+      });
+      throw appError;
     }
 
-    // Apply sorting if specified
-    let filtered = sortData(submissions, sorting);
+    const mapped: Submission[] = data.map(mapSubmissionRow);
 
-    // Apply filters if specified
-    filtered = filterData(filtered, filters);
-
-    //pagination stuff
-    const paginated = paginateData(filtered, pagination);
-    return {
-      data: paginated.data,
-      total: paginated.total,
-    };
+    return { data: mapped, total: count ?? mapped.length };
   },
 
   getArchivedSubmissions: async (
@@ -83,117 +99,161 @@ export const submissionService = {
     data: Submission[];
     total: number;
   }> => {
-    const { pagination, filters, sorting } = params ?? {};
-    const { data: submissions } = await supabase
-      .from("submissions")
-      .select("*")
-      .eq("status", "printed")
-      .order("created_at", { ascending: false });
+    const { filters, sorting, pagination } = params ?? {};
 
-    if (!submissions) {
-      throw new Error("Failed to fetch submissions");
+    const SUBMISSION_SELECT = `
+      id,file_type,lesson_date,copies,paper_color,class_id,teacher_id,notes,status,
+      print_settings,created_at,updated_at,
+      teacher:teacher_id(*),
+      class:class_id(*)
+    `;
+
+    let query = supabase
+      .from("submissions")
+      .select(SUBMISSION_SELECT, { count: "exact" })
+      .eq("status", "printed");
+
+    query = applyFilters(query, filters);
+    query = applySorting(query, sorting);
+    query = applyPagination(query, pagination);
+    const { data, count, error } = await query;
+
+    if (error) {
+      const appError = await AppError.from(error);
+      throw appError;
+    }
+    if (!data) {
+      const appError = await AppError.from({
+        message: "Failed to fetch submissions",
+        status: 500,
+      });
+      throw appError;
     }
 
-    // Apply sorting if specified
-    let filtered = sortData(submissions, sorting);
+    const mapped: Submission[] = data.map(mapSubmissionRow);
 
-    // Apply filters if specified
-    filtered = filterData(filtered, filters);
-
-    //pagination stuff
-    const paginated = paginateData(filtered, pagination);
-    return {
-      data: paginated.data,
-      total: paginated.total,
-    };
+    return { data: mapped, total: count ?? mapped.length };
   },
 
   getArchivedSubmissionsByTeacher: async (
     teacherId: string,
     params?: SubmissionQueryParams
   ): Promise<{ data: Submission[]; total: number }> => {
-    const { pagination, filters, sorting } = params ?? {};
-    const { data: submissions } = await supabase
-      .from("submissions")
-      .select("*")
-      .eq("status", "printed")
-      .eq("teacher_id", teacherId)
-      .order("created_at", { ascending: false });
+    const { filters, sorting, pagination } = params ?? {};
 
-    if (!submissions) {
-      throw new Error("Failed to fetch submissions");
+    const SUBMISSION_SELECT = `
+      id,file_type,lesson_date,copies,paper_color,class_id,teacher_id,notes,status,
+      print_settings,created_at,updated_at,
+      teacher:teacher_id(*),
+      class:class_id(*)
+    `;
+
+    let query = supabase
+      .from("submissions")
+      .select(SUBMISSION_SELECT, { count: "exact" })
+      .eq("status", "printed")
+      .eq("teacher_id", teacherId);
+
+    query = applyFilters(query, filters);
+    query = applySorting(query, sorting);
+    query = applyPagination(query, pagination);
+    const { data, count, error } = await query;
+
+    if (error) {
+      const appError = await AppError.from(error);
+      throw appError;
+    }
+    if (!data) {
+      const appError = await AppError.from({
+        message: "Failed to fetch submissions",
+        status: 500,
+      });
+      throw appError;
     }
 
-    // Apply sorting if specified
-    let filtered = sortData(submissions, sorting);
+    const mapped: Submission[] = data.map(mapSubmissionRow);
 
-    // Apply filters if specified
-    filtered = filterData(filtered, filters);
-
-    //pagination stuff
-    const paginated = paginateData(filtered, pagination);
-    return {
-      data: paginated.data,
-      total: paginated.total,
-    };
+    return { data: mapped, total: count ?? mapped.length };
   },
 
   getCensoredSubmissions: async (
     params?: SubmissionQueryParams
   ): Promise<{ data: Submission[]; total: number }> => {
-    const { pagination, filters, sorting } = params ?? {};
-    const { data: submissions } = await supabase
-      .from("submissions")
-      .select("*")
-      .eq("status", "censored")
-      .order("created_at", { ascending: false });
+    const { filters, sorting, pagination } = params ?? {};
 
-    if (!submissions) {
-      throw new Error("Failed to fetch submissions");
+    const SUBMISSION_SELECT = `
+      id,file_type,lesson_date,copies,paper_color,class_id,teacher_id,notes,status,
+      print_settings,created_at,updated_at,
+      teacher:teacher_id(*),
+      class:class_id(*)
+    `;
+
+    let query = supabase
+      .from("submissions")
+      .select(SUBMISSION_SELECT, { count: "exact" })
+      .eq("status", "censored");
+
+    query = applyFilters(query, filters);
+    query = applySorting(query, sorting);
+    query = applyPagination(query, pagination);
+    const { data, count, error } = await query;
+
+    if (error) {
+      const appError = await AppError.from(error);
+      throw appError;
+    }
+    if (!data) {
+      const appError = await AppError.from({
+        message: "Failed to fetch submissions",
+        status: 500,
+      });
+      throw appError;
     }
 
-    // Apply sorting if specified
-    let filtered = sortData(submissions, sorting);
+    const mapped: Submission[] = data.map(mapSubmissionRow);
 
-    // Apply filters if specified
-    filtered = filterData(filtered, filters);
-
-    //pagination stuff
-    const paginated = paginateData(filtered, pagination);
-    return {
-      data: paginated.data,
-      total: paginated.total,
-    };
+    return { data: mapped, total: count ?? mapped.length };
   },
 
   getCensoredSubmissionsByTeacher: async (
     teacherId: string,
     params?: SubmissionQueryParams
   ): Promise<{ data: Submission[]; total: number }> => {
-    const { pagination, filters, sorting } = params ?? {};
-    const { data: submissions } = await supabase
-      .from("submissions")
-      .select("*")
-      .eq("status", "censored")
-      .eq("teacher_id", teacherId)
-      .order("created_at", { ascending: false });
+    const { filters, sorting, pagination } = params ?? {};
 
-    if (!submissions) {
-      throw new Error("Failed to fetch submissions");
+    const SUBMISSION_SELECT = `
+      id,file_type,lesson_date,copies,paper_color,class_id,teacher_id,notes,status,
+      print_settings,created_at,updated_at,
+      teacher:teacher_id(*),
+      class:class_id(*)
+    `;
+
+    let query = supabase
+      .from("submissions")
+      .select(SUBMISSION_SELECT, { count: "exact" })
+      .eq("status", "censored")
+      .eq("teacher_id", teacherId);
+
+    query = applyFilters(query, filters);
+    query = applySorting(query, sorting);
+    query = applyPagination(query, pagination);
+    const { data, count, error } = await query;
+
+    if (error) {
+      const appError = await AppError.from(error);
+      throw appError;
+    }
+    if (!data) {
+      const appError = await AppError.from({
+        message: "Failed to fetch submissions",
+        status: 500,
+      });
+      throw appError;
     }
 
-    // Apply sorting if specified
-    let filtered = sortData(submissions, sorting);
+    const mapped: Submission[] = data.map(mapSubmissionRow);
 
-    // Apply filters if specified
-    filtered = filterData(filtered, filters);
-
-    //pagination stuff
-    const paginated = paginateData(filtered, pagination);
-    return {
-      data: paginated.data,
-      total: paginated.total,
-    };
+    return { data: mapped, total: count ?? mapped.length };
   },
 
   createSubmission: async (
@@ -217,14 +277,15 @@ export const submissionService = {
       teacher:teacher_id(*),
       class:class_id(*)
     `;
-    const { data: newSubmission } = await supabase
+    const { data: newSubmission,error: createError } = await supabase
       .from("submissions")
       .insert(dbSubmission)
       .select(SUBMISSION_SELECT)
       .single();
 
-    if (!newSubmission) {
-      throw new Error("Failed to create submission");
+    if (createError) {
+      const appError = await AppError.from(createError);
+      throw appError;
     }
     const submissionData = mapSubmissionRow(newSubmission);
     return submissionData;
@@ -242,43 +303,49 @@ export const submissionService = {
     `;
 
     const dbSubmission = {
-      teacher_id: updates.teacherId,
-      class_id: updates.classId,
-      file_type: updates.fileType,
-      lesson_date: updates.lessonDate,
-      copies: updates.copies,
-      paper_color: updates.paperColor,
-      print_settings: updates.printSettings,
-      status: updates.status,
-      notes: updates.notes,
+      ...(updates.teacherId !== undefined && { teacher_id: updates.teacherId }),
+      ...(updates.classId !== undefined && { class_id: updates.classId }),
+      ...(updates.fileType !== undefined && { file_type: updates.fileType }),
+      ...(updates.lessonDate !== undefined && {
+        lesson_date: updates.lessonDate,
+      }),
+      ...(updates.copies !== undefined && { copies: updates.copies }),
+      ...(updates.paperColor !== undefined && {
+        paper_color: updates.paperColor,
+      }),
+      ...(updates.printSettings !== undefined && {
+        print_settings: updates.printSettings,
+      }),
+      ...(updates.status !== undefined && { status: updates.status }),
+      ...(updates.notes !== undefined && { notes: updates.notes }),
     };
 
-    const { data: updatedSubmission } = await supabase
+    const { data: updatedSubmission,error: updateError } = await supabase
       .from("submissions")
       .update(dbSubmission)
       .select(SUBMISSION_SELECT)
       .eq("id", id)
       .single();
 
-    if (!updatedSubmission) {
-      throw new Error("Failed to update submission");
+    if (updateError) {
+      const appError = await AppError.from(updateError);
+      throw appError;
     }
 
     const submissionData = mapSubmissionRow(updatedSubmission);
     return submissionData;
   },
 
-  deleteSubmission: async (id: string): Promise<Submission> => {
-    const { data: deletedSubmission } = await supabase
+  deleteSubmission: async (id: string): Promise<void> => {
+    const { error: deleteError } = await supabase
       .from("submissions")
       .delete()
       .eq("id", id)
       .single();
 
-    if (!deletedSubmission) {
-      throw new Error("Failed to delete submission");
+    if (deleteError) {
+      const appError = await AppError.from(deleteError);
+      throw appError;
     }
-
-    return deletedSubmission;
   },
 };
