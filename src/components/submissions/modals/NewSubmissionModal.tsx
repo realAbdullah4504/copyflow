@@ -54,12 +54,13 @@ const NewSubmissionModal = ({
     },
     files: [],
   });
-  const active = true;
+  const activeClasses = true;
+  const activeTeachers = true;
   const { classes } = useClassesByTeacher(
     teacherId || form.watch("teacherId"),
-    active
+    activeClasses
   );
-  const { teachers } = useTeachers();
+  const { teachers } = useTeachers(activeTeachers);
 
   const fileTypeMap: Record<string, FileType> = {
     worksheet: "worksheet",
@@ -110,7 +111,7 @@ const NewSubmissionModal = ({
 
   const formFields = getSubmissionFields({
     classes: classes || [],
-    fileTypes:filterTypes,
+    fileTypes: filterTypes,
     paperColors: paperColors,
     teachers: teachers || [],
     disabledFields: !allowTeacherSelection && teacherId ? ["teacherId"] : [],

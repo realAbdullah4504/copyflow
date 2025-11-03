@@ -19,12 +19,14 @@ export const userService = {
       total: data.length,
     };
   },
-  getTeachers: async (): Promise<User[]> => {
-    const { data, error } = await supabase
-      .from("profiles")
-      .select()
-      .eq("role", "teacher")
-      .order("created_at", { ascending: false });
+  getTeachers: async (status?: boolean): Promise<User[]> => {
+    const query = supabase.from("profiles").select().eq("role", "teacher");
+    if (status !== undefined) {
+      query.eq("active", status);
+    }
+    const { data, error } = await query.order("created_at", {
+      ascending: false,
+    });
     if (error) {
       const appError = await AppError.from(error);
       throw appError;

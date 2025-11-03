@@ -14,16 +14,25 @@ type LoginInputs = {
 };
 
 const demoAccounts = [
-  { email: "teacher@copyflow.com", name: "Teacher", role: "Teacher", password: "teacher1234" },
+  {
+    email: "teacher@copyflow.com",
+    name: "Teacher",
+    role: "Teacher",
+    password: "teacher1234",
+  },
   {
     email: "idycziment@gmail.com",
     name: "Secretary",
     role: "Secretary",
     password: "gfd-25KC",
   },
-  { email: "abdullahjaved4504@gmail.com", name: "admin", role: "Admin", password: "11111111@" },
+  {
+    email: "abdullahjaved4504@gmail.com",
+    name: "admin",
+    role: "Admin",
+    password: "11111111@",
+  },
 ];
-
 const LoginPage = () => {
   const { login, isLoggingIn, loginError } = useAuth();
   const config = AUTH_FIELDS.LOGIN;
@@ -44,14 +53,17 @@ const LoginPage = () => {
           navigate(`/dashboard/${data.user.role}`);
           toast.success("Welcome back!");
         },
-        onError: () => toast.error("Invalid credentials"),
       }
     );
   };
 
   const quickLogin = (userEmail: string) => {
     setValue("email", userEmail, { shouldValidate: true });
-    setValue("password", demoAccounts.find((acc) => acc.email === userEmail)?.password, { shouldValidate: true });
+    setValue(
+      "password",
+      demoAccounts.find((acc) => acc.email === userEmail)?.password,
+      { shouldValidate: true }
+    );
   };
   return (
     <CardContent className="space-y-6">
@@ -64,7 +76,7 @@ const LoginPage = () => {
         form={form}
         onSubmit={onSubmit}
         isSubmitting={isLoggingIn}
-        error={loginError ? "Invalid email or password" : undefined}
+        error={loginError?.message}
       />
 
       <Divider label="Demo Accounts" />

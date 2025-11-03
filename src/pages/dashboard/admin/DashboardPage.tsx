@@ -8,7 +8,12 @@ import {
   CheckCircle,
   User,
 } from "lucide-react";
-import { useAllSubmissions, useUsers } from "@/hooks";
+import {
+  useAllSubmissions,
+  useArchivedSubmissions,
+  useCensoredSubmissions,
+  useTeachers,
+} from "@/hooks";
 
 type StatsCardProps = {
   title: string;
@@ -57,24 +62,31 @@ const StatsCard = ({
 };
 
 export default function AdminDashboardPage() {
+  const activeTeachers = true;
   const { submissions, isLoading: isLoadingSubmissions } = useAllSubmissions();
-  const { users, isLoading: isLoadingUsers } = useUsers();
+  const {
+    submissions: archivedSubmissions,
+    isLoading: isLoadingArchivedSubmissions,
+  } = useArchivedSubmissions();
+  const {
+    submissions: censoredSubmissions,
+    isLoading: isLoadingCensoredSubmissions,
+  } = useCensoredSubmissions();
+  const { teachers, isLoading: isLoadingTeachers } =
+    useTeachers(activeTeachers);
 
-  if (isLoadingSubmissions || isLoadingUsers) {
+  if (
+    isLoadingSubmissions ||
+    isLoadingTeachers ||
+    isLoadingArchivedSubmissions ||
+    isLoadingCensoredSubmissions
+  ) {
     return (
       <div className="flex items-center justify-center h-64">
         <Loader2 className="h-8 w-8 animate-spin" />
       </div>
     );
   }
-
-  const pendingSubmissions = submissions.filter(
-    (sub) => sub.status === "pending"
-  );
-  const printedSubmissions = submissions.filter(
-    (sub) => sub.status === "printed"
-  );
-  const teachers = users.filter((user) => user.role === "teacher");
 
   const stats = [
     {
@@ -91,17 +103,17 @@ export default function AdminDashboardPage() {
     },
     {
       title: "Pending Review",
-      value: pendingSubmissions.length,
+      value: censoredSubmissions.length,
       icon: <Clock className="h-4 w-4 text-amber-500" />,
-      trend: `${pendingSubmissions.length} pending`,
-      trendType: pendingSubmissions.length > 0 ? "down" : "neutral",
+      trend: `${censoredSubmissions.length} pending`,
+      trendType: censoredSubmissions.length > 0 ? "down" : "neutral",
     },
     {
       title: "Completed",
-      value: printedSubmissions.length,
+      value: archivedSubmissions.length,
       icon: <CheckCircle className="h-4 w-4 text-green-500" />,
-      trend: `${printedSubmissions.length} completed`,
-      trendType: "up",
+      trend: `${archivedSubmissions.length} completed`,
+      trendType: archivedSubmissions.length > 0 ? "up" : "neutral",
     },
   ];
 
@@ -154,9 +166,9 @@ export default function AdminDashboardPage() {
                   >
                     <div className="flex justify-between items-start">
                       <div>
-                        <p className="font-medium">{submission.subject}</p>
+                        <p className="font-medium">{submission.class?.label}</p>
                         <p className="text-sm text-muted-foreground">
-                          {submission.teacherName} • {submission.grade}
+                          {submission.teacher?.name}
                         </p>
                       </div>
                       <div className="flex items-center gap-2">
@@ -215,7 +227,7 @@ export default function AdminDashboardPage() {
                         </div>
                       </div>
                       <span className="text-xs text-muted-foreground">
-                        Active today
+                        Active
                       </span>
                     </div>
                   </div>

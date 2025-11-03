@@ -108,13 +108,12 @@ export const authService = {
       .single();
 
     if (isActiveError) {
-      const appError = await AppError.from(isActiveError);
+      const appError = await AppError.from(new Error("User not found"));
       throw appError;
     }
 
-    if (!isActive.active) {
-      const appError = await AppError.from("User is not active");
-      throw appError;
+    if (isActive.active === false) {
+      throw await AppError.from(new Error("User is not active"));
     }
 
     const { data, error } = await supabase.auth.signInWithPassword({

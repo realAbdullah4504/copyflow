@@ -10,7 +10,7 @@ export const useUserMutations = () => {
       userService.createUser(user),
     ...mutationHandlers({
       successMessage: "User created successfully",
-      invalidateKeys: [QUERY_KEYS.USERS],
+      invalidateKeys: [QUERY_KEYS.USERS,QUERY_KEYS.TEACHERS],
     }),
   });
 
@@ -19,7 +19,7 @@ export const useUserMutations = () => {
       userService.updateUser(id, updates),
     ...mutationHandlers({
       successMessage: "User updated successfully",
-      invalidateKeys: [QUERY_KEYS.USERS],
+      invalidateKeys: [QUERY_KEYS.USERS,QUERY_KEYS.TEACHERS],
     }),
   });
 
@@ -27,7 +27,7 @@ export const useUserMutations = () => {
     mutationFn: (id: string) => userService.deleteUser(id),
     ...mutationHandlers({
       successMessage: "User deleted successfully",
-      invalidateKeys: [QUERY_KEYS.USERS],
+      invalidateKeys: [QUERY_KEYS.USERS,QUERY_KEYS.TEACHERS],
     }),
   });
 

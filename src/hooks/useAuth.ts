@@ -43,7 +43,7 @@ export function useAuth() {
     login: loginMutation.mutate,
     logout: logoutMutation.mutateAsync,
     isLoggingIn: loginMutation.isPending,
-    loginError: loginMutation.error,
+    loginError: loginMutation?.error,
     signup: signupMutation.mutate,
     isSigningUp: signupMutation.isPending,
     signupError: signupMutation.error,
