@@ -32,7 +32,7 @@ export const submissionService = {
       printSettings: s.print_settings,
       createdAt: s.created_at,
       updatedAt: s.updated_at,
-      // files: s.files,
+      // fileNames: s.fileName,
     }));
 
     if (!submissionsData) {

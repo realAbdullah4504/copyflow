@@ -38,35 +38,15 @@ export const classesService = {
       active: c.active,
       createdAt: new Date(c.created_at),
       updatedAt: new Date(c.updated_at),
+      label: `Grade ${c.grade} - ${c.subject}`,
     }));
   },
 
   async create(
     data: Omit<ClassEntity, "id" | "createdAt" | "updatedAt">
   ): Promise<ClassEntity> {
-    type Database = {
-      public: {
-        Tables: {
-          classes: {
-            Row: {
-              id: string;
-              teacher_id: string;
-              subject: string;
-              grade: string;
-              active: boolean;
-              created_at: string;
-              updated_at: string;
-            };
-            Insert: Omit<
-              Database["public"]["Tables"]["classes"]["Row"],
-              "id" | "created_at" | "updated_at"
-            >;
-          };
-        };
-      };
-    };
 
-    const insertData: Database["public"]["Tables"]["classes"]["Insert"] = {
+    const insertData = {
       teacher_id: data.teacherId,
       subject: data.subject,
       grade: data.grade,
@@ -77,7 +57,7 @@ export const classesService = {
       .from("classes")
       .insert(insertData)
       .select()
-      .single<Database["public"]["Tables"]["classes"]["Row"]>();
+      .single();
 
     if (error) {
       throw await AppError.from(error);
@@ -96,6 +76,7 @@ export const classesService = {
       subject: classData.subject,
       grade: classData.grade,
       active: classData.active,
+      label: `Grade ${classData.grade} - ${classData.subject}`,
       createdAt: new Date(classData.created_at),
       updatedAt: new Date(classData.updated_at),
     };
@@ -105,32 +86,8 @@ export const classesService = {
     id: string,
     updates: Partial<ClassEntity>
   ): Promise<ClassEntity> {
-    // Define the database row type (if not already defined)
-    type Database = {
-      public: {
-        Tables: {
-          classes: {
-            Row: {
-              id: string;
-              teacher_id: string;
-              subject: string;
-              grade: string;
-              active: boolean;
-              created_at: string;
-              updated_at: string;
-            };
-            Update: Partial<
-              Omit<
-                Database["public"]["Tables"]["classes"]["Row"],
-                "id" | "created_at" | "updated_at"
-              >
-            >;
-          };
-        };
-      };
-    };
 
-    const updateData: Database["public"]["Tables"]["classes"]["Update"] = {
+    const updateData = {
       ...(updates.teacherId !== undefined && { teacher_id: updates.teacherId }),
       ...(updates.subject !== undefined && { subject: updates.subject }),
       ...(updates.grade !== undefined && { grade: updates.grade }),
@@ -141,7 +98,7 @@ export const classesService = {
       .update(updateData)
       .eq("id", id)
       .select()
-      .single<Database["public"]["Tables"]["classes"]["Row"]>();
+      .single();
 
     if (error) {
       throw await AppError.from(error);
@@ -160,13 +117,13 @@ export const classesService = {
       subject: classData.subject,
       grade: classData.grade,
       active: classData.active,
+      label: `Grade ${classData.grade} - ${classData.subject}`,
       createdAt: new Date(classData.created_at),
       updatedAt: new Date(classData.updated_at),
     };
   },
 
   async toggleActive(id: string): Promise<ClassEntity> {
-    // First, get the current class to toggle its active status
     const { data: currentClass, error: fetchError } = await supabase
       .from("classes")
       .select("*")
@@ -184,7 +141,6 @@ export const classesService = {
       });
     }
 
-    // Toggle the active status
     const { data: updatedClass, error: updateError } = await supabase
       .from("classes")
       .update({
@@ -211,6 +167,7 @@ export const classesService = {
       subject: updatedClass.subject,
       grade: updatedClass.grade,
       active: updatedClass.active,
+      label: `Grade ${updatedClass.grade} - ${updatedClass.subject}`,
       createdAt: new Date(updatedClass.created_at),
       updatedAt: new Date(updatedClass.updated_at),
     };
