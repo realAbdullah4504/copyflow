@@ -1,3 +1,4 @@
+import type { ClassEntity } from "@/types";
 import { z } from "zod";
 
 export const submissionFormSchema = z.object({
@@ -22,7 +23,7 @@ export const submissionFormSchema = z.object({
 export type SubmissionFormValues = z.infer<typeof submissionFormSchema>;
 
 export const getSubmissionFields = (options: {
-  classes: string[];
+  classes: ClassEntity[];
   fileTypes: string[];
   paperColors: string[];
   teachers: { id: string; name: string }[];
@@ -44,8 +45,8 @@ export const getSubmissionFields = (options: {
     label: "Class",
     type: "select" as const,
     options: options.classes.map((cls) => ({
-      value: cls,
-      label: cls,
+      value: cls.id,
+      label: cls.label,
     })),
     placeholder: "Select class",
     className: "md:col-span-1",

@@ -1,15 +1,14 @@
 // src/hooks/mutations/useSubmissionMutations.ts
 import { useMutation } from "@tanstack/react-query";
-import { submissionService } from "@/services/submissionService";
-import type { Submission } from "@/types";
+import { submissionService } from "@/services";
+import type { CreateSubmissionInput, Submission } from "@/types";
 import { QUERY_KEYS } from "@/config";
 import { mutationHandlers } from "./mutationHandlers";
 
 export const useSubmissionMutations = () => {
   const createSubmission = useMutation({
-    mutationFn: (
-      submission: Omit<Submission, "id" | "createdAt" | "updatedAt">
-    ) => submissionService.createSubmission(submission),
+    mutationFn: (submission: CreateSubmissionInput) =>
+      submissionService.createSubmission(submission),
     ...mutationHandlers({
       successMessage: "Submission Created",
       invalidateKeys: [QUERY_KEYS.SUBMISSIONS, QUERY_KEYS.TEACHER_SUBMISSIONS],

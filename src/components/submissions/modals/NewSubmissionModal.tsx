@@ -42,6 +42,7 @@ const NewSubmissionModal = ({
     lessonDate: format(new Date(), "yyyy-MM-dd"),
     copies: 1,
     paperColor: "white",
+    notes: "",
     printSettings: {
       doubleSided: false,
       stapled: false,
@@ -52,61 +53,51 @@ const NewSubmissionModal = ({
     },
     files: [],
   });
+  const active = true;
   const { classes } = useClassesByTeacher(
     teacherId || form.watch("teacherId"),
-    true
+    active
   );
   const { teachers } = useTeachers();
 
-  const classesList = classes?.map((c) => `Grade ${c.grade} - ${c.subject}`);
-  const selectedClassId = classes?.find(
-    (c) =>
-      c.subject === form.watch("class").split(" - ")[1] &&
-      c.grade === form.watch("class").split(" - ")[0].replace("Grade ", "")
-  )?.id;
-
   const fileTypeMap: Record<string, FileType> = {
-    'worksheet': 'worksheet',
-    'exam': 'exam',
-    'handout': 'handout',
-    'lesson_plan': 'worksheet', // Map to closest match
-    'other': 'handout' // Map to closest match
+    worksheet: "worksheet",
+    exam: "exam",
+    handout: "handout",
+    lesson_plan: "worksheet", // Map to closest match
+    other: "handout", // Map to closest match
   };
 
   // Map form paper color values to PaperColor type
   const paperColorMap: Record<string, PaperColor> = {
-    'White': 'white',
-    'Yellow': 'yellow',
-    'Blue': 'blue',
-    'Green': 'green',
-    'Pink': 'pink'
+    White: "white",
+    Yellow: "yellow",
+    Blue: "blue",
+    Green: "green",
+    Pink: "pink",
   };
 
   const onSubmit = async (values: z.infer<typeof submissionFormSchema>) => {
-    if (!selectedClassId) {
-      toast.error("Please select a valid class");
-      return;
-    }
-
     // Convert form values to correct types
-    const fileType = fileTypeMap[values.fileType] || 'handout';
-    const paperColor = paperColorMap[values.paperColor] || 'white';
+    const fileType = fileTypeMap[values.fileType] || "handout";
+    const paperColor = paperColorMap[values.paperColor] || "white";
     const lessonDate = new Date(values.lessonDate);
 
     // Convert files to an array of file names (strings) as expected by the Submission type
-    const fileNames = files.map(file => file.name);
+    const fileNames = files.map((file) => file.name);
 
     const submissionData = {
-      ...values,
-      classId: selectedClassId,
+      classId: values.class,
       teacherId: values.teacherId,
       fileType,
       paperColor,
       subject: values.fileType,
       grade: values.class,
-      notes: "",
+      notes: values.notes,
       lessonDate,
-      files: fileNames, // Now this matches the string[] type
+      copies: values.copies,
+      printSettings: values.printSettings,
+      // files: fileNames, // Now this matches the string[] type
       status: "pending" as const,
     };
 
@@ -120,7 +111,7 @@ const NewSubmissionModal = ({
   };
 
   const formFields = getSubmissionFields({
-    classes: classesList || [],
+    classes: classes || [],
     fileTypes: ["Worksheet", "Exam", "Handout", "Lesson Plan", "Other"],
     paperColors: ["White", "Blue", "Green", "Yellow", "Pink"],
     teachers: teachers || [],

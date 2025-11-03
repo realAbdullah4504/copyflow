@@ -1,5 +1,5 @@
 import type { ColumnDef } from "@tanstack/react-table";
-import type { Submission, SubmissionStatus } from "@/types";
+import type { Submission, SubmissionStatus,ClassEntity } from "@/types";
 import ActionCell from "../cells/ActionCell";
 import type { Role } from "@/config";
 import { StatusBadge } from "../ui/status-badge";
@@ -35,6 +35,10 @@ export const getSubmissionColumns = (
     {
       accessorKey: "class",
       header: "Class",
+      cell: ({ getValue }) => {
+        const val = getValue<ClassEntity>();
+        return val.label;
+      },
       enableSorting: true,
     },
     {

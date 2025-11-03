@@ -14,7 +14,7 @@ export type FileType =
   | "lesson_plan"
   | "other";
 
-export type TimeFrame = "today" | "this_week" | "this_month" | "all";
+export type TimeFrame = "today" | "7d" | "30d" | "this_month" | "all";
 
 export type SubmissionFilters = {
   class?: string;
@@ -52,7 +52,7 @@ export interface Submission {
   lessonDate: Date;
   copies: number;
   paperColor: PaperColor;
-  notes: string;
+  notes?: string;
   status: SubmissionStatus;
   printSettings: {
     doubleSided: boolean;
@@ -65,3 +65,15 @@ export interface Submission {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export type CreateSubmissionInput = Pick<
+  Submission,
+  | "teacherId"
+  | "classId"
+  | "fileType"
+  | "lessonDate"
+  | "copies"
+  | "paperColor"
+  | "notes"
+  | "printSettings"
+>;
