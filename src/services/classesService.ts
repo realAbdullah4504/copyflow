@@ -1,5 +1,5 @@
 import { supabase } from "@/lib/supabaseClient";
-import type { ClassEntity } from "@/types";
+import type { ClassEntity, CreateClassInput } from "@/types";
 import { AppError } from "@/utils";
 
 export const classesService = {
@@ -43,7 +43,7 @@ export const classesService = {
   },
 
   async create(
-    data: Omit<ClassEntity, "id" | "createdAt" | "updatedAt">
+    data: CreateClassInput
   ): Promise<ClassEntity> {
 
     const insertData = {

@@ -3,6 +3,8 @@
  * Core business entities related to print submissions
  */
 
+import type { ClassEntity } from "./class";
+
 export type SubmissionStatus = "pending" | "printed" | "censored";
 
 export type FileType =
@@ -45,7 +47,7 @@ export interface Submission {
   id: string;
   teacherId: string;
   classId: string;
-  class: string;
+  class?: ClassEntity;
   fileType: FileType;
   lessonDate: Date;
   copies: number;
@@ -60,7 +62,6 @@ export interface Submission {
     hasCover: boolean;
     coloredCover: boolean;
   };
-  files: string[];
   createdAt: Date;
   updatedAt: Date;
 }

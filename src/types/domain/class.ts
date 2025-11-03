@@ -8,3 +8,4 @@ export interface ClassEntity {
   createdAt: Date;
   updatedAt: Date;
 }
+export type CreateClassInput = Pick<ClassEntity, "teacherId" | "grade" | "subject">;

@@ -3,11 +3,11 @@ import { classesService } from "@/services/classesService";
 import type { ClassEntity } from "@/types";
 import { QUERY_KEYS } from "@/config";
 import { mutationHandlers } from "./mutationHandlers";
+import type { CreateClassInput } from "@/types";
 
 export const useClassMutations = () => {
   const createClass = useMutation({
-    mutationFn: (data: Omit<ClassEntity,"active" | "id" | "createdAt" | "updatedAt">) =>
-      classesService.create(data),
+    mutationFn: (data: CreateClassInput) => classesService.create(data),
     ...mutationHandlers({
       successMessage: "Class Created",
       invalidateKeys: [QUERY_KEYS.TEACHER_CLASSES],
