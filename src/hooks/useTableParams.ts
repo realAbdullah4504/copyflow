@@ -15,7 +15,6 @@ export const useTableParams = () => {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [sorting, setSorting] = useState<SortingState>([]);
 
-  console.log("columnFilters", columnFilters);
   const filters = useMemo(() => toFilterObject(columnFilters), [columnFilters]);
   useEffect(() => {
     setPagination((prev) => ({ ...prev, pageIndex: 0 }));

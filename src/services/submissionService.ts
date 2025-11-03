@@ -40,7 +40,6 @@ export const submissionService = {
     query = applyPagination(query, pagination);
     const { data, count, error } = await query;
 
-    console.log("data", data);
     if (error) throw new Error(error.message);
     if (!data) throw new Error("Failed to fetch submissions");
 
