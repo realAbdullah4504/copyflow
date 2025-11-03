@@ -4,10 +4,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
-import { useCallback } from "react";
+import { useCallback, useState, useRef, useEffect } from "react";
 import type { UseFormReturn } from "react-hook-form";
-import { Upload, FileText, X } from "lucide-react";
+import { Upload, FileText, X, UploadCloud } from "lucide-react";
 import { Switch } from "../ui/switch";
+import { motion, AnimatePresence } from "framer-motion";
 
 type FormFieldProps = {
   type: 'text' | 'select' | 'switch' | 'textarea' | 'number' | 'checkbox' | 'date' | 'file';
@@ -61,6 +62,38 @@ const FormField = ({
     [name, multiple, setValue, onChange]
   );
 
+  const [isDragging, setIsDragging] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const dropZoneRef = useRef<HTMLDivElement>(null);
+
+  const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!isDragging) setIsDragging(true);
+  }, [isDragging]);
+
+  const handleDragLeave = useCallback((e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (isDragging) setIsDragging(false);
+  }, [isDragging]);
+
+  const handleDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      const files = Array.from(e.dataTransfer.files);
+      if (onChange) {
+        onChange({ target: { files: e.dataTransfer.files } } as any);
+      } else {
+        setValue(name, multiple ? files : files[0], { shouldValidate: true });
+      }
+      e.dataTransfer.clearData();
+    }
+  }, [name, multiple, setValue, onChange]);
+
   const removeFile = useCallback(
     (index: number) => {
       if (onChange) {
@@ -78,6 +111,20 @@ const FormField = ({
     },
     [name, value, multiple, setValue, onChange]
   );
+
+  // Close the drag overlay when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (dropZoneRef.current && !dropZoneRef.current.contains(e.target as Node)) {
+        setIsDragging(false);
+      }
+    };
+
+    document.addEventListener('mousemove', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousemove', handleClickOutside);
+    };
+  }, []);
 
   const renderInput = () => {
     switch (type) {
@@ -150,90 +197,118 @@ const FormField = ({
         );
       case 'file':
         return (
-          <div className="space-y-2 w-full">
+          <div className="space-y-2">
             <div 
-              className={cn(
-                'border-2 border-dashed rounded-lg p-6 text-center cursor-pointer',
-                'hover:bg-accent/50 transition-colors',
-                className
-              )}
-              onDragOver={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-              }}
-              onDrop={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                const files = Array.from(e.dataTransfer.files);
-                setValue(name, multiple ? [...(value || []), ...files] : files[0], { 
-                  shouldValidate: true 
-                });
-              }}
+              ref={dropZoneRef}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+              className="relative"
             >
-              <div className="flex flex-col items-center justify-center space-y-2">
-                <Upload className="h-8 w-8 text-muted-foreground" />
-                <p className="text-sm text-muted-foreground">
-                  {placeholder || 'Drag and drop files here or click to browse'}
-                </p>
-                <Input
+              <AnimatePresence>
+                {isDragging && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="absolute inset-0 z-10 flex flex-col items-center justify-center p-6 text-center bg-primary/10 backdrop-blur-sm rounded-lg border-2 border-dashed border-primary"
+                  >
+                    <motion.div
+                      initial={{ scale: 0.9, y: 10 }}
+                      animate={{ scale: 1, y: 0 }}
+                      className="flex flex-col items-center"
+                    >
+                      <UploadCloud className="w-12 h-12 mb-3 text-primary" />
+                      <p className="text-lg font-medium text-primary">Drop files here</p>
+                      <p className="text-sm text-muted-foreground">
+                        Upload your files
+                      </p>
+                    </motion.div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              <label
+                htmlFor={name}
+                className={cn(
+                  'flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-background hover:bg-accent/50 transition-colors',
+                  error ? 'border-destructive' : 'border-border',
+                  isDragging && 'border-primary bg-primary/5',
+                  className
+                )}
+              >
+                <div className="flex flex-col items-center justify-center p-5 text-center">
+                  <Upload className={cn(
+                    'w-8 h-8 mb-2',
+                    isDragging ? 'text-primary' : 'text-muted-foreground'
+                  )} />
+                  <p className={cn(
+                    'mb-1 text-sm',
+                    isDragging ? 'text-primary font-medium' : 'text-muted-foreground'
+                  )}>
+                    <span className="font-semibold">Click to upload</span> or drag and drop
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {accept ? accept.replace(/,/g, ', ') : 'Any file type'}
+                  </p>
+                </div>
+                <input
+                  id={name}
+                  ref={fileInputRef}
                   type="file"
                   className="hidden"
-                  id={`file-upload-${name}`}
                   multiple={multiple}
                   accept={accept}
                   onChange={handleFileChange}
                 />
-                <Label 
-                  htmlFor={`file-upload-${name}`}
-                  className="text-sm font-medium text-primary cursor-pointer hover:underline"
-                >
-                  Browse files
-                </Label>
-              </div>
+              </label>
             </div>
-            
-            {value && (multiple ? value.length > 0 : true) && (
-              <div className="space-y-2 mt-4">
-                <h4 className="text-sm font-medium">Selected files:</h4>
-                <div className="space-y-2">
-                  {multiple ? (
-                    (value as File[]).map((file, index) => (
-                      <div key={index} className="flex items-center justify-between p-2 bg-muted/50 rounded-md">
-                        <div className="flex items-center space-x-2">
-                          <FileText className="h-4 w-4 text-muted-foreground" />
-                          <span className="text-sm truncate max-w-[200px]">{file.name}</span>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            removeFile(index);
-                          }}
-                          className="text-muted-foreground hover:text-destructive"
-                        >
-                          <X className="h-4 w-4" />
-                        </button>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="flex items-center justify-between p-2 bg-muted/50 rounded-md">
+            {value && (
+              <div className="mt-2 space-y-2">
+                {Array.isArray(value) ? (
+                  value.map((file: File, index: number) => (
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="flex items-center justify-between p-2 text-sm bg-muted rounded"
+                    >
                       <div className="flex items-center space-x-2">
-                        <FileText className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-sm">{(value as File).name}</span>
+                        <FileText className="w-4 h-4 text-muted-foreground" />
+                        <span className="truncate max-w-xs">{file.name}</span>
                       </div>
                       <button
                         type="button"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          removeFile(0);
-                        }}
-                        className="text-muted-foreground hover:text-destructive"
+                        onClick={() => removeFile(index)}
+                        className="text-destructive hover:text-destructive/80 transition-colors"
                       >
-                        <X className="h-4 w-4" />
+                        <X className="w-4 h-4" />
                       </button>
-                    </div>
-                  )}
-                </div>
+                    </motion.div>
+                  ))
+                ) : (
+                  value && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="flex items-center justify-between p-2 text-sm bg-muted rounded"
+                    >
+                      <div className="flex items-center space-x-2">
+                        <FileText className="w-4 h-4 text-muted-foreground" />
+                        <span className="truncate max-w-xs">
+                          {value.name || 'Selected file'}
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => removeFile(0)}
+                        className="text-destructive hover:text-destructive/80 transition-colors"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </motion.div>
+                  )
+                )}
               </div>
             )}
           </div>

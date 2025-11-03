@@ -12,6 +12,7 @@ interface Props {
   allowTeacherSelection?: boolean;
   onOpenChange: (open: boolean) => void;
   onClose: () => void;
+  isSubmitting?: boolean;
   handlers: {
     onDeleteConfirm?: () => void;
     onPrintedConfirm?: () => void;
@@ -27,6 +28,7 @@ const SubmissionModal = ({
   open,
   onOpenChange,
   onClose,
+  isSubmitting,
   handlers,
   teacherId,
   allowTeacherSelection = false,
@@ -75,6 +77,7 @@ const SubmissionModal = ({
             description="Are you sure you want to delete this submission?"
             onConfirm={() => handlers.onDeleteConfirm?.()}
             onCancel={onClose}
+            isSubmitting={isSubmitting}
           />
         )
       );
@@ -90,6 +93,7 @@ const SubmissionModal = ({
             description="Are you sure you want to change the status of this submission to printed?"
             onConfirm={() => handlers.onPrintedConfirm?.()}
             onCancel={onClose}
+            isSubmitting={isSubmitting}
           />
         )
       );
@@ -105,6 +109,7 @@ const SubmissionModal = ({
             description="Are you sure you want to censor this submission?"
             onConfirm={() => handlers.onCensorshipConfirm?.()}
             onCancel={onClose}
+            isSubmitting={isSubmitting}
           />
         )
       );
@@ -114,11 +119,13 @@ const SubmissionModal = ({
         data && (
           <ConfirmModal
             open={open}
+            onOpenChange={onOpenChange}
             title="Approve Submission"
             buttonTitle="Approve"
             description="Are you sure you want to approve this submission?"
             onConfirm={() => handlers.onUnCensorshipConfirm?.()}
             onCancel={onClose}
+            isSubmitting={isSubmitting}
           />
         )
       );

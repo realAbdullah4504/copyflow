@@ -11,8 +11,10 @@ import { useSubmissionMutations } from "@/hooks/mutations";
 import { getSubmissionFields, submissionFormSchema } from "../fields";
 import { format } from "date-fns";
 import { useClassesByTeacher } from "@/hooks/queries";
-import { useFormWithConfig } from "@/hooks";
+import { useForm } from "react-hook-form";
 import { useTeachers } from "@/hooks/queries/useTeachers";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { generateSubmissionPDF } from "@/utils/generateSubmissionPDF";
 import type { FileType, PaperColor } from "@/types/domain/submission";
 import { filterTypes, paperColors } from "@/constants";
 
@@ -32,24 +34,29 @@ const NewSubmissionModal = ({
   const { createSubmissionWithFiles, createWithFilesLoading: isSubmitting } =
     useSubmissionMutations();
 
-  const form = useFormWithConfig<z.infer<typeof submissionFormSchema>>({
-    teacherId: teacherId || "",
-    classId: "",
-    fileType: "",
-    lessonDate: format(new Date(), "yyyy-MM-dd"),
-    copies: 1,
-    paperColor: "white",
-    notes: "",
-    printSettings: {
-      doubleSided: false,
-      stapled: false,
-      color: false,
-      booklet: false,
-      hasCover: false,
-      coloredCover: false,
+  const form = useForm<z.infer<typeof submissionFormSchema>>({
+    resolver: zodResolver(submissionFormSchema),
+    defaultValues: {
+      teacherId: teacherId || "",
+      classId: "",
+      fileType: "",
+      lessonDate: format(new Date(), "yyyy-MM-dd"),
+      copies: 1,
+      paperColor: "white",
+      notes: "",
+      printSettings: {
+        doubleSided: false,
+        stapled: false,
+        color: false,
+        booklet: false,
+        hasCover: false,
+        coloredCover: false,
+      },
+      files: [],
     },
-    files: [],
+    mode: "onChange",
   });
+
   const activeClasses = true;
   const activeTeachers = true;
   const { classes } = useClassesByTeacher(
@@ -76,6 +83,13 @@ const NewSubmissionModal = ({
   };
 
   const onSubmit = async (values: z.infer<typeof submissionFormSchema>) => {
+    // Validate against the schema first
+    const result = submissionFormSchema.safeParse(values);
+    if (!result.success) {
+      console.error('Validation failed:', result.error);
+      return;
+    }
+    
     // Convert form values to correct types
     const fileType = fileTypeMap[values.fileType] || "handout";
     const paperColor = paperColorMap[values.paperColor] || "white";
@@ -92,7 +106,24 @@ const NewSubmissionModal = ({
       printSettings: values.printSettings,
     };
 
-    const selectedFiles = values.files;
+    // Get the files from the form
+    let selectedFiles = Array.isArray(values.files) ? [...values.files] : [values.files];
+    
+    try {
+      // Generate PDF and add it to the files
+      const pdfBlob = generateSubmissionPDF(values, selectedFiles, teachers, classes);
+      const pdfFile = new File(
+        [pdfBlob], 
+        `submission-details-${new Date().getTime()}.pdf`,
+        { type: 'application/pdf' }
+      );
+      
+      // Add the PDF to the beginning of the files array
+      selectedFiles = [pdfFile, ...selectedFiles];
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      // Continue with submission even if PDF generation fails
+    }
 
     createSubmissionWithFiles(
       { submission: submissionData, files: selectedFiles },

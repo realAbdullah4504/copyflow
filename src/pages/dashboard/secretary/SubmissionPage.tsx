@@ -6,25 +6,28 @@ import {
   SubmissionTable,
 } from "@/components/submissions";
 import { PageHeader } from "@/components/common";
-import {
-  useAllSubmissions,
-  useSubmissionMutations,
-  useModal,
-} from "@/hooks";
+import { useAllSubmissions, useSubmissionMutations, useModal } from "@/hooks";
 
 const SecretarySubmissionsPage = () => {
   const { submissions, total, isLoading } = useAllSubmissions();
 
-  const { deleteSubmission, printedSubmission, censorSubmission } =
-    useSubmissionMutations();
+  const {
+    deleteSubmission,
+    printedSubmission,
+    censorSubmission,
+    censorLoading,
+    printedLoading,
+    deleteLoading,
+  } = useSubmissionMutations();
 
   const { modal, openModal, closeModal } = useModal<Submission>();
 
   const handlers = {
     onDeleteConfirm: () => {
       if (!modal.data) return;
-      deleteSubmission(modal.data.id);
-      closeModal();
+      deleteSubmission(modal.data.id, {
+        onSuccess: closeModal,
+      });
     },
     onPrintedConfirm: () => {
       if (!modal.data) return;
@@ -65,6 +68,7 @@ const SecretarySubmissionsPage = () => {
         onClose={closeModal}
         handlers={handlers}
         allowTeacherSelection={!!ROLES.SECRETARY}
+        isSubmitting={deleteLoading || censorLoading || printedLoading}
       />
     </>
   );

@@ -15,7 +15,7 @@ const SubmissionPage = () => {
   const { submissions, isLoading, total } = useSubmissionsByTeacher(
     user?.id || ""
   );
-  const { deleteSubmission } = useSubmissionMutations();
+  const { deleteSubmission, deleteLoading, } = useSubmissionMutations();
   const { modal, openModal, closeModal } = useModal<Submission>();
 
   const handleDeleteConfirm = () => {
@@ -52,6 +52,7 @@ const SubmissionPage = () => {
         onOpenChange={closeModal}
         onClose={closeModal}
         teacherId={user?.id || ""}
+        isSubmitting={deleteLoading}
         handlers={{
           onDeleteConfirm: handleDeleteConfirm,
         }}
