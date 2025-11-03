@@ -10,24 +10,10 @@ import {
   useAllSubmissions,
   useSubmissionMutations,
   useModal,
-  useTableParams,
 } from "@/hooks";
 
 const SecretarySubmissionsPage = () => {
-  const {
-    columnFilters,
-    pagination,
-    sorting,
-    filters,
-    setColumnFilters,
-    setPagination,
-    setSorting,
-  } = useTableParams();
-  const { submissions, total, isLoading } = useAllSubmissions({
-    pagination,
-    sorting,
-    filters,
-  });
+  const { submissions, total, isLoading } = useAllSubmissions();
 
   const { deleteSubmission, printedSubmission, censorSubmission } =
     useSubmissionMutations();
@@ -69,15 +55,6 @@ const SecretarySubmissionsPage = () => {
         columns={columns}
         total={total}
         isLoading={isLoading}
-        pagination={pagination}
-        sorting={sorting}
-        columnFilters={columnFilters}
-        onColumnFiltersChange={setColumnFilters}
-        onPaginationChange={setPagination}
-        onSortingChange={setSorting}
-        showFilters={true}
-        showPagination={true}
-        showSorting={true}
       />
 
       <SubmissionModal

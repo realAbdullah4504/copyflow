@@ -51,10 +51,8 @@ export function applySorting(
 ) {
   const SORT_MAP: Record<string, string> = {
     createdAt: "created_at",
-    updatedAt: "updated_at",
     fileType: "file_type",
-    paperColor: "paper_color",
-    lessonDate: "lesson_date",
+    status: "status",
   };
 
   if (sorting && sorting.length > 0) {
