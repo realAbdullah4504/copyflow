@@ -1,4 +1,9 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import type { Submission } from "@/types";
@@ -10,7 +15,11 @@ interface ViewSubmissionModalProps {
   readonly submission: Submission | null;
 }
 
-const ViewSubmissionModal = ({ open, onOpenChange, submission }: ViewSubmissionModalProps) => {
+const ViewSubmissionModal = ({
+  open,
+  onOpenChange,
+  submission,
+}: ViewSubmissionModalProps) => {
   if (!submission) return null;
 
   const getStatusBadge = (status: string) => {
@@ -22,7 +31,11 @@ const ViewSubmissionModal = ({ open, onOpenChange, submission }: ViewSubmissionM
     };
 
     return (
-      <Badge className={`${statusMap[status.toLowerCase()] || 'bg-gray-100 text-gray-800'}`}>
+      <Badge
+        className={`${
+          statusMap[status.toLowerCase()] || "bg-gray-100 text-gray-800"
+        }`}
+      >
         {status.charAt(0).toUpperCase() + status.slice(1).toLowerCase()}
       </Badge>
     );
@@ -32,14 +45,16 @@ const ViewSubmissionModal = ({ open, onOpenChange, submission }: ViewSubmissionM
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle className="text-xl font-semibold">Submission Details</DialogTitle>
+          <DialogTitle className="text-xl font-semibold">
+            Submission Details
+          </DialogTitle>
         </DialogHeader>
-        
+
         <div className="space-y-6 py-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
               <p className="text-sm font-medium text-gray-500">Teacher</p>
-              <p className="mt-1">{submission.teacherName}</p>
+              <p className="mt-1">{submission.teacher?.name}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-gray-500">Status</p>
@@ -47,7 +62,7 @@ const ViewSubmissionModal = ({ open, onOpenChange, submission }: ViewSubmissionM
             </div>
             <div>
               <p className="text-sm font-medium text-gray-500">Subject</p>
-              <p className="mt-1">{submission.class}</p>
+              <p className="mt-1">{submission.class?.label}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-gray-500">File Type</p>
@@ -63,38 +78,55 @@ const ViewSubmissionModal = ({ open, onOpenChange, submission }: ViewSubmissionM
             </div>
             <div>
               <p className="text-sm font-medium text-gray-500">Double Sided</p>
-              <p className="mt-1">{submission.printSettings.doubleSided ? 'Yes' : 'No'}</p>
+              <p className="mt-1">
+                {submission.printSettings.doubleSided ? "Yes" : "No"}
+              </p>
             </div>
             <div>
               <p className="text-sm font-medium text-gray-500">Stapled</p>
-              <p className="mt-1">{submission.printSettings.stapled ? 'Yes' : 'No'}</p>
+              <p className="mt-1">
+                {submission.printSettings.stapled ? "Yes" : "No"}
+              </p>
             </div>
             <div>
               <p className="text-sm font-medium text-gray-500">Color</p>
-              <p className="mt-1">{submission.printSettings.color ? 'Yes' : 'No'}</p>
+              <p className="mt-1">
+                {submission.printSettings.color ? "Yes" : "No"}
+              </p>
             </div>
             <div>
               <p className="text-sm font-medium text-gray-500">Booklet</p>
-              <p className="mt-1">{submission.printSettings.booklet ? 'Yes' : 'No'}</p>
+              <p className="mt-1">
+                {submission.printSettings.booklet ? "Yes" : "No"}
+              </p>
             </div>
             <div>
               <p className="text-sm font-medium text-gray-500">Cover</p>
-              <p className="mt-1">{submission.printSettings.hasCover ? 'Yes' : 'No'}</p>
+              <p className="mt-1">
+                {submission.printSettings.hasCover ? "Yes" : "No"}
+              </p>
             </div>
             <div>
               <p className="text-sm font-medium text-gray-500">Colored Cover</p>
-              <p className="mt-1">{submission.printSettings.coloredCover ? 'Yes' : 'No'}</p>
+              <p className="mt-1">
+                {submission.printSettings.coloredCover ? "Yes" : "No"}
+              </p>
             </div>
             <div className="col-span-2">
               <p className="text-sm font-medium text-gray-500">Notes</p>
-              <p className="mt-1 whitespace-pre-line">{submission.notes || 'No notes provided'}</p>
+              <p className="mt-1 whitespace-pre-line">
+                {submission.notes || "No notes provided"}
+              </p>
             </div>
             <div className="col-span-2">
               <p className="text-sm font-medium text-gray-500">Files</p>
               <div className="mt-1 space-y-2">
                 {submission.files && submission.files.length > 0 ? (
                   submission.files.map((fileName) => (
-                    <div key={`file-${fileName}`} className="flex items-center gap-2">
+                    <div
+                      key={`file-${fileName}`}
+                      className="flex items-center gap-2"
+                    >
                       <FileText className="h-4 w-4 text-gray-500" />
                       <span className="text-sm">{fileName}</span>
                     </div>
@@ -105,14 +137,16 @@ const ViewSubmissionModal = ({ open, onOpenChange, submission }: ViewSubmissionM
               </div>
             </div>
           </div>
-          
+
           <div className="pt-4 border-t border-gray-200">
             <p className="text-sm text-gray-500">
-              Submitted on {format(new Date(submission.createdAt), 'MMM d, yyyy h:mm a')}
+              Submitted on{" "}
+              {format(new Date(submission.createdAt), "MMM d, yyyy h:mm a")}
             </p>
             {submission.updatedAt !== submission.createdAt && (
               <p className="text-sm text-gray-500 mt-1">
-                Last updated on {format(new Date(submission.updatedAt), 'MMM d, yyyy h:mm a')}
+                Last updated on{" "}
+                {format(new Date(submission.updatedAt), "MMM d, yyyy h:mm a")}
               </p>
             )}
           </div>
@@ -120,6 +154,6 @@ const ViewSubmissionModal = ({ open, onOpenChange, submission }: ViewSubmissionM
       </DialogContent>
     </Dialog>
   );
-}
+};
 
 export default ViewSubmissionModal;
