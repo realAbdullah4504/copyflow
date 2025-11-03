@@ -38,7 +38,7 @@ const NewSubmissionModal = ({
 
   const form = useFormWithConfig<z.infer<typeof submissionFormSchema>>({
     teacherId: teacherId || "",
-    class: "",
+    classId: "",
     fileType: "",
     lessonDate: format(new Date(), "yyyy-MM-dd"),
     copies: 1,
@@ -88,18 +88,15 @@ const NewSubmissionModal = ({
     const fileNames = files.map((file) => file.name);
 
     const submissionData = {
-      classId: values.class,
+      classId: values.classId,
       teacherId: values.teacherId,
       fileType,
       paperColor,
-      subject: values.fileType,
-      grade: values.class,
-      notes: values.notes,
       lessonDate,
+      notes: values.notes,
       copies: values.copies,
       printSettings: values.printSettings,
       // files: fileNames, // Now this matches the string[] type
-      status: "pending" as const,
     };
 
     createSubmission(submissionData, {

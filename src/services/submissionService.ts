@@ -1,4 +1,3 @@
-import { mockSubmissions } from "@/constants";
 import { supabase } from "@/lib/supabaseClient";
 import type {
   CreateSubmissionInput,
@@ -235,30 +234,51 @@ export const submissionService = {
     id: string,
     updates: Partial<Submission>
   ): Promise<Submission> => {
-    console.log(id, updates, "updates");
-    return null;
-    await new Promise((resolve) => setTimeout(resolve, 300));
+    const SUBMISSION_SELECT = `
+    id,file_type,lesson_date,copies,paper_color,class_id,teacher_id,notes,status,
+    print_settings,created_at,updated_at,
+      teacher:teacher_id(*),
+      class:class_id(*)
+    `;
 
-    const index = mockSubmissions.findIndex((s) => s.id === id);
-    if (index === -1) {
-      throw new Error("Submission not found");
-    }
-
-    mockSubmissions[index] = {
-      ...mockSubmissions[index],
-      ...updates,
-      updatedAt: new Date(),
+    const dbSubmission = {
+      teacher_id: updates.teacherId,
+      class_id: updates.classId,
+      file_type: updates.fileType,
+      lesson_date: updates.lessonDate,
+      copies: updates.copies,
+      paper_color: updates.paperColor,
+      print_settings: updates.printSettings,
+      status: updates.status,
+      notes: updates.notes,
     };
 
-    return mockSubmissions[index];
+    const { data: updatedSubmission } = await supabase
+      .from("submissions")
+      .update(dbSubmission)
+      .select(SUBMISSION_SELECT)
+      .eq("id", id)
+      .single();
+
+    if (!updatedSubmission) {
+      throw new Error("Failed to update submission");
+    }
+
+    const submissionData = mapSubmissionRow(updatedSubmission);
+    return submissionData;
   },
 
-  deleteSubmission: async (id: string): Promise<Submission[]> => {
-    await new Promise((resolve) => setTimeout(resolve, 200));
-    const index = mockSubmissions.findIndex((s) => s.id === id);
-    if (index !== -1) {
-      mockSubmissions.splice(index, 1);
+  deleteSubmission: async (id: string): Promise<Submission> => {
+    const { data: deletedSubmission } = await supabase
+      .from("submissions")
+      .delete()
+      .eq("id", id)
+      .single();
+
+    if (!deletedSubmission) {
+      throw new Error("Failed to delete submission");
     }
-    return mockSubmissions;
+
+    return deletedSubmission;
   },
 };

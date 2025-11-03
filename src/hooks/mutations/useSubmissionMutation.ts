@@ -23,6 +23,10 @@ export const useSubmissionMutations = () => {
       id: string;
       updates: Partial<Submission>;
     }) => submissionService.updateSubmission(id, updates),
+    ...mutationHandlers({
+      successMessage: "Submission Updated",
+      invalidateKeys: [QUERY_KEYS.SUBMISSIONS, QUERY_KEYS.TEACHER_SUBMISSIONS],
+    }),
   });
 
   const printedSubmission = useMutation({

@@ -3,7 +3,7 @@ import { z } from "zod";
 
 export const submissionFormSchema = z.object({
   teacherId: z.string().min(1, "Teacher is required"),
-  class: z.string().min(1, "Class is required"),
+  classId: z.string().min(1, "Class is required"),
   fileType: z.string().min(1, "File type is required"),
   lessonDate: z.string().min(1, "Lesson date is required"),
   copies: z.number().min(1, "At least one copy is required"),
@@ -41,7 +41,7 @@ export const getSubmissionFields = (options: {
     disabled: options.disabledFields?.includes("teacherId"),
   },
   {
-    name: "class",
+    name: "classId",
     label: "Class",
     type: "select" as const,
     options: options.classes.map((cls) => ({
