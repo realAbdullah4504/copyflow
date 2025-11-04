@@ -1,11 +1,17 @@
 import { PageHeader } from "@/components/common";
-import { getArchiveColumns, SubmissionTable } from "@/components/submissions";
+import {
+  getArchiveColumns,
+  SubmissionModal,
+  SubmissionTable,
+} from "@/components/submissions";
 import { ROLES } from "@/config/roles";
 import {
   useArchiveSubmissionsByTeacher,
   useAuth,
+  useModal,
   useTableParams,
 } from "@/hooks";
+import type { Submission } from "@/types";
 export default function TeacherArchivePage() {
   const {
     pagination,
@@ -25,7 +31,10 @@ export default function TeacherArchivePage() {
       sorting,
     }
   );
-  const columns = getArchiveColumns(ROLES.TEACHER);
+  const { modal, openModal, closeModal } = useModal<Submission>();
+  const handleAction = (action: string, row: Submission) =>
+    openModal(action, row);
+  const columns = getArchiveColumns(ROLES.TEACHER, handleAction);
   return (
     <>
       <PageHeader title="Archive Submissions" role={ROLES.TEACHER} />
@@ -43,6 +52,14 @@ export default function TeacherArchivePage() {
         showFilters
         showPagination
         showSorting
+      />
+      <SubmissionModal
+        data={modal.data}
+        type={modal.type}
+        open={modal.isOpen}
+        onOpenChange={closeModal}
+        onClose={closeModal}
+        handlers={{}}
       />
     </>
   );

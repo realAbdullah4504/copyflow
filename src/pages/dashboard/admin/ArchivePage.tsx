@@ -1,7 +1,12 @@
 import { PageHeader } from "@/components/common";
-import { getArchiveColumns, SubmissionTable } from "@/components/submissions";
+import {
+  getArchiveColumns,
+  SubmissionModal,
+  SubmissionTable,
+} from "@/components/submissions";
 import { ROLES } from "@/config/roles";
-import { useTableParams,useArchivedSubmissions } from "@/hooks";
+import { useTableParams, useArchivedSubmissions, useModal } from "@/hooks";
+import type { Submission } from "@/types";
 export default function AdminArchivePage() {
   const {
     pagination,
@@ -17,7 +22,10 @@ export default function AdminArchivePage() {
     filters,
     sorting,
   });
-  const columns = getArchiveColumns(ROLES.ADMIN);
+  const { modal, openModal, closeModal } = useModal<Submission>();
+  const handleAction = (action: string, row: Submission) =>
+    openModal(action, row);
+  const columns = getArchiveColumns(ROLES.ADMIN, handleAction);
   return (
     <>
       <PageHeader title="Archive Submissions" role={ROLES.ADMIN} />
@@ -35,6 +43,14 @@ export default function AdminArchivePage() {
         showFilters
         showPagination
         showSorting
+      />
+      <SubmissionModal
+        data={modal.data}
+        type={modal.type}
+        open={modal.isOpen}
+        onOpenChange={closeModal}
+        onClose={closeModal}
+        handlers={{}}
       />
     </>
   );
