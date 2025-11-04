@@ -428,9 +428,7 @@ export const submissionService = {
 
   deleteSubmission: async (id: string): Promise<void> => {
     // First, try to delete any associated files
-    const { error: fileError } = await fileStorageService.deleteSubmissionFiles(
-      id
-    );
+    const { error: fileError } = await fileStorageService.deleteFiles(id);
 
     if (fileError) {
       console.error(
