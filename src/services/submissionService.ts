@@ -12,7 +12,6 @@ import {
 } from "@/utils/supabaseQueryBuilder";
 import { AppError } from "@/utils";
 import { supabase } from "@/lib/supabaseClient";
-import { BUCKET_NAME } from "@/config";
 
 export const submissionService = {
   getSubmissions: async (

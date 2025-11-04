@@ -70,14 +70,14 @@ export const getArchiveColumns = (
         return val.replace("_", " ");
       },
     },
-    {
-      accessorKey: "status",
-      header: "Status",
-      cell: ({ getValue }) => {
-        const val = getValue<SubmissionStatus>();
-        return <StatusBadge status={val} />;
-      },
-    },
+    // {
+    //   accessorKey: "status",
+    //   header: "Status",
+    //   cell: ({ getValue }) => {
+    //     const val = getValue<SubmissionStatus>();
+    //     return <StatusBadge status={val} />;
+    //   },
+    // },
     {
       accessorKey: "createdAt",
       header: "Created",

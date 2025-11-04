@@ -100,7 +100,7 @@ const SubmissionFilters = ({ table, data }: SubmissionFiltersProps) => {
         </SelectContent>
       </Select>
 
-      <Select
+      {/* <Select
         value={
           (table.getColumn("status")?.getFilterValue() as SubmissionStatus) ??
           ""
@@ -120,7 +120,7 @@ const SubmissionFilters = ({ table, data }: SubmissionFiltersProps) => {
             </SelectItem>
           ))}
         </SelectContent>
-      </Select>
+      </Select> */}
 
       <Select
         value={currentTimeFrame}

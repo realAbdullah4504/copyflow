@@ -3,7 +3,7 @@ import type { Role } from "@/config/roles";
 import { ROLES } from "@/config/roles";
 
 export const SUBMISSION_ALLOWED_ACTIONS: Record<Role, SubmissionAction[]> = {
-  admin: [],
+  admin: ["view"],
   teacher: ["view", "edit", "delete"],
   secretary: ["view", "edit", "printed", "censorship", "delete"],
   principal: ["view"],
