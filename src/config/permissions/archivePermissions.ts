@@ -3,7 +3,7 @@ import type { Role } from "@/config/roles";
 
 export const ARCHIVE_ALLOWED_ACTIONS: Record<Role, ArchiveAction[]> = {
   admin: ["view"],
-  teacher: [],
+  teacher: ["view"],
   secretary: ["view"],
   principal: ["view"],
 } as const;
