@@ -86,10 +86,10 @@ const NewSubmissionModal = ({
     // Validate against the schema first
     const result = submissionFormSchema.safeParse(values);
     if (!result.success) {
-      console.error('Validation failed:', result.error);
+      console.error("Validation failed:", result.error);
       return;
     }
-    
+
     // Convert form values to correct types
     const fileType = fileTypeMap[values.fileType] || "handout";
     const paperColor = paperColorMap[values.paperColor] || "white";
@@ -107,26 +107,25 @@ const NewSubmissionModal = ({
     };
 
     // Get the files from the form
-    let selectedFiles = Array.isArray(values.files) ? [...values.files] : [values.files];
-    
-    try {
-      // Generate PDF and add it to the files
-      const pdfBlob = generateSubmissionPDF(values, selectedFiles, teachers, classes);
-      const pdfFile = new File(
-        [pdfBlob], 
-        `submission-details-${Date.now()}.pdf`,
-        { type: 'application/pdf' }
-      );
-      
-      // Add the PDF to the beginning of the files array
-      selectedFiles = [pdfFile, ...selectedFiles];
-    } catch (error) {
-      console.error('Error generating PDF:', error);
-      // Continue with submission even if PDF generation fails
-    }
+    const selectedFiles = Array.isArray(values.files)
+      ? [...values.files]
+      : [values.files];
+
+    const newFiles: File[] = selectedFiles.map(
+      (f) => (f as { existing: false; file: File }).file
+    );
+    // Generate PDF and add it to the files
+    const pdfBlob = generateSubmissionPDF(values, newFiles, teachers, classes);
+    const pdfFile = new File(
+      [pdfBlob],
+      `submission-details-${Date.now()}.pdf`,
+      { type: "application/pdf" }
+    );
+
+    const allFiles = [pdfFile, ...newFiles];
 
     createSubmissionWithFiles(
-      { submission: submissionData, files: selectedFiles },
+      { submission: submissionData, files: allFiles },
       {
         onSuccess: () => {
           form.reset();

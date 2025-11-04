@@ -25,7 +25,7 @@ const EditSubmissionModal = ({
   onOpenChange,
   submission,
 }: EditSubmissionModalProps) => {
-  const { updateSubmission, updateLoading: isSubmitting } =
+  const { updateSubmissionWithFiles, updateWithFilesLoading: isSubmitting } =
     useSubmissionMutations();
 
   const form = useFormWithConfig<z.infer<typeof submissionFormSchema>>({
@@ -52,10 +52,29 @@ const EditSubmissionModal = ({
   const { classes } = useClassesByTeacher(form.watch("teacherId"), active);
 
   const onSubmit = async (values: z.infer<typeof submissionFormSchema>) => {
-    if (!submission) {
-      throw new Error("Submission not found");
-    }
-    console.log("values",values.files)
+    if (!submission) throw new Error("Submission not found");
+
+    const currentFiles = values.files;
+    // const originalFiles = submission.files?.map((name) => ({
+    //   existing: true as const,
+    //   name,
+    // }));
+
+    // New files (File objects)
+    const newFiles = values.files
+      .filter((f): f is { existing: false; file: File } => !f.existing)
+      .map((f) => f.file);
+
+    // Remaining existing files (user kept these)
+    // const keptExisting = currentFiles.filter(
+    //   (f): f is { existing: true; name: string } => "existing" in f
+    // );
+
+    // // Deleted files (exist in original but not in current)
+    // const deletedFiles = originalFiles.filter(
+    //   (orig) => !keptExisting.some((curr) => curr.path === orig.path)
+    // );
+
     const updates: Partial<Submission> = {
       teacherId: values.teacherId,
       classId: values.classId,
@@ -67,17 +86,20 @@ const EditSubmissionModal = ({
       notes: values.notes ?? "",
     };
 
-    // updateSubmission(
-    //   {
-    //     id: submission.id,
-    //     updates,
-    //   },
-    //   {
-    //     onSuccess: () => {
-    //       onOpenChange(false);
-    //     },
-    //   }
-    // );
+    updateSubmissionWithFiles(
+      {
+        id: submission.id,
+        submission: updates,
+        newFiles,
+        deletedPaths: [],
+      },
+      {
+        onSuccess: () => {
+          form.reset();
+          onOpenChange(false);
+        },
+      }
+    );
   };
 
   const formFields = getSubmissionFields({

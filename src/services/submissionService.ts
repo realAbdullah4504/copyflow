@@ -12,6 +12,7 @@ import {
 } from "@/utils/supabaseQueryBuilder";
 import { AppError } from "@/utils";
 import { supabase } from "@/lib/supabaseClient";
+import { BUCKET_NAME } from "@/config";
 
 export const submissionService = {
   getSubmissions: async (
@@ -343,36 +344,6 @@ export const submissionService = {
     return fileStorageService.downloadFile(submissionId, fileName);
   },
 
-  updateSubmissionWithFiles: async (
-    id: string,
-    submission: Partial<CreateSubmissionInput>,
-    files: File[]
-  ): Promise<Submission> => {
-    // First upload the files if there are any
-    let uploadedFiles: string[] = [];
-
-    if (files && files.length > 0) {
-      const { paths } = await fileStorageService.uploadFiles(id, files);
-      uploadedFiles = paths || [];
-    }
-
-    // Get the existing submission to merge files
-    const { data: existingSubmission } = await supabase
-      .from("submissions")
-      .select("files")
-      .eq("id", id)
-      .single();
-
-    const existingFiles = existingSubmission?.files || [];
-    const allFiles = [...existingFiles, ...uploadedFiles];
-
-    // Update the submission with the new files
-    return submissionService.updateSubmission(id, {
-      ...submission,
-      files: allFiles,
-    });
-  },
-
   updateSubmission: async (
     id: string,
     updates: Partial<Submission>
@@ -380,43 +351,81 @@ export const submissionService = {
     const SUBMISSION_SELECT = `
     id,file_type,lesson_date,copies,paper_color,class_id,teacher_id,notes,status,
     print_settings,files,created_at,updated_at,
-      teacher:teacher_id(*),
-      class:class_id(*)
+    teacher:teacher_id(*),
+    class:class_id(*)
     `;
 
     const dbSubmission = {
-      ...(updates.teacherId !== undefined && { teacher_id: updates.teacherId }),
-      ...(updates.classId !== undefined && { class_id: updates.classId }),
-      ...(updates.fileType !== undefined && { file_type: updates.fileType }),
-      ...(updates.lessonDate !== undefined && {
-        lesson_date: updates.lessonDate,
-      }),
-      ...(updates.copies !== undefined && { copies: updates.copies }),
-      ...(updates.paperColor !== undefined && {
-        paper_color: updates.paperColor,
-      }),
-      ...(updates.printSettings !== undefined && {
-        print_settings: updates.printSettings,
-      }),
-      ...(updates.status !== undefined && { status: updates.status }),
-      ...(updates.files !== undefined && { files: updates.files }),
-      ...(updates.notes !== undefined && { notes: updates.notes }),
+      ...(updates.teacherId && { teacher_id: updates.teacherId }),
+      ...(updates.classId && { class_id: updates.classId }),
+      ...(updates.fileType && { file_type: updates.fileType }),
+      ...(updates.lessonDate && { lesson_date: updates.lessonDate }),
+      ...(updates.copies && { copies: updates.copies }),
+      ...(updates.paperColor && { paper_color: updates.paperColor }),
+      ...(updates.printSettings && { print_settings: updates.printSettings }),
+      ...(updates.status && { status: updates.status }),
+      ...(updates.files && { files: updates.files }),
+      ...(updates.notes && { notes: updates.notes }),
     };
 
-    const { data: updatedSubmission, error: updateError } = await supabase
+    const { data, error } = await supabase
       .from("submissions")
       .update(dbSubmission)
-      .select(SUBMISSION_SELECT)
       .eq("id", id)
+      .select(SUBMISSION_SELECT)
       .single();
 
-    if (updateError) {
-      const appError = await AppError.from(updateError);
-      throw appError;
+    if (error) throw await AppError.from(error);
+    return mapSubmissionRow(data);
+  },
+
+  updateSubmissionWithFileChanges: async (
+    id: string,
+    updates: Partial<Submission>,
+    newFiles: File[],
+    deletedPaths: string[]
+  ): Promise<Submission> => {
+    // Step 1: Delete files if needed
+    // if (deletedPaths.length > 0) {
+    //   const { error } = await fileStorageService.(deletedPaths);
+    //   if (error) throw await AppError.from(error);
+    // }
+
+    // Step 2: Upload new files if any
+    let uploadedPaths: string[] = [];
+    if (newFiles.length > 0) {
+      const { paths, errors } = await fileStorageService.uploadFiles(
+        id,
+        newFiles
+      );
+      if (errors.length > 0) {
+        throw await AppError.from(errors);
+      }
+
+      uploadedPaths = paths || [];
     }
 
-    const submissionData = mapSubmissionRow(updatedSubmission);
-    return submissionData;
+    // Step 3: Fetch existing files
+    const { data: existingSubmission, error: fetchError } = await supabase
+      .from("submissions")
+      .select("files")
+      .eq("id", id)
+      .single();
+    if (fetchError) throw await AppError.from(new Error(fetchError.message));
+
+    // Step 4: Merge remaining + new
+    const existingFiles = existingSubmission?.files || [];
+    const remainingFiles = existingFiles.filter(
+      (path: string) => !deletedPaths.includes(path)
+    );
+    const allFiles = [...remainingFiles, ...uploadedPaths];
+    console.log("allFiles", allFiles);
+
+    // Step 5: Delegate the DB update to the simple update method
+    return submissionService.updateSubmission(id, {
+      ...updates,
+      files: allFiles,
+    });
   },
 
   deleteSubmission: async (id: string): Promise<void> => {

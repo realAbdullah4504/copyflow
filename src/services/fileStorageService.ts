@@ -20,15 +20,10 @@ export const fileStorageService = {
     submissionId: string,
     files: File[]
   ): Promise<{ paths: string[]; errors: Error[] }> => {
-    const paths: string[] = [];
-    const errors: Error[] = [];
-
-    for (const file of files) {
+    const uploadPromises = files.map(async (file) => {
       const timestamp = Date.now();
       const sanitizedFileName = file.name.replaceAll(/[^a-zA-Z0-9.\-_]/g, "_");
       const path = `${submissionId}/${timestamp}_${sanitizedFileName}`;
-
-      console.log("Uploading file to path:", path);
 
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from(BUCKET_NAME)
@@ -40,13 +35,22 @@ export const fileStorageService = {
 
       if (uploadError) {
         console.error("Error uploading file:", { path, error: uploadError });
-        errors.push(
-          new Error(`Failed to upload ${file.name}: ${uploadError.message}`)
+        throw new Error(
+          `Failed to upload ${file.name}: ${uploadError.message}`
         );
-      } else {
-        console.log("File uploaded successfully:", uploadData);
-        paths.push(file.name); // Store original filename
       }
+
+      return sanitizedFileName; // Or `path` if you want to store the full path
+    });
+
+    const results = await Promise.allSettled(uploadPromises);
+
+    const paths: string[] = [];
+    const errors: Error[] = [];
+
+    for (const result of results) {
+      if (result.status === "fulfilled") paths.push(result.value);
+      else errors.push(result.reason);
     }
 
     return { paths, errors };
