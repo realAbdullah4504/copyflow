@@ -1,4 +1,10 @@
-import type { Submission, ClassEntity, User, SubmissionRow } from "@/types";
+import type {
+  Submission,
+  ClassEntity,
+  User,
+  SubmissionRow,
+  FileItem,
+} from "@/types";
 
 export function buildClassLabel(c: { subject: string; grade: string }) {
   return `Grade ${c.grade} - ${c.subject}`;
@@ -6,6 +12,12 @@ export function buildClassLabel(c: { subject: string; grade: string }) {
 
 export function mapSubmissionRow(s: unknown): Submission {
   const row = s as SubmissionRow;
+  const files: FileItem[] =
+    row?.files?.map((file: string) => ({
+      existing: true as const,
+      name: file,
+    })) || [];
+
   return {
     id: row.id,
     teacherId: row.teacher_id,
@@ -32,7 +44,7 @@ export function mapSubmissionRow(s: unknown): Submission {
     notes: row.notes ?? undefined,
     status: row.status,
     printSettings: row.print_settings,
-    files: row.files ?? undefined,
+    files,
     createdAt: new Date(row.created_at),
     updatedAt: new Date(row.updated_at),
   };

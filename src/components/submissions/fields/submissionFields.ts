@@ -16,8 +16,18 @@ export const submissionFormSchema = z.object({
     coloredCover: z.boolean(),
     color: z.boolean(),
   }),
-  files: z.array(z.union([z.instanceof(File), z.string()]))
-    .min(1, "At least one file is required"),
+  files: z.array(
+    z.union([
+      z.object({
+        existing: z.literal(true),
+        name: z.string(),
+      }),
+      z.object({
+        existing: z.literal(false),
+        file: z.instanceof(File),
+      }),
+    ])
+  ),
   notes: z.string().optional(),
 });
 
@@ -143,4 +153,3 @@ export const getSubmissionFields = (options: {
 ];
 
 export type SubmissionField = ReturnType<typeof getSubmissionFields>[number];
-

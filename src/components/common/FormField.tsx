@@ -15,6 +15,7 @@ import type { UseFormReturn } from "react-hook-form";
 import { Upload, FileText, X, UploadCloud } from "lucide-react";
 import { Switch } from "../ui/switch";
 import { motion, AnimatePresence } from "framer-motion";
+import type { FileItem } from "@/types";
 
 type FormFieldProps = {
   type:
@@ -58,6 +59,7 @@ const FormField = ({
     formState: { errors },
     setValue,
     watch,
+    getValues,
   } = form;
 
   const error = errors[name];
@@ -65,14 +67,27 @@ const FormField = ({
 
   const handleFileChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      const files = Array.from(e.target.files || []);
-      if (onChange) {
-        onChange(e);
-      } else {
-        setValue(name, multiple ? files : files[0], { shouldValidate: true });
-      }
+      const selectedFiles = Array.from(e.target.files || []);
+
+      // Convert new uploads to FileItem format
+      const newFileItems: FileItem[] = selectedFiles.map((file) => ({
+        existing: false as const,
+        file,
+      }));
+
+      // Get current form value (existing + new)
+      const currentFiles: FileItem[] = getValues(name) || [];
+
+      // Merge old + new files
+      const updatedFiles = [...currentFiles, ...newFileItems];
+
+      // Update RHF state
+      setValue(name, updatedFiles, { shouldValidate: true });
+
+      // Reset input value to allow re-selecting the same file later
+      e.target.value = "";
     },
-    [name, multiple, setValue, onChange]
+    [name, setValue, getValues]
   );
 
   const [isDragging, setIsDragging] = useState(false);
@@ -104,34 +119,42 @@ const FormField = ({
       setIsDragging(false);
 
       if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-        const files = Array.from(e.dataTransfer.files);
-        if (onChange) {
-          onChange({ target: { files: e.dataTransfer.files } } as any);
-        } else {
-          setValue(name, multiple ? files : files[0], { shouldValidate: true });
-        }
+        const droppedFiles = Array.from(e.dataTransfer.files);
+
+        // Convert dropped files to FileItem format
+        const newFileItems: FileItem[] = droppedFiles.map((file) => ({
+          existing: false as const,
+          file,
+        }));
+
+        // Get current form value (existing + new)
+        const currentFiles: FileItem[] = getValues(name) || [];
+
+        // Merge both
+        const updatedFiles = [...currentFiles, ...newFileItems];
+
+        setValue(name, updatedFiles, { shouldValidate: true });
         e.dataTransfer.clearData();
       }
     },
-    [name, multiple, setValue, onChange]
+    [name, setValue, getValues]
   );
 
   const removeFile = useCallback(
     (index: number) => {
       if (onChange) {
-        // If using external onChange, we'll handle the file removal in the parent
+        // Parent handles file removal externally
         return;
       }
 
-      if (multiple && Array.isArray(value)) {
-        const newFiles = [...value];
-        newFiles.splice(index, 1);
-        setValue(name, newFiles, { shouldValidate: true });
-      } else {
-        setValue(name, null, { shouldValidate: true });
-      }
+      const currentFiles: FileItem[] = getValues(name) || [];
+
+      // Remove the file by index
+      const updatedFiles = currentFiles.filter((_, i) => i !== index);
+
+      setValue(name, updatedFiles, { shouldValidate: true });
     },
-    [name, value, multiple, setValue, onChange]
+    [name, setValue, getValues, onChange]
   );
 
   // Close the drag overlay when clicking outside
@@ -308,7 +331,7 @@ const FormField = ({
             {value && (
               <div className="mt-2 space-y-2">
                 {Array.isArray(value) ? (
-                  value.map((file: File | string, index: number) => (
+                  value.map((file: FileItem, index: number) => (
                     <motion.div
                       key={index}
                       initial={{ opacity: 0, y: 10 }}
@@ -318,7 +341,9 @@ const FormField = ({
                       <div className="flex items-center space-x-2">
                         <FileText className="w-4 h-4 text-muted-foreground" />
                         <span className="truncate max-w-xs">
-                          {typeof file === 'string' ? file : file?.name || 'Unnamed file'}
+                          {file.existing
+                            ? file.name
+                            : file.file?.name || "Unnamed file"}
                         </span>
                       </div>
                       <button
@@ -339,7 +364,9 @@ const FormField = ({
                     <div className="flex items-center space-x-2">
                       <FileText className="w-4 h-4 text-muted-foreground" />
                       <span className="truncate max-w-xs">
-                        {typeof value === 'string' ? value : value?.name || 'Selected file'}
+                        {value.existing
+                          ? value.name
+                          : value.file?.name || "Selected file"}
                       </span>
                     </div>
                     <button

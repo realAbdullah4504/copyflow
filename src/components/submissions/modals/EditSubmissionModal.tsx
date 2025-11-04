@@ -43,6 +43,7 @@ const EditSubmissionModal = ({
       hasCover: submission?.printSettings?.hasCover || false,
       coloredCover: submission?.printSettings?.coloredCover || false,
     },
+    files: submission?.files,
     notes: submission?.notes || "",
   });
 
@@ -54,6 +55,7 @@ const EditSubmissionModal = ({
     if (!submission) {
       throw new Error("Submission not found");
     }
+    console.log("values",values.files)
     const updates: Partial<Submission> = {
       teacherId: values.teacherId,
       classId: values.classId,
@@ -65,17 +67,17 @@ const EditSubmissionModal = ({
       notes: values.notes ?? "",
     };
 
-    updateSubmission(
-      {
-        id: submission.id,
-        updates,
-      },
-      {
-        onSuccess: () => {
-          onOpenChange(false);
-        },
-      }
-    );
+    // updateSubmission(
+    //   {
+    //     id: submission.id,
+    //     updates,
+    //   },
+    //   {
+    //     onSuccess: () => {
+    //       onOpenChange(false);
+    //     },
+    //   }
+    // );
   };
 
   const formFields = getSubmissionFields({

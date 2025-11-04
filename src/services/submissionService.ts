@@ -350,7 +350,7 @@ export const submissionService = {
   ): Promise<Submission> => {
     // First upload the files if there are any
     let uploadedFiles: string[] = [];
-    
+
     if (files && files.length > 0) {
       const { paths } = await fileStorageService.uploadFiles(id, files);
       uploadedFiles = paths || [];

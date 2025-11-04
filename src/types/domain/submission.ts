@@ -44,6 +44,10 @@ export type SubmissionQueryParams = {
 
 export type PaperColor = "white" | "yellow" | "blue" | "green" | "pink";
 
+export type FileItem =
+  | { existing: true; name: string }
+  | { existing: false; file: File };
+
 export interface Submission {
   id: string;
   teacherId: string;
@@ -64,7 +68,7 @@ export interface Submission {
     hasCover: boolean;
     coloredCover: boolean;
   };
-  files?: string[];
+  files?: FileItem[];
   createdAt: Date;
   updatedAt: Date;
 }
