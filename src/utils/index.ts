@@ -10,6 +10,8 @@ export * from "./formatters.ts";
 export * from "./cn.ts";
 export * from "./toFilterObject.ts";
 export * from "./errorUtils.ts";
+export * from "./getChangedFields.ts";
+export * from "./getFilesDiff.ts";
 
 
 

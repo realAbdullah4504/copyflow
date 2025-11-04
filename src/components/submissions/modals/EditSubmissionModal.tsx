@@ -9,10 +9,11 @@ import { z } from "zod";
 import { useSubmissionMutations } from "@/hooks/mutations";
 import { getSubmissionFields, type submissionFormSchema } from "../fields";
 import { useFormWithConfig, useTeachers, useClassesByTeacher } from "@/hooks";
-import type { Submission } from "@/types";
+import type { CreateSubmissionInput, FileType, PaperColor, Submission } from "@/types";
 import { format } from "date-fns";
 import { FormField, Form as RHFForm } from "@/components/common";
 import { filterTypes, paperColors } from "@/constants";
+import { getChangedFields, getFileDiff } from "@/utils";
 
 interface EditSubmissionModalProps {
   readonly open: boolean;
@@ -54,41 +55,36 @@ const EditSubmissionModal = ({
   const onSubmit = async (values: z.infer<typeof submissionFormSchema>) => {
     if (!submission) throw new Error("Submission not found");
 
-    const currentFiles = values.files;
-    const originalFiles: { existing: true; name: string }[] = (
-      submission.files?.filter(
-        (f): f is { existing: true; name: string } => "name" in f
-      ) ?? []
-    ).map((f) => ({ existing: true as const, name: f.name }));
+    // 1️⃣ Extract original and current files
+    const originalFiles = submission.files?.filter((f) => "name" in f) ?? [];
+    const { newFiles, deletedFiles } = getFileDiff(values.files, originalFiles);
 
-    // New files (File objects)
-    const newFiles = values.files
-      .filter((f): f is { existing: false; file: File } => !f.existing)
-      .map((f) => f.file);
-
-    // Remaining existing files (user kept these)
-    const keptExisting: { existing: true; name: string }[] =
-      currentFiles.filter(
-        (f): f is { existing: true; name: string } => f.existing === true
-      );
-
-    // Deleted files (exist in original but not in current)
-    const deletedFiles: { existing: true; name: string }[] =
-      originalFiles.filter(
-        (orig) => !keptExisting.some((curr) => curr.name === orig.name)
-      );
-
-    const updates: Partial<Submission> = {
+    // 2️⃣ Prepare update fields (specific to this form)
+    const updates = {
       teacherId: values.teacherId,
       classId: values.classId,
-      fileType: values.fileType as Submission["fileType"],
+      fileType: values.fileType as FileType,
       lessonDate: new Date(values.lessonDate),
       copies: values.copies,
-      paperColor: values.paperColor as Submission["paperColor"],
+      paperColor: values.paperColor as PaperColor,
       printSettings: values.printSettings,
       notes: values.notes ?? "",
     };
 
+    // 3️⃣ Check changes
+    const isFormChanged = getChangedFields(
+      updates,
+      submission,
+      Object.keys(updates) as (keyof CreateSubmissionInput)[]
+    );
+    const isFileChanged = newFiles.length > 0 || deletedFiles.length > 0;
+
+    if (!isFormChanged && !isFileChanged) {
+      onOpenChange(false);
+      return;
+    }
+
+    // 4️⃣ Update
     updateSubmissionWithFiles(
       {
         id: submission.id,
