@@ -386,10 +386,10 @@ export const submissionService = {
     deletedPaths: string[]
   ): Promise<Submission> => {
     // Step 1: Delete files if needed
-    // if (deletedPaths.length > 0) {
-    //   const { error } = await fileStorageService.(deletedPaths);
-    //   if (error) throw await AppError.from(error);
-    // }
+    if (deletedPaths.length > 0) {
+      const { error } = await fileStorageService.deleteFiles(id, deletedPaths);
+      if (error) throw await AppError.from(error);
+    }
 
     // Step 2: Upload new files if any
     let uploadedPaths: string[] = [];
@@ -419,7 +419,6 @@ export const submissionService = {
       (path: string) => !deletedPaths.includes(path)
     );
     const allFiles = [...remainingFiles, ...uploadedPaths];
-    console.log("allFiles", allFiles);
 
     // Step 5: Delegate the DB update to the simple update method
     return submissionService.updateSubmission(id, {

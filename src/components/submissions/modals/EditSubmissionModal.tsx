@@ -55,10 +55,11 @@ const EditSubmissionModal = ({
     if (!submission) throw new Error("Submission not found");
 
     const currentFiles = values.files;
-    // const originalFiles = submission.files?.map((name) => ({
-    //   existing: true as const,
-    //   name,
-    // }));
+    const originalFiles: { existing: true; name: string }[] = (
+      submission.files?.filter(
+        (f): f is { existing: true; name: string } => "name" in f
+      ) ?? []
+    ).map((f) => ({ existing: true as const, name: f.name }));
 
     // New files (File objects)
     const newFiles = values.files
@@ -66,14 +67,16 @@ const EditSubmissionModal = ({
       .map((f) => f.file);
 
     // Remaining existing files (user kept these)
-    // const keptExisting = currentFiles.filter(
-    //   (f): f is { existing: true; name: string } => "existing" in f
-    // );
+    const keptExisting: { existing: true; name: string }[] =
+      currentFiles.filter(
+        (f): f is { existing: true; name: string } => f.existing === true
+      );
 
-    // // Deleted files (exist in original but not in current)
-    // const deletedFiles = originalFiles.filter(
-    //   (orig) => !keptExisting.some((curr) => curr.path === orig.path)
-    // );
+    // Deleted files (exist in original but not in current)
+    const deletedFiles: { existing: true; name: string }[] =
+      originalFiles.filter(
+        (orig) => !keptExisting.some((curr) => curr.name === orig.name)
+      );
 
     const updates: Partial<Submission> = {
       teacherId: values.teacherId,
@@ -91,7 +94,7 @@ const EditSubmissionModal = ({
         id: submission.id,
         submission: updates,
         newFiles,
-        deletedPaths: [],
+        deletedPaths: deletedFiles.map((f) => f.name),
       },
       {
         onSuccess: () => {

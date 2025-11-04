@@ -132,31 +132,42 @@ export const fileStorageService = {
   /**
    * Deletes all files associated with a submission
    */
-  deleteSubmissionFiles: async (
-    submissionId: string
+  deleteFiles: async (
+    submissionId: string,
+    paths?: string[]
   ): Promise<{ success: boolean; error?: Error }> => {
     try {
-      // List all files in the submission directory
-      const { data: files, error: listError } = await supabase.storage
-        .from(BUCKET_NAME)
-        .list(submissionId);
+      let filePaths: string[] = [];
 
-      if (listError) {
-        console.error("Error listing files for deletion:", listError);
-        return { success: false, error: listError };
+      if (!paths || paths.length === 0) {
+        // No specific paths provided → delete all files in the submission directory
+        const { data: files, error: listError } = await supabase.storage
+          .from(BUCKET_NAME)
+          .list(submissionId);
+
+        if (listError) {
+          console.error("Error listing files for deletion:", listError);
+          return { success: false, error: listError };
+        }
+
+        if (!files || files.length === 0) {
+          console.log(
+            `No files found for submission ${submissionId}, nothing to delete`
+          );
+          return { success: true };
+        }
+
+        filePaths = files.map((file) => `${submissionId}/${file.name}`);
+      } else {
+        // Delete only the provided paths
+        filePaths = paths.map((name) => `${submissionId}/${name}`);
       }
 
-      if (!files || files.length === 0) {
-        console.log(
-          `No files found for submission ${submissionId}, nothing to delete`
-        );
+      if (filePaths.length === 0) {
+        console.log("No files to delete.");
         return { success: true };
       }
 
-      // Delete all files in the submission directory
-      const filePaths = files.map(
-        (file: FileObject) => `${submissionId}/${file.name}`
-      );
       const { error: deleteError } = await supabase.storage
         .from(BUCKET_NAME)
         .remove(filePaths);
@@ -171,7 +182,7 @@ export const fileStorageService = {
       );
       return { success: true };
     } catch (error) {
-      console.error("Error during file cleanup:", error);
+      console.error("Error during file deletion:", error);
       return {
         success: false,
         error: error instanceof Error ? error : new Error(String(error)),
