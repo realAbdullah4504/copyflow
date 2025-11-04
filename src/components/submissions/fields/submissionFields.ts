@@ -16,7 +16,8 @@ export const submissionFormSchema = z.object({
     coloredCover: z.boolean(),
     color: z.boolean(),
   }),
-  files: z.array(z.instanceof(File)).min(1, "At least one file is required"),
+  files: z.array(z.union([z.instanceof(File), z.string()]))
+    .min(1, "At least one file is required"),
   notes: z.string().optional(),
 });
 

@@ -114,7 +114,7 @@ const NewSubmissionModal = ({
       const pdfBlob = generateSubmissionPDF(values, selectedFiles, teachers, classes);
       const pdfFile = new File(
         [pdfBlob], 
-        `submission-details-${new Date().getTime()}.pdf`,
+        `submission-details-${Date.now()}.pdf`,
         { type: 'application/pdf' }
       );
       

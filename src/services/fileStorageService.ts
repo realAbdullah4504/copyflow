@@ -174,6 +174,71 @@ export const fileStorageService = {
       };
     }
   },
+
+  /**
+   * Deletes a specific file associated with a submission (by original filename)
+   */
+  deleteFile: async (
+    submissionId: string,
+    fileName: string
+  ): Promise<{ success: boolean; error?: Error }> => {
+    try {
+      const { data: files, error: listError } = await supabase.storage
+        .from(BUCKET_NAME)
+        .list(submissionId);
+
+      if (listError) {
+        console.error("Error listing files for deletion:", listError);
+        return { success: false, error: listError };
+      }
+
+      if (!files || files.length === 0) {
+        console.log(
+          `No files found for submission ${submissionId}, nothing to delete`
+        );
+        return { success: true };
+      }
+
+      // Find matching file by comparing normalized names (similar to downloadFile)
+      const matchingFile = files.find((file: any) => {
+        const originalName = file.name
+          .replace(/^[0-9]+_/, "")
+          .replace(/_/g, " ")
+          .trim()
+          .toLowerCase();
+
+        const targetName = fileName.replace(/_/g, " ").trim().toLowerCase();
+
+        return originalName === targetName;
+      });
+
+      if (!matchingFile) {
+        console.warn(
+          `File ${fileName} not found for submission ${submissionId}, nothing deleted`
+        );
+        return { success: true };
+      }
+
+      const fullPath = `${submissionId}/${matchingFile.name}`;
+      const { error: deleteError } = await supabase.storage
+        .from(BUCKET_NAME)
+        .remove([fullPath]);
+
+      if (deleteError) {
+        console.error("Error deleting file:", deleteError);
+        return { success: false, error: deleteError };
+      }
+
+      console.log(`Successfully deleted file ${fullPath}`);
+      return { success: true };
+    } catch (error) {
+      console.error("Error during single file deletion:", error);
+      return {
+        success: false,
+        error: error instanceof Error ? error : new Error(String(error)),
+      };
+    }
+  },
 };
 
 export default fileStorageService;
