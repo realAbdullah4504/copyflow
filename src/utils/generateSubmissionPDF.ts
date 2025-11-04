@@ -14,7 +14,7 @@ interface Class {
 
 export const generateSubmissionPDF = (
   data: z.infer<typeof submissionFormSchema>,
-  files: File[],
+  files: string[],
   teachers?: Teacher[],
   classes?: Class[]
 ): Blob => {

@@ -9,11 +9,17 @@ import { z } from "zod";
 import { useSubmissionMutations } from "@/hooks/mutations";
 import { getSubmissionFields, type submissionFormSchema } from "../fields";
 import { useFormWithConfig, useTeachers, useClassesByTeacher } from "@/hooks";
-import type { CreateSubmissionInput, FileType, PaperColor, Submission } from "@/types";
+import type {
+  CreateSubmissionInput,
+  FileType,
+  PaperColor,
+  Submission,
+} from "@/types";
 import { format } from "date-fns";
 import { FormField, Form as RHFForm } from "@/components/common";
 import { filterTypes, paperColors } from "@/constants";
 import { getChangedFields, getFileDiff } from "@/utils";
+import { generateSubmissionPDF } from "@/utils/generateSubmissionPDF";
 
 interface EditSubmissionModalProps {
   readonly open: boolean;
@@ -57,7 +63,10 @@ const EditSubmissionModal = ({
 
     // 1️⃣ Extract original and current files
     const originalFiles = submission.files?.filter((f) => "name" in f) ?? [];
-    const { newFiles, deletedFiles } = getFileDiff(values.files, originalFiles);
+    const { newFiles, deletedFiles, keptExisting } = getFileDiff(
+      values.files,
+      originalFiles
+    );
 
     // 2️⃣ Prepare update fields (specific to this form)
     const updates = {
@@ -84,13 +93,35 @@ const EditSubmissionModal = ({
       return;
     }
 
+    // 1️⃣ Detect previous submission-details PDF
+    const previousPDFs =
+      submission.files?.filter(
+        (f): f is { existing: true; name: string } =>
+          "name" in f && f.name.startsWith("submission-details")
+      ) ?? [];
+
+    // 2️⃣ Combine deleted files and old submission-details PDFs
+    const filesToDelete = [
+      ...deletedFiles.map((f) => f.name), // files explicitly deleted by user
+      ...previousPDFs.map((f) => f.name), // old generated PDFs
+    ];
+
+    const allFiles = [...keptExisting, ...newFiles].map((f) => f.name);
+    const pdfBlob = generateSubmissionPDF(values, allFiles, teachers, classes);
+    const pdfFile = new File(
+      [pdfBlob],
+      `submission-details-${Date.now()}.pdf`,
+      { type: "application/pdf" }
+    );
+    const totalFiles = [pdfFile, ...newFiles];
+
     // 4️⃣ Update
     updateSubmissionWithFiles(
       {
         id: submission.id,
         submission: updates,
-        newFiles,
-        deletedPaths: deletedFiles.map((f) => f.name),
+        newFiles: totalFiles,
+        deletedPaths: filesToDelete,
       },
       {
         onSuccess: () => {

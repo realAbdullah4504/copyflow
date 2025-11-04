@@ -6,7 +6,7 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
-import type { Submission } from "@/types";
+import type { FileItem, Submission } from "@/types";
 import { FileText, Download, Loader2, DownloadCloud } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { submissionService } from "@/services";
@@ -52,7 +52,7 @@ const ViewSubmissionModal = ({
     try {
       const blob = await downloadFile(fileName);
       const url = globalThis.URL.createObjectURL(blob);
-      const a = document.createElement('a');
+      const a = document.createElement("a");
       a.href = url;
       a.download = fileName;
       document.body.appendChild(a);
@@ -77,9 +77,9 @@ const ViewSubmissionModal = ({
 
     try {
       // Import JSZip dynamically to reduce initial bundle size
-      const JSZip = (await import('jszip')).default;
+      const JSZip = (await import("jszip")).default;
       const zip = new JSZip();
-      
+
       // Download all files and add them to the zip
       const downloadPromises = submission.files.map(async (fileName) => {
         try {
@@ -93,44 +93,53 @@ const ViewSubmissionModal = ({
       });
 
       const results = await Promise.all(downloadPromises);
-      const failedDownloads = results.filter(result => !result.success);
-      
+      const failedDownloads = results.filter((result) => !result.success);
+
       if (failedDownloads.length > 0) {
-        const errorMessage = failedDownloads.length === results.length
-          ? 'Failed to download all files. Please try again.'
-          : `Failed to download ${failedDownloads.length} of ${results.length} files.`;
-        
+        const errorMessage =
+          failedDownloads.length === results.length
+            ? "Failed to download all files. Please try again."
+            : `Failed to download ${failedDownloads.length} of ${results.length} files.`;
+
         toast.error(errorMessage, { id: toastId });
         return;
       }
 
       // Generate the zip file with compression
       const content = await zip.generateAsync({
-        type: 'blob',
-        compression: 'DEFLATE',
-        compressionOptions: { level: 6 } // Medium compression level
+        type: "blob",
+        compression: "DEFLATE",
+        compressionOptions: { level: 6 }, // Medium compression level
       });
-      
+
       // Create and trigger download
       const url = globalThis.URL.createObjectURL(content);
-      const a = document.createElement('a');
+      const a = document.createElement("a");
       a.href = url;
-      a.download = `submission-${submission.id}-${new Date().toISOString().slice(0, 10)}.zip`;
+      a.download = `submission-${submission.id}-${new Date()
+        .toISOString()
+        .slice(0, 10)}.zip`;
       document.body.appendChild(a);
       a.click();
-      
+
       // Cleanup
       globalThis.URL.revokeObjectURL(url);
       a.remove();
-      
-      toast.success(`Successfully downloaded ${results.length} file${results.length > 1 ? 's' : ''}`, { 
-        id: toastId 
-      });
+
+      toast.success(
+        `Successfully downloaded ${results.length} file${
+          results.length > 1 ? "s" : ""
+        }`,
+        {
+          id: toastId,
+        }
+      );
     } catch (error) {
-      console.error('Error creating zip file:', error);
-      toast.error('Failed to create zip file. Please try again.', { 
+      console.error("Error creating zip file:", error);
+      toast.error("Failed to create zip file. Please try again.", {
         id: toastId,
-        description: error instanceof Error ? error.message : 'An unknown error occurred'
+        description:
+          error instanceof Error ? error.message : "An unknown error occurred",
       });
     } finally {
       setIsDownloadingAll(false);
@@ -255,36 +264,40 @@ const ViewSubmissionModal = ({
               </div>
               <div className="mt-2 space-y-2 pr-2 scrollbar-thin">
                 {submission.files && submission.files.length > 0 ? (
-                  submission.files.map((fileName) => (
-                    <div
-                      key={`file-${fileName}`}
-                      className="flex items-center justify-between group hover:bg-gray-50 p-2 rounded-md"
-                    >
-                      <div className="flex items-center gap-2">
-                        <FileText className="h-4 w-4 text-gray-500 flex-shrink-0" />
-                        <span className="text-sm text-gray-700 truncate max-w-xs">
-                          {fileName}
-                        </span>
-                      </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-8 px-2 opacity-0 group-hover:opacity-100 transition-opacity"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDownload(fileName);
-                        }}
-                        disabled={downloadingFiles[fileName]}
+                  submission.files
+                    ?.filter(
+                      (f): f is { existing: true; name: string } => f.existing
+                    )
+                    .map(({ name: fileName }) => (
+                      <div
+                        key={`file-${fileName}`}
+                        className="flex items-center justify-between group hover:bg-gray-50 p-2 rounded-md"
                       >
-                        {downloadingFiles[fileName] ? (
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                        ) : (
-                          <Download className="h-4 w-4" />
-                        )}
-                        <span className="sr-only">Download</span>
-                      </Button>
-                    </div>
-                  ))
+                        <div className="flex items-center gap-2">
+                          <FileText className="h-4 w-4 text-gray-500 flex-shrink-0" />
+                          <span className="text-sm text-gray-700 truncate max-w-xs">
+                            {fileName}
+                          </span>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 px-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDownload(fileName);
+                          }}
+                          disabled={downloadingFiles[fileName]}
+                        >
+                          {downloadingFiles[fileName] ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <Download className="h-4 w-4" />
+                          )}
+                          <span className="sr-only">Download</span>
+                        </Button>
+                      </div>
+                    ))
                 ) : (
                   <p className="text-sm text-gray-500">No files attached</p>
                 )}
