@@ -7,8 +7,8 @@ import {
 } from "@/components/ui/dialog";
 import { z } from "zod";
 import { useSubmissionMutations } from "@/hooks/mutations";
-import { getSubmissionFields, type submissionFormSchema } from "../fields";
-import { useFormWithConfig, useTeachers, useClassesByTeacher } from "@/hooks";
+import { getSubmissionFields, submissionFormSchema } from "../fields";
+import { useTeachers, useClassesByTeacher } from "@/hooks";
 import type {
   CreateSubmissionInput,
   FileType,
@@ -20,6 +20,8 @@ import { FormField, Form as RHFForm } from "@/components/common";
 import { filterTypes, paperColors } from "@/constants";
 import { getChangedFields, getFileDiff } from "@/utils";
 import { generateSubmissionPDF } from "@/utils/generateSubmissionPDF";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
 
 interface EditSubmissionModalProps {
   readonly open: boolean;
@@ -35,25 +37,28 @@ const EditSubmissionModal = ({
   const { updateSubmissionWithFiles, updateWithFilesLoading: isSubmitting } =
     useSubmissionMutations();
 
-  const form = useFormWithConfig<z.infer<typeof submissionFormSchema>>({
-    teacherId: submission?.teacherId,
-    classId: submission?.classId,
-    fileType: submission?.fileType,
-    lessonDate: format(submission?.lessonDate || new Date(), "yyyy-MM-dd"),
-    copies: Number(submission?.copies),
-    paperColor: submission?.paperColor || "white",
-    printSettings: {
-      doubleSided: submission?.printSettings?.doubleSided || false,
-      stapled: submission?.printSettings?.stapled || false,
-      color: submission?.printSettings?.color || false,
-      booklet: submission?.printSettings?.booklet || false,
-      hasCover: submission?.printSettings?.hasCover || false,
-      coloredCover: submission?.printSettings?.coloredCover || false,
+  const form = useForm<z.infer<typeof submissionFormSchema>>({
+    resolver: zodResolver(submissionFormSchema),
+    defaultValues: {
+      teacherId: submission?.teacherId,
+      classId: submission?.classId,
+      fileType: submission?.fileType,
+      lessonDate: format(submission?.lessonDate || new Date(), "yyyy-MM-dd"),
+      copies: Number(submission?.copies),
+      paperColor: submission?.paperColor || "white",
+      printSettings: {
+        doubleSided: submission?.printSettings?.doubleSided || false,
+        stapled: submission?.printSettings?.stapled || false,
+        color: submission?.printSettings?.color || false,
+        booklet: submission?.printSettings?.booklet || false,
+        hasCover: submission?.printSettings?.hasCover || false,
+        coloredCover: submission?.printSettings?.coloredCover || false,
+      },
+      files: submission?.files,
+      notes: submission?.notes || "",
     },
-    files: submission?.files,
-    notes: submission?.notes || "",
+    mode: "onChange",
   });
-
   const active = true;
   const { teachers } = useTeachers();
   const { classes } = useClassesByTeacher(form.watch("teacherId"), active);
@@ -61,6 +66,12 @@ const EditSubmissionModal = ({
   const onSubmit = async (values: z.infer<typeof submissionFormSchema>) => {
     if (!submission) throw new Error("Submission not found");
 
+    // Validate against the schema first
+    const result = submissionFormSchema.safeParse(values);
+    if (!result.success) {
+      console.error("Validation failed:", result.error);
+      return;
+    }
     // 1️⃣ Extract original and current files
     const originalFiles = submission.files?.filter((f) => "name" in f) ?? [];
     const { newFiles, deletedFiles, keptExisting } = getFileDiff(

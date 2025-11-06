@@ -27,7 +27,7 @@ export const submissionFormSchema = z.object({
         file: z.instanceof(File),
       }),
     ])
-  ),
+  ).min(1,"At least one File is required"),
   notes: z.string().optional(),
 });
 
