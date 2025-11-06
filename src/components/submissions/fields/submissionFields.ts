@@ -84,7 +84,7 @@ export const getSubmissionFields = (options: {
     label: "Number of Copies",
     type: "number" as const,
     min: 1,
-    placeholder: "Enter number of copies",
+    placeholder: "For all students (entire grade). To specify a different quantity, enter the number here",
     className: "md:col-span-1",
   },
   {
@@ -110,31 +110,31 @@ export const getSubmissionFields = (options: {
     type: "checkbox" as const,
     className: "md:col-span-1",
   },
-  {
-    name: "printSettings.booklet",
-    label: "Booklet",
-    type: "checkbox" as const,
-    className: "md:col-span-1",
-  },
+  // {
+  //   name: "printSettings.booklet",
+  //   label: "Booklet",
+  //   type: "checkbox" as const,
+  //   className: "md:col-span-1",
+  // },
   {
     name: "printSettings.hasCover",
-    label: "Has Cover",
+    label: "Hard Cover",
     type: "checkbox" as const,
     className: "md:col-span-1",
   },
-  {
-    name: "printSettings.coloredCover",
-    label: "Colored Cover",
-    type: "checkbox" as const,
-    className: "md:col-span-1",
-  },
+  // {
+  //   name: "printSettings.coloredCover",
+  //   label: "Colored Cover",
+  //   type: "checkbox" as const,
+  //   className: "md:col-span-1",
+  // },
 
-  {
-    name: "printSettings.color",
-    label: "Color Print",
-    type: "checkbox" as const,
-    className: "md:col-span-1",
-  },
+  // {
+  //   name: "printSettings.color",
+  //   label: "Color Print",
+  //   type: "checkbox" as const,
+  //   className: "md:col-span-1",
+  // },
   {
     name: "notes",
     label: "Notes (Optional)",

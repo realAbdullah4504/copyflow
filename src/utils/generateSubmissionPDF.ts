@@ -57,7 +57,7 @@ export const generateSubmissionPDF = (
       ? [{ label: "  • Booklet", value: "Yes" }]
       : []),
     ...(data.printSettings.hasCover
-      ? [{ label: "  • Has Cover", value: "Yes" }]
+      ? [{ label: "  • Hard Cover", value: "Yes" }]
       : []),
     ...(data.printSettings.coloredCover
       ? [{ label: "  • Colored Cover", value: "Yes" }]
