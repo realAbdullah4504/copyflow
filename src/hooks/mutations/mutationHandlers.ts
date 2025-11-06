@@ -1,6 +1,5 @@
 import { queryClient } from "@/lib/queryClient";
 import { toast } from "sonner";
-import { AppError } from "@/utils";
 
 /**
  * Invalidates a list of React Query keys.

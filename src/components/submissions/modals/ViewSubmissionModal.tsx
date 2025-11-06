@@ -81,16 +81,18 @@ const ViewSubmissionModal = ({
       const zip = new JSZip();
 
       // Download all files and add them to the zip
-      const downloadPromises = submission.files.map(async (fileName) => {
-        try {
-          const blob = await downloadFile(fileName);
-          zip.file(fileName, blob);
-          return { success: true, fileName };
-        } catch (error) {
-          console.error(`Error downloading ${fileName}:`, error);
-          return { success: false, fileName, error };
-        }
-      });
+      const downloadPromises = submission.files
+        ?.filter((f): f is { existing: true; name: string } => f.existing)
+        .map(async ({ name: fileName }) => {
+          try {
+            const blob = await downloadFile(fileName);
+            zip.file(fileName, blob);
+            return { success: true, fileName };
+          } catch (error) {
+            console.error(`Error downloading ${fileName}:`, error);
+            return { success: false, fileName, error };
+          }
+        });
 
       const results = await Promise.all(downloadPromises);
       const failedDownloads = results.filter((result) => !result.success);
