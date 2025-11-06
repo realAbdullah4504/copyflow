@@ -246,6 +246,7 @@ const FormField = ({
             placeholder={placeholder}
             disabled={disabled}
             className={className}
+            min={new Date().toISOString().split('T')[0]}
             {...register(name)}
           />
         );
