@@ -17,6 +17,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { generateSubmissionPDF } from "@/utils/generateSubmissionPDF";
 import type { FileType, PaperColor } from "@/types/domain/submission";
 import { filterTypes, paperColors } from "@/constants";
+import { useAuth, useCreateNotification } from "@/hooks";
 
 interface NewSubmissionModalProps {
   open: boolean;
@@ -33,6 +34,10 @@ const NewSubmissionModal = ({
 }: NewSubmissionModalProps) => {
   const { createSubmissionWithFiles, createWithFilesLoading: isSubmitting } =
     useSubmissionMutations();
+  const { user } = useAuth();
+  const { createNotification } = useCreateNotification();
+  const role = user?.role;
+  console.log("role", role);
 
   const form = useForm<z.infer<typeof submissionFormSchema>>({
     resolver: zodResolver(submissionFormSchema),
@@ -127,7 +132,14 @@ const NewSubmissionModal = ({
     createSubmissionWithFiles(
       { submission: submissionData, files: allFiles },
       {
-        onSuccess: () => {
+        onSuccess: (result) => {
+          createNotification({
+            senderId: user!.id,
+            senderRole: role!,
+            message: `${result.class?.label} ${result.fileType} New submission created by ${user!.name}`,
+            type: "newSubmission",
+            teacherId: values.teacherId,
+          });
           form.reset();
           onOpenChange(false);
         },

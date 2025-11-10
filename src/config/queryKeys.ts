@@ -11,6 +11,7 @@ export const QUERY_KEYS = {
   TEACHER_ARCHIVED: "archived:teacher",
   CLASSES: "classes",
   TEACHER_CLASSES: "classes:teacher",
+  NOTIFICATIONS: "notifications",
 } as const;
 
 export type QueryKeys = (typeof QUERY_KEYS)[keyof typeof QUERY_KEYS];

@@ -260,11 +260,17 @@ export const submissionService = {
   createSubmission: async (
     submission: CreateSubmissionInput
   ): Promise<Submission> => {
+    // Convert the lesson date to EST with time set to 00:00:00
+    const lessonDate = new Date(submission.lessonDate);
+    // Convert to EST (UTC-5) and set time to 00:00:00
+    const estDate = new Date(lessonDate.getTime() - (lessonDate.getTimezoneOffset() * 60000));
+    estDate.setHours(5, 0, 0, 0); // Set to 00:00:00 EST (which is 05:00:00 UTC)
+
     const dbSubmission = {
       teacher_id: submission.teacherId,
       class_id: submission.classId,
       file_type: submission.fileType,
-      lesson_date: submission.lessonDate,
+      lesson_date: estDate.toISOString(),
       copies: submission.copies,
       paper_color: submission.paperColor,
       print_settings: submission.printSettings,

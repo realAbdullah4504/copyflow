@@ -6,10 +6,18 @@ import {
   SubmissionTable,
 } from "@/components/submissions";
 import { PageHeader } from "@/components/common";
-import { useAllSubmissions, useSubmissionMutations, useModal } from "@/hooks";
+import {
+  useAllSubmissions,
+  useSubmissionMutations,
+  useModal,
+  useCreateNotification,
+  useAuth,
+} from "@/hooks";
 
 const SecretarySubmissionsPage = () => {
   const { submissions, total, isLoading } = useAllSubmissions();
+  const { createNotification } = useCreateNotification();
+  const { user } = useAuth();
 
   const {
     deleteSubmission,
@@ -26,16 +34,47 @@ const SecretarySubmissionsPage = () => {
     onDeleteConfirm: () => {
       if (!modal.data) return;
       deleteSubmission(modal.data.id, {
-        onSuccess: closeModal,
+        onSuccess: () => {
+          createNotification({
+            senderId: user?.id || "",
+            senderRole: ROLES.SECRETARY,
+            message: `${modal.data?.class?.label} ${modal.data?.fileType} submission deleted by ${user?.name}`,
+            type: "deleteSubmission",
+            teacherId: modal.data?.teacherId || "",
+          });
+          closeModal();
+        },
       });
     },
     onPrintedConfirm: () => {
       if (!modal.data) return;
-      printedSubmission(modal.data.id, { onSuccess: closeModal });
+      printedSubmission(modal.data.id, {
+        onSuccess: () => {
+          createNotification({
+            senderId: user?.id || "",
+            senderRole: ROLES.SECRETARY,
+            message: `${modal.data?.class?.label} ${modal.data?.fileType} submission archived by ${user?.name}`,
+            type: "archiveSubmission",
+            teacherId: modal.data?.teacherId || "",
+          });
+          closeModal();
+        },
+      });
     },
     onCensorshipConfirm: () => {
       if (!modal.data) return;
-      censorSubmission(modal.data.id, { onSuccess: closeModal });
+      censorSubmission(modal.data.id, {
+        onSuccess: () => {
+          createNotification({
+            senderId: user?.id || "",
+            senderRole: ROLES.SECRETARY,
+            message: `${modal.data?.class?.label} ${modal.data?.fileType} submission censored by ${user?.name}`,
+            type: "censoredSubmission",
+            teacherId: modal.data?.teacherId || "",
+          });
+          closeModal();
+        },
+      });
     },
   };
 

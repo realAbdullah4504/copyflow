@@ -34,7 +34,7 @@ const DashboardLayout = () => {
       />
 
       <div className="flex flex-1 flex-col overflow-hidden">
-        <Header title={<BreadcrumbNavigation />} userName={user.name} onLogout={handleLogout} />
+        <Header title={<BreadcrumbNavigation />} userName={user.name} onLogout={handleLogout} userId={user.id} />
 
         <main className="flex-1 overflow-y-auto bg-slate-100 p-6">
           <Outlet />

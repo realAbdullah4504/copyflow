@@ -5,15 +5,18 @@ import {
   SubmissionTable,
 } from "@/components/submissions";
 import { ROLES } from "@/config/roles";
-import { useCensoredSubmissions, useSubmissionMutations } from "@/hooks";
+import { useAuth, useCensoredSubmissions, useCreateNotification, useSubmissionMutations } from "@/hooks";
 import { useModal } from "@/hooks/useModal";
 import type { Submission } from "@/types";
 
 export default function SecretaryCensorshipPage() {
   const { submissions, isLoading } = useCensoredSubmissions();
   const { modal, openModal, closeModal } = useModal<Submission>();
+  const {user}=useAuth()
 
   const { unCensorSubmission } = useSubmissionMutations();
+
+  const { createNotification } = useCreateNotification();
 
   const handleDeleteConfirm = () => {};
 
@@ -21,6 +24,13 @@ export default function SecretaryCensorshipPage() {
     if (!modal.data) return;
     unCensorSubmission(modal.data.id, {
       onSuccess: () => {
+        createNotification({
+            senderId: user?.id || "",
+            senderRole: ROLES.SECRETARY,
+            message: `${modal.data?.class?.label} ${modal.data?.fileType} submission approved by ${user?.name}`,
+            type: "approvedSubmission",
+            teacherId: modal.data?.teacherId || "",
+          });
         closeModal();
       },
     });

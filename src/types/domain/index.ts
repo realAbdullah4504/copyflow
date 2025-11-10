@@ -7,3 +7,5 @@ export * from './user';
 export * from './attendance';
 export * from './submission';
 export * from './class';
+export * from './notification';
+

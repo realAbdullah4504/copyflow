@@ -8,14 +8,19 @@ import {
   SubmissionTable,
 } from "@/components/submissions";
 import { useModal } from "@/hooks/useModal";
-import { useSubmissionsByTeacher,useSubmissionMutations } from "@/hooks";
+import {
+  useSubmissionsByTeacher,
+  useSubmissionMutations,
+  useCreateNotification,
+} from "@/hooks";
 
 const SubmissionPage = () => {
   const { user } = useAuth();
   const { submissions, isLoading, total } = useSubmissionsByTeacher(
     user?.id || ""
   );
-  const { deleteSubmission, deleteLoading, } = useSubmissionMutations();
+  const { createNotification } = useCreateNotification();
+  const { deleteSubmission, deleteLoading } = useSubmissionMutations();
   const { modal, openModal, closeModal } = useModal<Submission>();
 
   const handleDeleteConfirm = () => {
@@ -23,6 +28,13 @@ const SubmissionPage = () => {
     deleteSubmission(modal.data.id, {
       onSuccess: () => {
         closeModal();
+        createNotification({
+          senderId: user?.id || "",
+          senderRole: ROLES.TEACHER,
+          message: `${modal.data?.class?.label} ${modal.data?.fileType} submission deleted by ${user?.name}`,
+          type: "deleteSubmission",
+          teacherId: user?.id || "",
+        });
       },
     });
   };

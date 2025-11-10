@@ -6,7 +6,7 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
-import type { FileItem, Submission } from "@/types";
+import type { Submission } from "@/types";
 import { FileText, Download, Loader2, DownloadCloud } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { submissionService } from "@/services";
@@ -167,7 +167,6 @@ const ViewSubmissionModal = ({
       </Badge>
     );
   };
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl max-h-[90vh] flex flex-col p-0 overflow-hidden">
@@ -189,6 +188,10 @@ const ViewSubmissionModal = ({
             <div>
               <p className="text-sm font-medium text-gray-500">Subject</p>
               <p className="mt-1">{submission.class?.label}</p>
+            </div>
+            <div>
+              <p className="text-sm font-medium text-gray-500">Lesson Date</p>
+              <p className="mt-1">{format(submission.lessonDate, "dd/MM/yyyy")}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-gray-500">File Type</p>
@@ -214,30 +217,30 @@ const ViewSubmissionModal = ({
                 {submission.printSettings.stapled ? "Yes" : "No"}
               </p>
             </div>
-            <div>
+            {/* <div>
               <p className="text-sm font-medium text-gray-500">Color</p>
               <p className="mt-1">
                 {submission.printSettings.color ? "Yes" : "No"}
               </p>
-            </div>
-            <div>
+            </div> */}
+            {/* <div>
               <p className="text-sm font-medium text-gray-500">Booklet</p>
               <p className="mt-1">
                 {submission.printSettings.booklet ? "Yes" : "No"}
               </p>
-            </div>
+            </div> */}
             <div>
-              <p className="text-sm font-medium text-gray-500">Cover</p>
+              <p className="text-sm font-medium text-gray-500">Hard Cover</p>
               <p className="mt-1">
                 {submission.printSettings.hasCover ? "Yes" : "No"}
               </p>
             </div>
-            <div>
+            {/* <div>
               <p className="text-sm font-medium text-gray-500">Colored Cover</p>
               <p className="mt-1">
                 {submission.printSettings.coloredCover ? "Yes" : "No"}
               </p>
-            </div>
+            </div> */}
             <div className="col-span-2">
               <p className="text-sm font-medium text-gray-500">Notes</p>
               <p className="mt-1 whitespace-pre-line">

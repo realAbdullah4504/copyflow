@@ -8,7 +8,7 @@ import {
 import { z } from "zod";
 import { useSubmissionMutations } from "@/hooks/mutations";
 import { getSubmissionFields, submissionFormSchema } from "../fields";
-import { useTeachers, useClassesByTeacher } from "@/hooks";
+import { useTeachers, useClassesByTeacher, useAuth, useCreateNotification } from "@/hooks";
 import type {
   CreateSubmissionInput,
   FileType,
@@ -62,6 +62,9 @@ const EditSubmissionModal = ({
   const active = true;
   const { teachers } = useTeachers();
   const { classes } = useClassesByTeacher(form.watch("teacherId"), active);
+  const { createNotification } = useCreateNotification();
+  const { user } = useAuth();
+  const role = user?.role;
 
   const onSubmit = async (values: z.infer<typeof submissionFormSchema>) => {
     if (!submission) throw new Error("Submission not found");
@@ -135,7 +138,14 @@ const EditSubmissionModal = ({
         deletedPaths: filesToDelete,
       },
       {
-        onSuccess: () => {
+        onSuccess: (result) => {
+          createNotification({
+            senderId: user!.id,
+            senderRole: role!,
+            message: `${result.class?.label} ${result.fileType} updated`,
+            type: "editSubmission",
+            teacherId: values.teacherId,
+          });
           form.reset();
           onOpenChange(false);
         },

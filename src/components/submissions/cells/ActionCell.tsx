@@ -8,7 +8,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import type { Submission } from "@/types";
-import { getActionMeta, type ActionKey, type GenericActionConfig } from "../actions/shared";
+import {
+  getActionMeta,
+  type ActionKey,
+  type GenericActionConfig,
+} from "../actions/shared";
 
 interface ActionCellProps<T extends GenericActionConfig> {
   actions: ActionKey<T>[]; // Allowed actions for the given role/context
@@ -25,6 +29,19 @@ const ActionCell: React.FC<ActionCellProps<GenericActionConfig>> = ({
 }) => {
   const [open, setOpen] = useState(false);
 
+  // Filter out censorship action if submission is in review (status is 'censored')
+  const filteredActions = actions.filter((action) => {
+    if (action === "censorship" && rowData.status === "censored") {
+      return false;
+    }
+    return true;
+  });
+
+  // If no actions are left after filtering, don't show the dropdown
+  if (filteredActions.length === 0) {
+    return null;
+  }
+
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
@@ -35,10 +52,9 @@ const ActionCell: React.FC<ActionCellProps<GenericActionConfig>> = ({
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="end">
-        {actions.map((action) => {
+        {filteredActions.map((action) => {
           const { icon: Icon, label } = getActionMeta(actionsConfig, action);
           const danger = action === "delete";
-
           return (
             <DropdownMenuItem
               key={action}

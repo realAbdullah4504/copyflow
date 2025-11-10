@@ -12,5 +12,8 @@ export * from "./useUsers";
 
 export * from "./useTeachers";
 
+export * from "./useGetNotifications";
+
+
 
 
