@@ -16,6 +16,7 @@ interface DataTableProps<TData> {
   columns: ColumnDef<TData>[];
   isLoading?: boolean;
   showSorting?: boolean;
+  onRowClick?: (row: TData) => void;
 }
 
 const DataTable = <TData,>({
@@ -23,6 +24,7 @@ const DataTable = <TData,>({
   columns,
   isLoading = false,
   showSorting = false,
+  onRowClick,
 }: DataTableProps<TData>) => {
   return (
     <div className="rounded-md border">
@@ -83,7 +85,11 @@ const DataTable = <TData,>({
             </TableRow>
           ) : (
             table.getRowModel().rows.map((row) => (
-              <TableRow key={row.id}>
+              <TableRow
+                key={row.id}
+                className={cn({ "cursor-pointer": !!onRowClick })}
+                onClick={onRowClick ? () => onRowClick(row.original) : undefined}
+              >
                 {row.getVisibleCells().map((cell) => (
                   <TableCell key={cell.id}>
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}

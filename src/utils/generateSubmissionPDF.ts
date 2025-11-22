@@ -1,4 +1,5 @@
 import type { submissionFormSchema } from "@/components/submissions";
+import { format, parseISO } from "date-fns";
 import { jsPDF } from "jspdf";
 import { z } from "zod";
 
@@ -41,8 +42,15 @@ export const generateSubmissionPDF = (
       value: classes?.find((c) => c.id === data.classId)?.label || "N/A",
     },
     { label: "File Type", value: data.fileType },
-    { label: "Lesson Date", value: data.lessonDate.toString() },
-    { label: "Copies", value: data.copies.toString() },
+    {
+      label: "Lesson Date",
+      value: data.lessonDate
+        ? format(parseISO(data.lessonDate), "MM/dd/yyyy")
+        : "N/A",
+    },
+    ...(data.copies
+      ? [{ label: "Copies", value: data.copies.toString() }]
+      : [{ label: "Copies", value: "For all students (entire grade)" }]),
     { label: "Paper Color", value: data.paperColor },
     { label: "Print Settings", value: "" },
     // Only include settings that are true

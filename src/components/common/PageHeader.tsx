@@ -5,19 +5,27 @@ import { canCreate, type Role } from "@/config";
 interface PageHeaderProps {
   title: string;
   role: Role;
+  description?: string;
   buttonTitle?: string;
   sideAction?: () => void;
 }
 
-const PageHeader = ({ title, role, buttonTitle, sideAction }: PageHeaderProps) => (
-  <div className="flex items-center justify-between mb-4">
-    <h2 className="text-lg font-semibold text-slate-900 mb-4">{title}</h2>
-    {canCreate(role) && sideAction ? (
-      <Button onClick={sideAction}>
-        <Plus className="mr-2 h-4 w-4" />
-        {buttonTitle}
-      </Button>
-    ) : null}
+const PageHeader = ({ title, role, description, buttonTitle, sideAction }: PageHeaderProps) => (
+  <div className="flex flex-col space-y-2 mb-6">
+    <div className="flex items-center justify-between">
+      <h2 className="text-2xl font-bold tracking-tight">{title}</h2>
+      {canCreate(role) && sideAction && buttonTitle && (
+        <Button onClick={sideAction}>
+          <Plus className="mr-2 h-4 w-4" />
+          {buttonTitle}
+        </Button>
+      )}
+    </div>
+    {description && (
+      <p className="text-sm text-muted-foreground">
+        {description}
+      </p>
+    )}
   </div>
 );
 

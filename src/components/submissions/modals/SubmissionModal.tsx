@@ -12,13 +12,19 @@ interface Props {
   allowTeacherSelection?: boolean;
   onOpenChange: (open: boolean) => void;
   onClose: () => void;
-  isSubmitting?: boolean;
-  handlers: {
+  isSubmitting?: {
+    deleteLoading?: boolean;
+    censorLoading?: boolean;
+    printedLoading?: boolean;
+    unCensorLoading?: boolean;
+  };
+  handlers?: {
     onDeleteConfirm?: () => void;
     onPrintedConfirm?: () => void;
     onCensorshipConfirm?: () => void;
     onUnCensorshipConfirm?: () => void;
   };
+  allowedActions?: readonly string[];
   teacherId?: string;
 }
 
@@ -32,6 +38,7 @@ const SubmissionModal = ({
   handlers,
   teacherId,
   allowTeacherSelection = false,
+  allowedActions = [],
 }: Props) => {
   if (!type) return null;
 
@@ -62,12 +69,15 @@ const SubmissionModal = ({
             open={open}
             submission={data}
             onOpenChange={(open) => !open && onClose()}
+            handlers={handlers}
+            isSubmitting={isSubmitting}
+            allowedActions={allowedActions}
           />
         )
       );
     case "delete":
       return (
-        handlers.onDeleteConfirm &&
+        handlers?.onDeleteConfirm &&
         data && (
           <ConfirmModal
             open={open}
@@ -77,13 +87,13 @@ const SubmissionModal = ({
             description="Are you sure you want to delete this submission?"
             onConfirm={() => handlers.onDeleteConfirm?.()}
             onCancel={onClose}
-            isSubmitting={isSubmitting}
+            isSubmitting={isSubmitting?.deleteLoading}
           />
         )
       );
     case "printed":
       return (
-        handlers.onPrintedConfirm &&
+        handlers?.onPrintedConfirm &&
         data && (
           <ConfirmModal
             open={open}
@@ -93,13 +103,13 @@ const SubmissionModal = ({
             description="Are you sure you want to change the status of this submission to printed?"
             onConfirm={() => handlers.onPrintedConfirm?.()}
             onCancel={onClose}
-            isSubmitting={isSubmitting}
+            isSubmitting={isSubmitting?.printedLoading}
           />
         )
       );
     case "censorship":
       return (
-        handlers.onCensorshipConfirm &&
+        handlers?.onCensorshipConfirm &&
         data && (
           <ConfirmModal
             open={open}
@@ -109,13 +119,13 @@ const SubmissionModal = ({
             description="Are you sure you want to censor this submission?"
             onConfirm={() => handlers.onCensorshipConfirm?.()}
             onCancel={onClose}
-            isSubmitting={isSubmitting}
+            isSubmitting={isSubmitting?.censorLoading}
           />
         )
       );
     case "approve":
       return (
-        handlers.onUnCensorshipConfirm &&
+        handlers?.onUnCensorshipConfirm &&
         data && (
           <ConfirmModal
             open={open}
@@ -125,7 +135,7 @@ const SubmissionModal = ({
             description="Are you sure you want to approve this submission?"
             onConfirm={() => handlers.onUnCensorshipConfirm?.()}
             onCancel={onClose}
-            isSubmitting={isSubmitting}
+            isSubmitting={isSubmitting?.unCensorLoading}
           />
         )
       );

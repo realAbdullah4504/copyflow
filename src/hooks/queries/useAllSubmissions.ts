@@ -3,16 +3,20 @@ import { submissionService } from "@/services/submissionService";
 import { QUERY_KEYS } from "@/config";
 import type { SubmissionQueryParams } from "@/types";
 
-export const useAllSubmissions = (params?: SubmissionQueryParams) => {
+export const useAllSubmissions = (
+  adminId: string,
+  params?: SubmissionQueryParams
+) => {
   const queryKey = params
-    ? [QUERY_KEYS.SUBMISSIONS, params]
-    : [QUERY_KEYS.SUBMISSIONS];
+    ? [QUERY_KEYS.SUBMISSIONS, adminId, params]
+    : [QUERY_KEYS.SUBMISSIONS, adminId];
 
   const { data, isLoading, ...rest } = useSubmissions(
     queryKey,
-    () => submissionService.getSubmissions(params),
+    () => submissionService.getSubmissions(adminId, params),
     {
       keepPreviousData: Boolean(params?.pagination),
+      enabled: !!adminId,
     }
   );
 

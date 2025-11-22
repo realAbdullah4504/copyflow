@@ -1,5 +1,7 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 import {
   Select,
   SelectContent,
@@ -16,6 +18,7 @@ import { Upload, FileText, X, UploadCloud } from "lucide-react";
 import { Switch } from "../ui/switch";
 import { motion, AnimatePresence } from "framer-motion";
 import type { FileItem } from "@/types";
+import { parseISO } from "date-fns";
 
 type FormFieldProps = {
   type:
@@ -232,24 +235,45 @@ const FormField = ({
         return (
           <Input
             type="number"
-            min="1"
+            min={1}
             placeholder={placeholder}
             disabled={disabled}
             className={className}
-            {...register(name, { valueAsNumber: true })}
+            {...register(name, {
+              setValueAs: (v: string) => {
+                if (v === "" || v === undefined) return null; // empty -> null
+                const num = Number(v);
+                return Number.isNaN(num) ? null : num; // parse number
+              },
+            })}
           />
         );
       case "date":
         return (
-          <Input
-            type="date"
-            placeholder={placeholder}
+          <DatePicker
+            selected={value ? parseISO(value) : null} // parse string to Date for the picker
+            onChange={(date: Date | null) => {
+              if (date) {
+                const formatted = `${date.getFullYear()}-${String(
+                  date.getMonth() + 1
+                ).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+                setValue(name, formatted, { shouldValidate: true });
+              } else {
+                setValue(name, "", { shouldValidate: true });
+              }
+            }}
+            dateFormat="MM/dd/yyyy" // display format
+            placeholderText={placeholder}
             disabled={disabled}
-            className={className}
-            min={new Date().toISOString().split('T')[0]}
-            {...register(name)}
+            minDate={new Date()} // prevent past dates
+            className={cn(
+              "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+              className
+            )}
+            wrapperClassName="w-full"
           />
         );
+
       case "file":
         return (
           <div className="space-y-2">

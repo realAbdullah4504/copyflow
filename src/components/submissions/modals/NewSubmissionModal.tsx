@@ -15,6 +15,7 @@ import { useForm } from "react-hook-form";
 import { useTeachers } from "@/hooks/queries/useTeachers";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { generateSubmissionPDF } from "@/utils/generateSubmissionPDF";
+import { toast } from "sonner";
 import type { FileType, PaperColor } from "@/types/domain/submission";
 import { filterTypes, paperColors } from "@/constants";
 import { useAuth, useCreateNotification } from "@/hooks";
@@ -35,9 +36,9 @@ const NewSubmissionModal = ({
   const { createSubmissionWithFiles, createWithFilesLoading: isSubmitting } =
     useSubmissionMutations();
   const { user } = useAuth();
+  const adminId=user?.adminId;
   const { createNotification } = useCreateNotification();
   const role = user?.role;
-  console.log("role", role);
 
   const form = useForm<z.infer<typeof submissionFormSchema>>({
     resolver: zodResolver(submissionFormSchema),
@@ -46,7 +47,7 @@ const NewSubmissionModal = ({
       classId: "",
       fileType: "",
       lessonDate: format(new Date(), "yyyy-MM-dd"),
-      copies: 1,
+      copies: null,
       paperColor: "white",
       notes: "",
       printSettings: {
@@ -68,7 +69,7 @@ const NewSubmissionModal = ({
     teacherId || form.watch("teacherId"),
     activeClasses
   );
-  const { teachers } = useTeachers(activeTeachers);
+  const { teachers } = useTeachers(adminId!,activeTeachers);
 
   const fileTypeMap: Record<string, FileType> = {
     worksheet: "worksheet",
@@ -98,7 +99,7 @@ const NewSubmissionModal = ({
     // Convert form values to correct types
     const fileType = fileTypeMap[values.fileType] || "handout";
     const paperColor = paperColorMap[values.paperColor] || "white";
-    const lessonDate = new Date(values.lessonDate);
+    const lessonDate = values.lessonDate;
 
     const submissionData = {
       classId: values.classId,
@@ -119,6 +120,16 @@ const NewSubmissionModal = ({
     const newFiles: File[] = selectedFiles.map(
       (f) => (f as { existing: false; file: File }).file
     );
+
+    // Runtime safeguard: only allow PDF uploads
+    const hasNonPdf = newFiles.some(
+      (file) => !file.name.toLowerCase().endsWith(".pdf")
+    );
+
+    if (hasNonPdf) {
+      toast.error("Only PDF files are allowed.");
+      return;
+    }
     // Generate PDF and add it to the files
     const pdfBlob = generateSubmissionPDF(values, newFiles, teachers, classes);
     const pdfFile = new File(

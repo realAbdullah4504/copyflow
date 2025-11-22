@@ -1,15 +1,17 @@
 import type { ModalActionType } from "@/hooks/useModal";
-import type { ClassEntity } from "@/types";
+import type { ClassEntity, ClassEntityV2, GradeLevel } from "@/types";
 import NewClassModal from "./NewClassModal";
 import EditClassModal from "./EditClassModal";
 import { ConfirmModal } from "@/components/common";
 interface Props {
   type: ModalActionType;
-  data?: ClassEntity;
+  data?: ClassEntityV2;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onClose: () => void;
   isSubmitting?: boolean;
+  grade:GradeLevel;
+  adminId: string;
   handlers: {
     onDeleteConfirm?: () => void;
     onToggleActiveConfirm?: () => void;
@@ -18,6 +20,8 @@ interface Props {
 
 const ClassModal = ({
   data,
+  grade,
+  adminId,
   type,
   open,
   onOpenChange,
@@ -28,7 +32,7 @@ const ClassModal = ({
   if (!type) return null;
   switch (type) {
     case "newClass":
-      return <NewClassModal open={open} onOpenChange={onOpenChange}  />;
+      return <NewClassModal open={open} onOpenChange={onOpenChange} grade={grade} adminId={adminId} />;
     case "editClass":
       return (
         data && (
@@ -36,6 +40,8 @@ const ClassModal = ({
             open={open}
             classData={data}
             onOpenChange={(open) => !open && onClose()}
+            grade={grade}
+            adminId={adminId}
           />
         )
       );

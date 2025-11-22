@@ -14,32 +14,61 @@ import { AppError } from "@/utils";
 import { supabase } from "@/lib/supabaseClient";
 
 export const submissionService = {
+  urgentAtTop: (submissions: Submission[]): Submission[] => {
+    // Separate urgent and non-urgent submissions
+    const urgent = submissions.filter((sub) => sub.isUrgent);
+    const nonUrgent = submissions.filter((sub) => !sub.isUrgent);
+
+    // Return urgent first (in their original order), then non-urgent (in their original order)
+    return [...urgent, ...nonUrgent];
+  },
   getSubmissions: async (
+    adminId: string,
     params?: SubmissionQueryParams
   ): Promise<{ data: Submission[]; total: number }> => {
     const { filters, sorting, pagination } = params ?? {};
 
     const SUBMISSION_SELECT = `
-      id,file_type,lesson_date,copies,paper_color,class_id,teacher_id,notes,status,
-      print_settings,files,created_at,updated_at,
-      teacher:teacher_id(*),
-      class:class_id(*)
-    `;
+    id, file_type, lesson_date, copies, paper_color, class_id, teacher_id, notes, status,
+    print_settings, files, created_at, updated_at,
+    teacher:teacher_id(*),
+    class:class_id(*)
+  `;
+
+    const { data: teachers, error: teacherError } = await supabase
+      .from("profiles")
+      .select("id")
+      .eq("role", "teacher")
+      .eq("admin_id", adminId);
+
+    if (teacherError) {
+      const appError = await AppError.from(teacherError);
+      throw appError;
+    }
+
+    const teacherIds = teachers?.map((t) => t.id) ?? [];
+
+    if (teacherIds.length === 0) {
+      return { data: [], total: 0 };
+    }
 
     let query = supabase
       .from("submissions")
       .select(SUBMISSION_SELECT, { count: "exact" })
+      .in("teacher_id", teacherIds)
       .neq("status", "printed");
 
     query = applyFilters(query, filters);
     query = applySorting(query, sorting);
     query = applyPagination(query, pagination);
+
     const { data, count, error } = await query;
 
     if (error) {
       const appError = await AppError.from(error);
       throw appError;
     }
+
     if (!data) {
       const appError = await AppError.from({
         message: "Failed to fetch submissions",
@@ -49,8 +78,9 @@ export const submissionService = {
     }
 
     const mapped: Submission[] = data.map(mapSubmissionRow);
+    const sorted = submissionService.urgentAtTop(mapped);
 
-    return { data: mapped, total: count ?? mapped.length };
+    return { data: sorted, total: count ?? sorted.length };
   },
 
   getSubmissionsByTeacher: async (
@@ -90,11 +120,13 @@ export const submissionService = {
     }
 
     const mapped: Submission[] = data.map(mapSubmissionRow);
+    const sorted = submissionService.urgentAtTop(mapped);
 
-    return { data: mapped, total: count ?? mapped.length };
+    return { data: sorted, total: count ?? sorted.length };
   },
 
   getArchivedSubmissions: async (
+    adminId: string,
     params?: SubmissionQueryParams
   ): Promise<{
     data: Submission[];
@@ -109,10 +141,27 @@ export const submissionService = {
       class:class_id(*)
     `;
 
+    const { data: teachers, error: teacherError } = await supabase
+      .from("profiles")
+      .select("id")
+      .eq("role", "teacher")
+      .eq("admin_id", adminId);
+
+    if (teacherError) {
+      const appError = await AppError.from(teacherError);
+      throw appError;
+    }
+
+    const teacherIds = teachers?.map((t) => t.id) ?? [];
+
+    if (teacherIds.length === 0) {
+      return { data: [], total: 0 };
+    }
     let query = supabase
       .from("submissions")
       .select(SUBMISSION_SELECT, { count: "exact" })
-      .eq("status", "printed");
+      .eq("status", "printed")
+      .in("teacher_id", teacherIds);
 
     query = applyFilters(query, filters);
     query = applySorting(query, sorting);
@@ -178,6 +227,7 @@ export const submissionService = {
   },
 
   getCensoredSubmissions: async (
+    adminId: string,
     params?: SubmissionQueryParams
   ): Promise<{ data: Submission[]; total: number }> => {
     const { filters, sorting, pagination } = params ?? {};
@@ -189,10 +239,28 @@ export const submissionService = {
       class:class_id(*)
     `;
 
+    const { data: teachers, error: teacherError } = await supabase
+      .from("profiles")
+      .select("id")
+      .eq("role", "teacher")
+      .eq("admin_id", adminId);
+
+    if (teacherError) {
+      const appError = await AppError.from(teacherError);
+      throw appError;
+    }
+
+    const teacherIds = teachers?.map((t) => t.id) ?? [];
+
+    if (teacherIds.length === 0) {
+      return { data: [], total: 0 };
+    }
+
     let query = supabase
       .from("submissions")
       .select(SUBMISSION_SELECT, { count: "exact" })
-      .eq("status", "censored");
+      .eq("status", "censored")
+      .in("teacher_id", teacherIds);
 
     query = applyFilters(query, filters);
     query = applySorting(query, sorting);
@@ -260,17 +328,13 @@ export const submissionService = {
   createSubmission: async (
     submission: CreateSubmissionInput
   ): Promise<Submission> => {
-    // Convert the lesson date to EST with time set to 00:00:00
-    const lessonDate = new Date(submission.lessonDate);
-    // Convert to EST (UTC-5) and set time to 00:00:00
-    const estDate = new Date(lessonDate.getTime() - (lessonDate.getTimezoneOffset() * 60000));
-    estDate.setHours(5, 0, 0, 0); // Set to 00:00:00 EST (which is 05:00:00 UTC)
+    const lessonDate = submission.lessonDate;
 
     const dbSubmission = {
       teacher_id: submission.teacherId,
       class_id: submission.classId,
       file_type: submission.fileType,
-      lesson_date: estDate.toISOString(),
+      lesson_date: lessonDate,
       copies: submission.copies,
       paper_color: submission.paperColor,
       print_settings: submission.printSettings,

@@ -22,6 +22,7 @@ export type SubmissionFilters = {
   fileType?: FileType;
   status?: SubmissionStatus;
   timeFrame?: TimeFrame;
+  lessonDate?: string;
 };
 
 export type SortDirection = "asc" | "desc";
@@ -55,8 +56,8 @@ export interface Submission {
   class?: ClassEntity;
   teacher?: User;
   fileType: FileType;
-  lessonDate: Date;
-  copies: number;
+  lessonDate: string;
+  copies?: number | null;
   paperColor: PaperColor;
   notes?: string;
   status: SubmissionStatus;
@@ -69,6 +70,7 @@ export interface Submission {
     coloredCover: boolean;
   };
   files?: FileItem[];
+  isUrgent?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -106,7 +108,7 @@ export type SubmissionRow = {
   };
   file_type: FileType;
   lesson_date: string;
-  copies: number;
+  copies?: number | null;
   paper_color: PaperColor;
   notes?: string | null;
   status: SubmissionStatus;

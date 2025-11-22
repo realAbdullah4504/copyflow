@@ -147,7 +147,7 @@ export default function Header({
                 )}
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-80 p-0" align="end" forceMount>
+            <DropdownMenuContent className="w-[calc(100vw-2rem)] sm:w-80 p-0" align="end" sideOffset={8} collisionPadding={16} forceMount>
               <div className="flex items-center justify-between px-4 py-2 border-b">
                 <h3 className="text-sm font-semibold">Notifications</h3>
                 {unreadCount > 0 && (
@@ -161,7 +161,7 @@ export default function Header({
                   </Button>
                 )}
               </div>
-              <ScrollArea className="max-h-[400px] overflow-y-auto">
+              <ScrollArea className="max-h-[60vh] sm:max-h-[400px] overflow-y-auto">
                 {isLoading ? (
                   <div className="flex items-center justify-center p-4">
                     <Loader2 className="h-5 w-5 animate-spin" />
@@ -200,13 +200,6 @@ export default function Header({
                   </div>
                 )}
               </ScrollArea>
-              {notifications && notifications.length > 0 && (
-                <div className="p-2 border-t text-center">
-                  <Button variant="ghost" size="sm" className="w-full">
-                    View all notifications
-                  </Button>
-                </div>
-              )}
             </DropdownMenuContent>
           </DropdownMenu>
 

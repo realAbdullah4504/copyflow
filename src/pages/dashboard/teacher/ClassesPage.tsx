@@ -1,75 +1,19 @@
 import { ROLES } from "@/config/roles";
-import {
-  useClassesByTeacher,
-  useClassMutations,
-  useModal,
-  useAuth,
-} from "@/hooks";
-import type { ClassEntity } from "@/types";
-import {
-  ClassesTable,
-  ClassModal,
-  getClassColumns,
-} from "@/components/classes";
+import { useClassesByTeacher, useAuth } from "@/hooks";
+import { ClassesTable, getClassColumns } from "@/components/classes";
 import { PageHeader } from "@/components/common";
 
 const ClassesPage = () => {
   const { user } = useAuth();
   const { classes, isLoading } = useClassesByTeacher(user?.id || "");
-  const { deleteClass, toggleActive,toggleLoading,deleteLoading } = useClassMutations();
-  const { modal, openModal, closeModal } = useModal<ClassEntity>();
 
-  const handleAction = (action: string, row: ClassEntity) => {
-    openModal(action, row);
-  };
-
-  const columns = getClassColumns({
-    onEdit: (row) => handleAction("editClass", row),
-    onToggle: (row) => handleAction("toggleActive", row),
-    onDelete: (row) => handleAction("deleteClass", row),
-  });
-
-  const handleDeleteConfirm = () => {
-    if (!modal.data) return;
-    deleteClass(modal.data.id, {
-      onSuccess: () => {
-        closeModal();
-      },
-    });
-  };
-
-  const handleToggleActiveConfirm = () => {
-    if (!modal.data) return;
-    toggleActive(modal.data.id, {
-      onSuccess: () => {
-        closeModal();
-      },
-    });
-  };
+  const columns = getClassColumns();
 
   return (
     <>
-      <PageHeader
-        title="My Classes"
-        role={ROLES.TEACHER}
-        buttonTitle="New Class"
-        sideAction={() => openModal("newClass")}
-      />
+      <PageHeader title="My Classes" role={ROLES.TEACHER} />
 
       <ClassesTable data={classes} columns={columns} isLoading={isLoading} />
-
-      <ClassModal
-        data={modal.data}
-        type={modal.type}
-        open={modal.isOpen}
-        onOpenChange={closeModal}
-        onClose={closeModal}
-        isSubmitting={toggleLoading || deleteLoading}
-        handlers={{
-          onDeleteConfirm: handleDeleteConfirm,
-          onToggleActiveConfirm: handleToggleActiveConfirm,
-        }}
-      />
     </>
   );
 };

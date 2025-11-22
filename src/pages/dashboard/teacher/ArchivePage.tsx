@@ -4,6 +4,7 @@ import {
   SubmissionModal,
   SubmissionTable,
 } from "@/components/submissions";
+import { ARCHIVE_ALLOWED_ACTIONS, getAllowedActions } from "@/config";
 import { ROLES } from "@/config/roles";
 import {
   useArchiveSubmissionsByTeacher,
@@ -34,7 +35,22 @@ export default function TeacherArchivePage() {
   const { modal, openModal, closeModal } = useModal<Submission>();
   const handleAction = (action: string, row: Submission) =>
     openModal(action, row);
-  const columns = getArchiveColumns(ROLES.TEACHER, handleAction);
+
+  const handleRowClick = (row: Submission) => {
+    if (allowedActions.includes("view")) {
+      openModal("view", row);
+    }
+  };
+  
+  const allowedActions = getAllowedActions(
+    ARCHIVE_ALLOWED_ACTIONS,
+    ROLES.TEACHER
+  );
+  const columns = getArchiveColumns(
+    ROLES.TEACHER,
+    allowedActions as string[],
+    handleAction
+  );
   return (
     <>
       <PageHeader title="Archive Submissions" role={ROLES.TEACHER} />
@@ -49,6 +65,7 @@ export default function TeacherArchivePage() {
         onPaginationChange={setPagination}
         onColumnFiltersChange={setColumnFilters}
         onSortingChange={setSorting}
+        onRowClick={handleRowClick}
         showFilters
         showPagination
         showSorting
@@ -59,7 +76,6 @@ export default function TeacherArchivePage() {
         open={modal.isOpen}
         onOpenChange={closeModal}
         onClose={closeModal}
-        handlers={{}}
       />
     </>
   );

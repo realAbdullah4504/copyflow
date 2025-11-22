@@ -6,6 +6,21 @@ import type {
   FileItem,
 } from "@/types";
 
+function isSubmissionUrgent(lessonDate: string): boolean {
+  const today = new Date();
+  const submissionDate = new Date(lessonDate);
+
+  // Reset times to midnight for comparison
+  today.setHours(0, 0, 0, 0);
+  submissionDate.setHours(0, 0, 0, 0);
+
+  const diffDays =
+    (submissionDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24);
+
+  // Check if it's today (0) or tomorrow (1)
+  return diffDays >= 0 && diffDays <= 1;
+}
+
 export function buildClassLabel(c: { subject: string; grade: string }) {
   return `Grade ${c.grade} - ${c.subject}`;
 }
@@ -38,13 +53,14 @@ export function mapSubmissionRow(s: unknown): Submission {
       active: row.teacher.active,
     } as User,
     fileType: row.file_type,
-    lessonDate: new Date(row.lesson_date),
+    lessonDate: row.lesson_date,
     copies: row.copies,
     paperColor: row.paper_color,
     notes: row.notes ?? undefined,
     status: row.status,
     printSettings: row.print_settings,
     files,
+    isUrgent: isSubmissionUrgent(row.lesson_date),
     createdAt: new Date(row.created_at),
     updatedAt: new Date(row.updated_at),
   };

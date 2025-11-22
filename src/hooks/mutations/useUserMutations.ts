@@ -7,20 +7,25 @@ import { showPasswordToast } from "@/components/users/PasswordToast";
 
 export const useUserMutations = () => {
   const createUser = useMutation({
-    mutationFn: (user: Omit<User, "id" | "createdAt" | "updatedAt">) => 
-      userService.createUser(user),
+    mutationFn: ({
+      user,
+      adminId,
+    }: {
+      user: Omit<User, "id" | "createdAt" | "updatedAt">;
+      adminId: string;
+    }) => userService.createUser({ user, adminId }),
     ...mutationHandlers({
       successMessage: "User created successfully",
-      invalidateKeys: [QUERY_KEYS.USERS,QUERY_KEYS.TEACHERS],
+      invalidateKeys: [QUERY_KEYS.USERS, QUERY_KEYS.TEACHERS],
     }),
   });
 
   const updateUser = useMutation({
-    mutationFn: ({ id, ...updates }: { id: string } & Partial<User>) => 
+    mutationFn: ({ id, ...updates }: { id: string } & Partial<User>) =>
       userService.updateUser(id, updates),
     ...mutationHandlers({
       successMessage: "User updated successfully",
-      invalidateKeys: [QUERY_KEYS.USERS,QUERY_KEYS.TEACHERS],
+      invalidateKeys: [QUERY_KEYS.USERS, QUERY_KEYS.TEACHERS],
     }),
   });
 
@@ -28,7 +33,7 @@ export const useUserMutations = () => {
     mutationFn: (id: string) => userService.deleteUser(id),
     ...mutationHandlers({
       successMessage: "User deleted successfully",
-      invalidateKeys: [QUERY_KEYS.USERS,QUERY_KEYS.TEACHERS],
+      invalidateKeys: [QUERY_KEYS.USERS, QUERY_KEYS.TEACHERS],
     }),
   });
 

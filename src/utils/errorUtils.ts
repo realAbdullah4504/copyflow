@@ -26,11 +26,11 @@ import {
     static async from(error: unknown): Promise<AppError> {
       // Supabase Function error
       if (error instanceof FunctionsHttpError) {
-        type FnErrorResponse = { error?: string; status?: number; code?: string };
+        type FnErrorResponse = { message?: string; status?: number; code?: string };
         const data = (await error.context.json().catch(() => ({}))) as FnErrorResponse;
   
         return new AppError(
-          data.error || "Supabase function error occurred.",
+          data.message ||  "Supabase function error occurred.",
           data.status || 400,
           data,
           data.code

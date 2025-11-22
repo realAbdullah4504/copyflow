@@ -3,11 +3,11 @@ import type { CreateUserResponse, GetUsersResponse, User } from "@/types";
 import { AppError } from "@/utils/errorUtils";
 
 export const userService = {
-  getUsers: async (): Promise<GetUsersResponse> => {
+  getUsers: async (adminId?: string): Promise<GetUsersResponse> => {
     const { data, error } = await supabase
       .from("profiles")
       .select()
-      .neq("role", "admin")
+      .eq("admin_id", adminId)
       .order("created_at", { ascending: false });
     if (error) {
       const appError = await AppError.from(error);
@@ -19,8 +19,12 @@ export const userService = {
       total: data.length,
     };
   },
-  getTeachers: async (status?: boolean): Promise<User[]> => {
-    const query = supabase.from("profiles").select().eq("role", "teacher");
+  getTeachers: async (adminId: string, status?: boolean): Promise<User[]> => {
+    const query = supabase
+      .from("profiles")
+      .select()
+      .eq("role", "teacher")
+      .eq("admin_id", adminId);
     if (status !== undefined) {
       query.eq("active", status);
     }
@@ -34,11 +38,15 @@ export const userService = {
     return data;
   },
 
-  createUser: async (
-    user: Omit<User, "id" | "createdAt" | "updatedAt">
-  ): Promise<CreateUserResponse> => {
+  createUser: async ({
+    user,
+    adminId,
+  }: {
+    user: Omit<User, "id" | "createdAt" | "updatedAt">;
+    adminId: string;
+  }): Promise<CreateUserResponse> => {
     const { data, error } = await supabase.functions.invoke("create-user", {
-      body: user,
+      body: { ...user, adminId },
     });
     if (error) {
       const appError = await AppError.from(error);
@@ -73,23 +81,31 @@ export const userService = {
   },
 
   deleteUser: async (id: string): Promise<void> => {
-    const { error } = await supabase.from("profiles").delete().eq("id", id);
+    const { error } = await supabase.functions.invoke("delete-user", {
+      body: { userId: id },
+      method: "DELETE",
+    });
     if (error) {
       const appError = await AppError.from(error);
       throw appError;
     }
   },
 
-  requestPasswordReset: async (userId: string): Promise<{ temporaryPassword: string }> => {
-    const { data, error } = await supabase.functions.invoke("reset-user-password", {
-      body: { userId },
-    });
-    
+  requestPasswordReset: async (
+    userId: string
+  ): Promise<{ temporaryPassword: string }> => {
+    const { data, error } = await supabase.functions.invoke(
+      "reset-user-password",
+      {
+        body: { userId },
+      }
+    );
+
     if (error) {
       const appError = await AppError.from(error);
       throw appError;
     }
-    
+
     return { temporaryPassword: data.temporaryPassword };
   },
 };

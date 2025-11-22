@@ -1,6 +1,13 @@
 import { supabase } from "@/lib/supabaseClient";
-import type { ClassEntity, CreateClassInput } from "@/types";
+import type {
+  ClassEntity,
+  ClassEntityV2,
+  CreateClassInput,
+  GradeLevel,
+  User,
+} from "@/types";
 import { AppError } from "@/utils";
+import { mapClassesData } from "./helpers/classesMappers";
 
 export const classesService = {
   async getByTeacher(
@@ -42,10 +49,39 @@ export const classesService = {
     }));
   },
 
-  async create(
-    data: CreateClassInput
-  ): Promise<ClassEntity> {
+  async getTeachersByGrade(
+    grade: GradeLevel,
+    adminId: string
+  ): Promise<ClassEntityV2[]> {
+    const { data: teachers, error } = await supabase
+      .from("profiles")
+      .select("id")
+      .eq("role", "teacher")
+      .eq("admin_id", adminId);
 
+    if (!teachers) {
+      throw await AppError.from(error);
+    }
+
+    const teacherIds = teachers.map((t) => t.id);
+
+    const { data: classes } = await supabase
+      .from("classes")
+      .select("*, teacher:teacher_id(id, name, email, role,admin_id,active)")
+      .eq("grade", grade)
+      .in("teacher_id", teacherIds)
+      .order("created_at", { ascending: false });
+
+    if (!classes) {
+      throw await AppError.from(error);
+    }
+
+    const mapped = classes.map(mapClassesData);
+
+    return mapped;
+  },
+
+  async create(data: CreateClassInput): Promise<ClassEntity> {
     const insertData = {
       teacher_id: data.teacherId,
       subject: data.subject,
@@ -86,7 +122,6 @@ export const classesService = {
     id: string,
     updates: Partial<ClassEntity>
   ): Promise<ClassEntity> {
-
     const updateData = {
       ...(updates.teacherId !== undefined && { teacher_id: updates.teacherId }),
       ...(updates.subject !== undefined && { subject: updates.subject }),

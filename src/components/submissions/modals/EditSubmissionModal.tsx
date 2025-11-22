@@ -8,7 +8,12 @@ import {
 import { z } from "zod";
 import { useSubmissionMutations } from "@/hooks/mutations";
 import { getSubmissionFields, submissionFormSchema } from "../fields";
-import { useTeachers, useClassesByTeacher, useAuth, useCreateNotification } from "@/hooks";
+import {
+  useTeachers,
+  useClassesByTeacher,
+  useAuth,
+  useCreateNotification,
+} from "@/hooks";
 import type {
   CreateSubmissionInput,
   FileType,
@@ -22,6 +27,7 @@ import { getChangedFields, getFileDiff } from "@/utils";
 import { generateSubmissionPDF } from "@/utils/generateSubmissionPDF";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 
 interface EditSubmissionModalProps {
   readonly open: boolean;
@@ -43,8 +49,9 @@ const EditSubmissionModal = ({
       teacherId: submission?.teacherId,
       classId: submission?.classId,
       fileType: submission?.fileType,
-      lessonDate: format(submission?.lessonDate || new Date(), "yyyy-MM-dd"),
-      copies: Number(submission?.copies),
+      lessonDate:
+        submission?.lessonDate,
+      copies: Number(submission?.copies) || null,
       paperColor: submission?.paperColor || "white",
       printSettings: {
         doubleSided: submission?.printSettings?.doubleSided || false,
@@ -60,11 +67,12 @@ const EditSubmissionModal = ({
     mode: "onChange",
   });
   const active = true;
-  const { teachers } = useTeachers();
+  const { user } = useAuth();
+  const adminId = user?.adminId;
+  const role = user?.role;
+  const { teachers } = useTeachers(adminId!, active);
   const { classes } = useClassesByTeacher(form.watch("teacherId"), active);
   const { createNotification } = useCreateNotification();
-  const { user } = useAuth();
-  const role = user?.role;
 
   const onSubmit = async (values: z.infer<typeof submissionFormSchema>) => {
     if (!submission) throw new Error("Submission not found");
@@ -82,13 +90,23 @@ const EditSubmissionModal = ({
       originalFiles
     );
 
+    // Runtime safeguard: only allow PDF uploads for newly added files
+    const hasNonPdfNewFile = newFiles.some((f) =>
+      "file" in f ? !f.file.name.toLowerCase().endsWith(".pdf") : false
+    );
+
+    if (hasNonPdfNewFile) {
+      toast.error("Only PDF files are allowed.");
+      return;
+    }
+
     // 2️⃣ Prepare update fields (specific to this form)
     const updates = {
       teacherId: values.teacherId,
       classId: values.classId,
       fileType: values.fileType as FileType,
-      lessonDate: new Date(values.lessonDate),
-      copies: values.copies,
+      lessonDate: values.lessonDate,
+      copies: values.copies || null,
       paperColor: values.paperColor as PaperColor,
       printSettings: values.printSettings,
       notes: values.notes ?? "",
@@ -100,6 +118,7 @@ const EditSubmissionModal = ({
       submission,
       Object.keys(updates) as (keyof CreateSubmissionInput)[]
     );
+    console.log(isFormChanged)
     const isFileChanged = newFiles.length > 0 || deletedFiles.length > 0;
 
     if (!isFormChanged && !isFileChanged) {

@@ -29,6 +29,7 @@ interface SubmissionTableProps {
   showFilters?: boolean;
   showPagination?: boolean;
   showSorting?: boolean;
+  onRowClick?: (row: Submission) => void;
 }
 
 const SubmissionTable = ({
@@ -45,6 +46,7 @@ const SubmissionTable = ({
   showFilters = false,
   showPagination = true,
   showSorting = false,
+  onRowClick,
 }: SubmissionTableProps) => {
   const tableData = useMemo(
     () => (total ? data.slice(0, total) : data),
@@ -82,6 +84,7 @@ const SubmissionTable = ({
         columns={columns}
         isLoading={isLoading}
         showSorting={showSorting}
+        onRowClick={onRowClick}
       />
       {showPagination && pagination && onPaginationChange && (
         <PaginationControls table={table} />

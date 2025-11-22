@@ -5,7 +5,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import type { FileType, Submission, SubmissionStatus } from "@/types";
+import type { FileType, Submission} from "@/types";
 import { useMemo } from "react";
 import type { Table } from "@tanstack/react-table";
 
@@ -97,6 +97,26 @@ const SubmissionFilters = ({ table, data }: SubmissionFiltersProps) => {
               {t.replace("_", " ")}
             </SelectItem>
           ))}
+        </SelectContent>
+      </Select>
+
+      <Select
+        value={
+          (table.getColumn("lessonDate")?.getFilterValue() as string) ?? ""
+        }
+        onValueChange={(v) =>
+          setColumnValue("lessonDate", v || undefined)
+        }
+      >
+        <SelectTrigger className="w-full">
+          <SelectValue placeholder="Lesson Date" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">All Dates</SelectItem>
+          <SelectItem value="today">Today</SelectItem>
+          <SelectItem value="7d">Last 7 days</SelectItem>
+          <SelectItem value="30d">Last 30 days</SelectItem>
+          <SelectItem value="this_month">This month</SelectItem>
         </SelectContent>
       </Select>
 

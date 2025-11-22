@@ -11,6 +11,7 @@ export const QUERY_KEYS = {
   TEACHER_ARCHIVED: "archived:teacher",
   CLASSES: "classes",
   TEACHER_CLASSES: "classes:teacher",
+  TEACHERS_BY_GRADE: "teachers:grade",
   NOTIFICATIONS: "notifications",
 } as const;
 

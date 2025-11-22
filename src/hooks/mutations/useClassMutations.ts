@@ -10,7 +10,7 @@ export const useClassMutations = () => {
     mutationFn: (data: CreateClassInput) => classesService.create(data),
     ...mutationHandlers({
       successMessage: "Class Created",
-      invalidateKeys: [QUERY_KEYS.TEACHER_CLASSES],
+      invalidateKeys: [QUERY_KEYS.TEACHERS_BY_GRADE],
     }),
   });
 
@@ -24,7 +24,7 @@ export const useClassMutations = () => {
     }) => classesService.update(id, updates),
     ...mutationHandlers({
       successMessage: "Class Updated",
-      invalidateKeys: [QUERY_KEYS.TEACHER_CLASSES],
+      invalidateKeys: [QUERY_KEYS.TEACHERS_BY_GRADE],
     }),
   });
 
@@ -32,7 +32,7 @@ export const useClassMutations = () => {
     mutationFn: (id: string) => classesService.toggleActive(id),
     ...mutationHandlers({
       successMessage: "Class Status Updated",
-      invalidateKeys: [QUERY_KEYS.TEACHER_CLASSES],
+      invalidateKeys: [QUERY_KEYS.TEACHERS_BY_GRADE],
     }),
   });
 
@@ -40,7 +40,7 @@ export const useClassMutations = () => {
     mutationFn: (id: string) => classesService.delete(id),
     ...mutationHandlers({
       successMessage: "Class Deleted",
-      invalidateKeys: [QUERY_KEYS.TEACHER_CLASSES],
+      invalidateKeys: [QUERY_KEYS.TEACHERS_BY_GRADE],
     }),
   });
 

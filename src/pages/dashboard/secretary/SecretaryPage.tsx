@@ -10,8 +10,10 @@ import {
 import {
   useAllSubmissions,
   useArchivedSubmissions,
+  useAuth,
   useCensoredSubmissions,
 } from "@/hooks";
+import type { SubmissionFilters } from "@/types";
 
 type StatsCardProps = {
   title: string;
@@ -59,12 +61,26 @@ const StatsCard = ({
   );
 };
 const SecretaryPage = () => {
-  const { submissions, isLoading: isLoadingSubmissions } = useAllSubmissions();
+  const { user } = useAuth();
+  const adminId = user?.adminId;
+  const filters: SubmissionFilters = {
+    timeFrame: "7d",
+  };
+  const { submissions, isLoading: isLoadingSubmissions } = useAllSubmissions(
+    adminId!,
+    {
+      filters,
+    }
+  );
 
   const { submissions: censoredSubmissions, isLoading: isLoadingCensored } =
-    useCensoredSubmissions();
+    useCensoredSubmissions(adminId!, {
+      filters,
+    });
   const { submissions: archivedSubmissions, isLoading: isLoadingArchived } =
-    useArchivedSubmissions();
+    useArchivedSubmissions(adminId!, {
+      filters,
+    });
 
   if (isLoadingSubmissions || isLoadingCensored || isLoadingArchived) {
     return (
@@ -99,10 +115,11 @@ const SecretaryPage = () => {
 
   return (
     <div className="container mx-auto p-6 space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="space-y-1">
         <h1 className="text-3xl font-bold tracking-tight">
           Secretary Dashboard
         </h1>
+        <p className="text-sm text-muted-foreground">Showing data from the last 7 days</p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">

@@ -12,4 +12,5 @@ export interface User {
   email: string;
   role: UserRole;
   active: boolean;
+  adminId?: string | null;
 }

@@ -13,6 +13,11 @@ import {
   useSubmissionMutations,
   useCreateNotification,
 } from "@/hooks";
+import {
+  getAllowedActions,
+  SUBMISSION_ALLOWED_ACTIONS,
+  submissionPolicy,
+} from "@/config";
 
 const SubmissionPage = () => {
   const { user } = useAuth();
@@ -22,6 +27,7 @@ const SubmissionPage = () => {
   const { createNotification } = useCreateNotification();
   const { deleteSubmission, deleteLoading } = useSubmissionMutations();
   const { modal, openModal, closeModal } = useModal<Submission>();
+  const policy = submissionPolicy(ROLES.TEACHER);
 
   const handleDeleteConfirm = () => {
     if (!modal.data) return;
@@ -42,7 +48,23 @@ const SubmissionPage = () => {
   const handleAction = (action: string, row: Submission) => {
     openModal(action, row);
   };
-  const columns = getSubmissionColumns(ROLES.TEACHER, handleAction);
+
+  const handleRowClick = (row: Submission) => {
+    if (policy.canViewSubmission()) {
+      openModal("view", row);
+    }
+  };
+
+  const allowedActions = getAllowedActions(
+    SUBMISSION_ALLOWED_ACTIONS,
+    ROLES.TEACHER
+  );
+
+  const columns = getSubmissionColumns(
+    ROLES.TEACHER,
+    allowedActions as string[],
+    handleAction
+  );
   return (
     <>
       <PageHeader
@@ -56,6 +78,7 @@ const SubmissionPage = () => {
         columns={columns}
         isLoading={isLoading}
         total={total}
+        onRowClick={handleRowClick}
       />
       <SubmissionModal
         data={modal.data}
@@ -64,7 +87,11 @@ const SubmissionPage = () => {
         onOpenChange={closeModal}
         onClose={closeModal}
         teacherId={user?.id || ""}
-        isSubmitting={deleteLoading}
+        isSubmitting={{
+          deleteLoading,
+          censorLoading: false,
+          printedLoading: false,
+        }}
         handlers={{
           onDeleteConfirm: handleDeleteConfirm,
         }}

@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Edit3, Trash2, CheckCircle, XCircle } from "lucide-react";
-import type { ClassEntity } from "@/types";
+import type { ClassEntity, ClassEntityV2 } from "@/types";
 import {
   Tooltip,
   TooltipContent,
@@ -10,10 +10,10 @@ import {
 import { cn } from "@/lib/utils";
 
 interface ClassActionCellProps {
-  row: ClassEntity;
-  onEdit?: (row: ClassEntity) => void;
-  onToggle?: (row: ClassEntity) => void;
-  onDelete?: (row: ClassEntity) => void;
+  row: ClassEntityV2;
+  onEdit?: (row: ClassEntityV2) => void;
+  onToggle?: (row: ClassEntityV2) => void;
+  onDelete?: (row: ClassEntityV2) => void;
 }
 
 const ClassActionCell = ({

@@ -11,9 +11,11 @@ import {
 import {
   useAllSubmissions,
   useArchivedSubmissions,
+  useAuth,
   useCensoredSubmissions,
   useTeachers,
 } from "@/hooks";
+import type { SubmissionFilters } from "@/types";
 
 type StatsCardProps = {
   title: string;
@@ -63,17 +65,32 @@ const StatsCard = ({
 
 export default function AdminDashboardPage() {
   const activeTeachers = true;
-  const { submissions, isLoading: isLoadingSubmissions } = useAllSubmissions();
+  const { user } = useAuth();
+  const filters: SubmissionFilters = {
+    timeFrame: "7d",
+  };
+  const { submissions, isLoading: isLoadingSubmissions } = useAllSubmissions(
+    user!.id,
+    {
+      filters
+    }
+  );
   const {
     submissions: archivedSubmissions,
     isLoading: isLoadingArchivedSubmissions,
-  } = useArchivedSubmissions();
+  } = useArchivedSubmissions(user!.id,{
+    filters
+  });
   const {
     submissions: censoredSubmissions,
     isLoading: isLoadingCensoredSubmissions,
-  } = useCensoredSubmissions();
-  const { teachers, isLoading: isLoadingTeachers } =
-    useTeachers(activeTeachers);
+  } = useCensoredSubmissions(user!.id,{
+    filters
+  });
+  const { teachers, isLoading: isLoadingTeachers } = useTeachers(
+    user!.id,
+    activeTeachers
+  );
 
   if (
     isLoadingSubmissions ||
@@ -132,8 +149,11 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="container mx-auto p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold tracking-tight">Admin Dashboard</h1>
+      <div className="space-y-1">
+        <h1 className="text-3xl font-bold tracking-tight">
+          Admin Dashboard
+        </h1>
+        <p className="text-sm text-muted-foreground">Showing data from the last 7 days</p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

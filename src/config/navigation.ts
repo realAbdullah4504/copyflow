@@ -34,17 +34,44 @@ const TEACHER_NAV_ITEMS: NavItem[] = [
 ];
 
 const SECRETARY_NAV_ITEMS: NavItem[] = [
+  // {
+  //   title: "Dashboard",
+  //   href: "/dashboard/secretary",
+  //   icon: LayoutDashboard,
+  //   roles: [ROLES.SECRETARY],
+  // },
   {
-    title: "Dashboard",
+    title: "Submissions",
     href: "/dashboard/secretary",
-    icon: LayoutDashboard,
+    icon: FileText,
     roles: [ROLES.SECRETARY],
   },
   {
-    title: "Submissions",
-    href: "/dashboard/secretary/submissions",
-    icon: FileText,
+    title: "Classes",
+    icon: GraduationCap,
     roles: [ROLES.SECRETARY],
+    children: [
+      {
+        title: "9th Grade",
+        href: "/dashboard/secretary/classes/9",
+        roles: [ROLES.SECRETARY],
+      },
+      {
+        title: "10th Grade",
+        href: "/dashboard/secretary/classes/10",
+        roles: [ROLES.SECRETARY],
+      },
+      {
+        title: "11th Grade",
+        href: "/dashboard/secretary/classes/11",
+        roles: [ROLES.SECRETARY],
+      },
+      {
+        title: "12th Grade",
+        href: "/dashboard/secretary/classes/12",
+        roles: [ROLES.SECRETARY],
+      },
+    ],
   },
   {
     title: "Censored Submissions",
@@ -72,6 +99,33 @@ const ADMIN_NAV_ITEMS: NavItem[] = [
     href: "/dashboard/admin/submissions",
     icon: FileText,
     roles: [ROLES.ADMIN],
+  },
+  {
+    title: "Classes",
+    icon: GraduationCap,
+    roles: [ROLES.ADMIN],
+    children: [
+      {
+        title: "9th Grade",
+        href: "/dashboard/admin/classes/9",
+        roles: [ROLES.ADMIN],
+      },
+      {
+        title: "10th Grade",
+        href: "/dashboard/admin/classes/10",
+        roles: [ROLES.ADMIN],
+      },
+      {
+        title: "11th Grade",
+        href: "/dashboard/admin/classes/11",
+        roles: [ROLES.ADMIN],
+      },
+      {
+        title: "12th Grade",
+        href: "/dashboard/admin/classes/12",
+        roles: [ROLES.ADMIN],
+      },
+    ],
   },
   {
     title: "User Management",

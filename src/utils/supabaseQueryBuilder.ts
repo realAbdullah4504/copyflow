@@ -6,7 +6,7 @@ export function applyFilters(
 ) {
   if (!filters) return query;
 
-  const { class: classFilter, fileType, status, timeFrame } = filters;
+  const { class: classFilter, fileType, status, timeFrame,lessonDate } = filters;
 
   if (classFilter) {
     query = query.eq("class_id", classFilter);
@@ -40,6 +40,30 @@ export function applyFilters(
     }
 
     if (from) query = query.gte("created_at", from.toISOString());
+  }
+
+  if (lessonDate && lessonDate !== "all") {
+    const now = new Date();
+    let from: Date | null = null;
+
+    switch (lessonDate) {
+      case "today":
+        from = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        break;
+      case "7d":
+        from = new Date(now);
+        from.setDate(from.getDate() - 7);
+        break;
+      case "30d":
+        from = new Date(now);
+        from.setDate(from.getDate() - 30);
+        break;
+      case "this_month":
+        from = new Date(now.getFullYear(), now.getMonth(), 1);
+        break;
+    }
+
+    if (from) query = query.gte("lesson_date", from.toISOString());
   }
 
   return query;

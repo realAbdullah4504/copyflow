@@ -4,10 +4,7 @@ import ActionCell from "../cells/ActionCell";
 import type { Role } from "@/config";
 import { StatusBadge } from "../ui/status-badge";
 import { SUBMISSION_ACTION_CONFIG } from "../actions";
-import {
-  getAllowedActions,
-  SUBMISSION_ALLOWED_ACTIONS,
-} from "@/config/permissions";
+import { AlertTriangle } from "lucide-react";
 
 const ROLE_COLUMNS: Record<Role, ColumnDef<Submission>[]> = {
   admin: [
@@ -46,13 +43,29 @@ const ROLE_COLUMNS: Record<Role, ColumnDef<Submission>[]> = {
 
 export const getSubmissionColumns = (
   role: Role,
+  allowedActions: string[],
   onAction?: (action: string, row: Submission) => void
 ): ColumnDef<Submission>[] => {
-  const actions = getAllowedActions(SUBMISSION_ALLOWED_ACTIONS, role);
   const config = SUBMISSION_ACTION_CONFIG;
-  const hasActions = Array.isArray(actions) && actions.length > 0;
+  const hasActions = Array.isArray(allowedActions) && allowedActions.length > 0;
 
   const baseColumns: ColumnDef<Submission>[] = [
+    {
+      id: "urgency",
+      header: "",
+      cell: ({ row }) => {
+        const isUrgent = row.original.isUrgent;
+        if (!isUrgent) return null;
+        return (
+          <div className="flex items-center justify-center">
+            <AlertTriangle className="h-4 w-4 text-amber-500" />
+          </div>
+        );
+      },
+      size: 20,
+      enableSorting: true,
+      sortDescFirst: true,
+    },
     ...(ROLE_COLUMNS[role] ?? []),
     {
       accessorKey: "class",
@@ -80,9 +93,35 @@ export const getSubmissionColumns = (
       },
     },
     {
+      accessorKey: "lessonDate",
+      header: "Lesson Date",
+      cell: ({ getValue }) => {
+        const val = getValue<string>();
+        if (!val) return "";
+        const date = new Date(val);
+        // Format as MM/DD/YYYY
+        return date.toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+        });
+      },
+      enableSorting: false,
+    },
+    {
       accessorKey: "createdAt",
       header: "Created",
-      cell: ({ getValue }) => new Date(getValue<string>()).toLocaleString(),
+      cell: ({ getValue }) => {
+        const val = getValue<string>();
+        if (!val) return "";
+        const date = new Date(val);
+        // Format as MM/DD/YYYY
+        return date.toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+        });
+      },
     },
   ];
 
@@ -92,7 +131,7 @@ export const getSubmissionColumns = (
       header: "Actions",
       cell: ({ row }) => (
         <ActionCell
-          actions={actions as string[]}
+          actions={allowedActions}
           actionsConfig={config}
           rowData={row.original}
           onAction={onAction}

@@ -89,6 +89,7 @@ export const authService = {
       name: name,
       role: "admin",
       active: true,
+      adminId: data.user.id,
     };
 
     return { user };
@@ -148,6 +149,7 @@ export const authService = {
       name: profile.name,
       role: profile.role,
       active: profile.active,
+      adminId: profile.admin_id,
     };
 
     return { user };
@@ -184,6 +186,7 @@ export const authService = {
       name: profile.name,
       role: profile.role,
       active: profile.active,
+      adminId: profile.admin_id,
     };
 
     return { user };

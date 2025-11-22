@@ -3,14 +3,20 @@ import { submissionService } from "../../services/submissionService";
 import { QUERY_KEYS } from "@/config";
 import type { SubmissionQueryParams } from "@/types";
 
-export const useArchivedSubmissions = (params?: SubmissionQueryParams) => {
+export const useArchivedSubmissions = (
+  adminId: string,
+  params?: SubmissionQueryParams
+) => {
   const queryKey = params
-    ? [QUERY_KEYS.ARCHIVED_SUBMISSIONS, params]
-    : [QUERY_KEYS.ARCHIVED_SUBMISSIONS];
+    ? [QUERY_KEYS.ARCHIVED_SUBMISSIONS, adminId, params]
+    : [QUERY_KEYS.ARCHIVED_SUBMISSIONS, adminId];
   const { data, isLoading } = useSubmissions(
     queryKey,
     async () => {
-      const data = await submissionService.getArchivedSubmissions(params);
+      const data = await submissionService.getArchivedSubmissions(
+        adminId,
+        params
+      );
       return { data: data.data, total: data.total };
     },
     {

@@ -45,20 +45,27 @@ const ActionCell: React.FC<ActionCellProps<GenericActionConfig>> = ({
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="h-8 w-8 p-0">
+        <Button
+          variant="ghost"
+          className="h-8 w-8 p-0"
+          onClick={(e) => {
+            e.stopPropagation();
+          }}
+        >
           <MoreHorizontal className="h-4 w-4" />
           <span className="sr-only">Open menu</span>
         </Button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent align="end">
+      <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
         {filteredActions.map((action) => {
           const { icon: Icon, label } = getActionMeta(actionsConfig, action);
           const danger = action === "delete";
           return (
             <DropdownMenuItem
               key={action}
-              onClick={() => {
+              onClick={(e) => {
+                e.stopPropagation();
                 setOpen(false);
                 onAction?.(action, rowData);
               }}

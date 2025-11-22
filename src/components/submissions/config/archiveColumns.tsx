@@ -1,13 +1,8 @@
 import type { ColumnDef } from "@tanstack/react-table";
-import type { ClassEntity, Submission, SubmissionStatus, User } from "@/types";
+import type { ClassEntity, Submission, User } from "@/types";
 import ActionCell from "../cells/ActionCell";
 import type { Role } from "@/config";
-import { StatusBadge } from "../ui/status-badge";
 import { ARCHIVE_ACTION_CONFIG } from "../actions";
-import {
-  ARCHIVE_ALLOWED_ACTIONS,
-  getAllowedActions,
-} from "@/config/permissions";
 
 const ROLE_COLUMNS: Record<Role, ColumnDef<Submission>[]> = {
   admin: [
@@ -45,11 +40,11 @@ const ROLE_COLUMNS: Record<Role, ColumnDef<Submission>[]> = {
 
 export const getArchiveColumns = (
   role: Role,
+  allowedActions: string[],
   onAction?: (action: string, row: Submission) => void
 ): ColumnDef<Submission>[] => {
-  const actions = getAllowedActions(ARCHIVE_ALLOWED_ACTIONS, role);
   const config = ARCHIVE_ACTION_CONFIG;
-  const hasActions = Array.isArray(actions) && actions.length > 0;
+  const hasActions = Array.isArray(allowedActions) && allowedActions.length > 0;
 
   const baseColumns: ColumnDef<Submission>[] = [
     ...(ROLE_COLUMNS[role] ?? []),
@@ -79,9 +74,35 @@ export const getArchiveColumns = (
     //   },
     // },
     {
+      accessorKey: "lessonDate",
+      header: "Lesson Date",
+      cell: ({ getValue }) => {
+        const val = getValue<string>();
+        if (!val) return "";
+        const date = new Date(val);
+        // Format as MM/DD/YYYY
+        return date.toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+        });
+      },
+      enableSorting: false,
+    },
+    {
       accessorKey: "createdAt",
       header: "Created",
-      cell: ({ getValue }) => new Date(getValue<string>()).toLocaleString(),
+      cell: ({ getValue }) => {
+        const val = getValue<string>();
+        if (!val) return "";
+        const date = new Date(val);
+        // Format as MM/DD/YYYY
+        return date.toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+        });
+      },
     },
   ];
 
@@ -91,7 +112,7 @@ export const getArchiveColumns = (
       header: "Actions",
       cell: ({ row }) => (
         <ActionCell
-          actions={actions as string[]}
+          actions={allowedActions}
           actionsConfig={config}
           rowData={row.original}
           onAction={onAction}

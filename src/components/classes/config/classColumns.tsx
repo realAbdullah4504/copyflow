@@ -1,15 +1,8 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import type { ClassEntity } from "@/types";
-import ClassActionCell from "../cells/ClassActionCell";
 import { cn } from "@/utils";
 
-export const getClassColumns = (
-  handlers: {
-    onEdit?: (row: ClassEntity) => void;
-    onToggle?: (row: ClassEntity) => void;
-    onDelete?: (row: ClassEntity) => void;
-  } = {}
-): ColumnDef<ClassEntity>[] => {
+export const getClassColumns = (): ColumnDef<ClassEntity>[] => {
   return [
     { accessorKey: "subject", header: "Subject" },
     { accessorKey: "grade", header: "Grade" },
@@ -37,18 +30,6 @@ export const getClassColumns = (
       accessorKey: "createdAt",
       header: "Created",
       cell: ({ getValue }) => new Date(getValue<string>()).toLocaleString(),
-    },
-    {
-      id: "actions",
-      header: "Actions",
-      cell: ({ row }) => (
-        <ClassActionCell
-          row={row.original}
-          onEdit={handlers.onEdit}
-          onToggle={handlers.onToggle}
-          onDelete={handlers.onDelete}
-        />
-      ),
     },
   ];
 };

@@ -1,11 +1,12 @@
 import { cn } from "@/utils";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ChevronLeft, ChevronRight, LogOut, Menu } from "lucide-react";
+import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp, LogOut, Menu } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import type { UserRole } from "@/types";
 import { getNavForRole } from "@/config/navigation";
+import type { NavItem } from "@/types/navigation";
 
 interface SidebarProps {
   userRole: UserRole;
@@ -22,10 +23,38 @@ export default function Sidebar({
 }: SidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [openDropdowns, setOpenDropdowns] = useState<Record<string, boolean>>({});
+  const [heights, setHeights] = useState<Record<string, number>>({});
+  const dropdownRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const location = useLocation();
   const pathname = location.pathname;
 
   const navLinks = getNavForRole(userRole);
+
+  const toggleDropdown = (title: string) => {
+    setOpenDropdowns(prev => {
+      // If we're opening the dropdown, calculate its height
+      if (!prev[title] && dropdownRefs.current[title]) {
+        const height = dropdownRefs.current[title]?.scrollHeight || 0;
+        setHeights(prevHeights => ({
+          ...prevHeights,
+          [title]: height
+        }));
+      }
+      return {
+        ...prev,
+        [title]: !prev[title]
+      };
+    });
+  };
+
+  const isActive = (item: NavItem): boolean => {
+    if (item.href && pathname === item.href) return true;
+    if (item.children) {
+      return item.children.some(child => isActive(child));
+    }
+    return false;
+  };
 
   // Check if mobile on mount and on window resize
   useEffect(() => {
@@ -135,45 +164,106 @@ export default function Sidebar({
           <nav className="space-y-1">
             {navLinks.map((item) => {
               const Icon = item.icon;
-              const isActive = pathname === item.href;
+              const hasChildren = item.children && item.children.length > 0;
+              const isItemActive = isActive(item);
+              const isDropdownOpen = openDropdowns[item.title] || false;
 
-              const handleClick = () => {
+              const handleClick = (e: React.MouseEvent) => {
                 if (isMobile) {
                   setIsCollapsed(true);
+                }
+                if (hasChildren) {
+                  e.preventDefault();
+                  toggleDropdown(item.title);
                 }
               };
 
               return (
-                <Link
-                  key={item.href}
-                  to={item.href}
-                  title={isCollapsed ? item.title : undefined}
-                  onClick={handleClick}
-                >
-                  <Button
-                    variant={isActive ? "secondary" : "ghost"}
-                    className={cn(
-                      "w-full justify-start overflow-hidden transition-all duration-200",
-                      isActive && "bg-slate-200 text-slate-900",
-                      isCollapsed ? "px-2" : "px-4"
-                    )}
+                <div key={item.href || item.title} className="space-y-1">
+                  <Link
+                    to={item.href || '#'}
+                    title={isCollapsed ? item.title : undefined}
+                    onClick={handleClick}
+                    onClickCapture={(e) => hasChildren && e.preventDefault()}
                   >
-                    <Icon
+                    <Button
+                      variant={isItemActive ? "secondary" : "ghost"}
                       className={cn(
-                        "h-5 w-5 flex-shrink-0",
-                        !isCollapsed && "mr-3"
-                      )}
-                    />
-                    <span
-                      className={cn(
-                        "whitespace-nowrap transition-opacity",
-                        isCollapsed ? "opacity-0 w-0" : "opacity-100"
+                        "w-full justify-between overflow-hidden transition-all duration-200 group",
+                        isItemActive && "bg-slate-200 text-slate-900",
+                        isCollapsed ? "px-2" : "px-4"
                       )}
                     >
-                      {item.title}
-                    </span>
-                  </Button>
-                </Link>
+                      <div className="flex items-center">
+                        {Icon && (
+                          <Icon
+                            className={cn(
+                              "h-5 w-5 flex-shrink-0",
+                              !isCollapsed && "mr-3"
+                            )}
+                          />
+                        )}
+                        <span
+                          className={cn(
+                            "whitespace-nowrap transition-opacity text-left",
+                            isCollapsed ? "opacity-0 w-0" : "opacity-100"
+                          )}
+                        >
+                          {item.title}
+                        </span>
+                      </div>
+                      {hasChildren && !isCollapsed && (
+                        <span className="ml-2">
+                          {isDropdownOpen ? (
+                            <ChevronUp className="h-4 w-4" />
+                          ) : (
+                            <ChevronDown className="h-4 w-4" />
+                          )}
+                        </span>
+                      )}
+                    </Button>
+                  </Link>
+
+                  {hasChildren && !isCollapsed && (
+                    <div 
+                      ref={el => {
+                        if (el) {
+                          dropdownRefs.current[item.title] = el;
+                        }
+                      }}
+                      className={cn(
+                        'ml-6 space-y-1 mt-1 overflow-hidden transition-all duration-300 ease-in-out',
+                        isDropdownOpen ? 'opacity-100' : 'opacity-0 max-h-0'
+                      )}
+                      style={{
+                        maxHeight: isDropdownOpen ? `${heights[item.title] || 200}px` : '0px',
+                        transform: isDropdownOpen ? 'translateY(0)' : 'translateY(-10px)'
+                      }}
+                    >
+                      {item.children?.map((child) => {
+                        const isChildActive = pathname === child.href;
+                        return (
+                          <Link
+                            key={child.href}
+                            to={child.href || '#'}
+                            className="block"
+                            onClick={() => isMobile && setIsCollapsed(true)}
+                          >
+                            <Button
+                              variant={isChildActive ? "secondary" : "ghost"}
+                              className={cn(
+                                "w-full justify-start pl-8 text-sm",
+                                isChildActive && "bg-slate-100 text-slate-900"
+                              )}
+                            >
+                              {child.title}
+                            </Button>
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
               );
             })}
           </nav>

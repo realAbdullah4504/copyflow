@@ -6,7 +6,7 @@ export const submissionFormSchema = z.object({
   classId: z.string().min(1, "Class is required"),
   fileType: z.string().min(1, "File type is required"),
   lessonDate: z.string().min(1, "Lesson date is required"),
-  copies: z.number().min(1, "At least one copy is required"),
+  copies: z.number().nullable().optional(),
   paperColor: z.string().min(1, "Paper color is required"),
   printSettings: z.object({
     doubleSided: z.boolean(),
@@ -16,18 +16,20 @@ export const submissionFormSchema = z.object({
     coloredCover: z.boolean(),
     color: z.boolean(),
   }),
-  files: z.array(
-    z.union([
-      z.object({
-        existing: z.literal(true),
-        name: z.string(),
-      }),
-      z.object({
-        existing: z.literal(false),
-        file: z.instanceof(File),
-      }),
-    ])
-  ).min(1,"At least one File is required"),
+  files: z
+    .array(
+      z.union([
+        z.object({
+          existing: z.literal(true),
+          name: z.string(),
+        }),
+        z.object({
+          existing: z.literal(false),
+          file: z.instanceof(File),
+        }),
+      ])
+    )
+    .min(1, "At least one File is required"),
   notes: z.string().optional(),
 });
 
@@ -78,13 +80,6 @@ export const getSubmissionFields = (options: {
       label: type,
     })),
     placeholder: "Select file type",
-  },
-  {
-    name: "copies",
-    label: "Number of Copies",
-    type: "number" as const,
-    min: 1,
-    placeholder: "For all students (entire grade). To specify a different quantity, enter the number here",
     className: "md:col-span-1",
   },
   {
@@ -97,6 +92,13 @@ export const getSubmissionFields = (options: {
     })),
     placeholder: "Select paper color",
     className: "md:col-span-1",
+  },
+  {
+    name: "copies",
+    label: "Number of Copies",
+    type: "number" as const,
+    placeholder:
+      "For all students (entire grade). To specify a different quantity, enter the number here",
   },
   {
     name: "printSettings.doubleSided",
@@ -146,7 +148,7 @@ export const getSubmissionFields = (options: {
     label: "Upload Files",
     type: "file" as const,
     multiple: true,
-    accept: ".pdf,.doc,.docx,.jpg,.jpeg,.png",
+    accept: ".pdf",
     placeholder: "Drag and drop files here or click to browse",
     className: "md:col-span-2",
   },

@@ -13,9 +13,15 @@ import {
   useCreateNotification,
   useAuth,
 } from "@/hooks";
+import {
+  getAllowedActions,
+  SUBMISSION_ALLOWED_ACTIONS,
+  submissionPolicy,
+} from "@/config";
 
 const SecretarySubmissionsPage = () => {
-  const { submissions, total, isLoading } = useAllSubmissions();
+  const adminId = useAuth().user?.adminId;
+  const { submissions, total, isLoading } = useAllSubmissions(adminId!);
   const { createNotification } = useCreateNotification();
   const { user } = useAuth();
 
@@ -29,6 +35,7 @@ const SecretarySubmissionsPage = () => {
   } = useSubmissionMutations();
 
   const { modal, openModal, closeModal } = useModal<Submission>();
+  const permissions = submissionPolicy(ROLES.SECRETARY);
 
   const handlers = {
     onDeleteConfirm: () => {
@@ -81,7 +88,22 @@ const SecretarySubmissionsPage = () => {
   const handleAction = (action: string, row: Submission) =>
     openModal(action, row);
 
-  const columns = getSubmissionColumns(ROLES.SECRETARY, handleAction);
+  const handleRowClick = (row: Submission) => {
+    if (permissions.canViewSubmission()) {
+      openModal("view", row);
+    }
+  };
+
+  const allowedActions = getAllowedActions(
+    SUBMISSION_ALLOWED_ACTIONS,
+    ROLES.SECRETARY
+  );
+
+  const columns = getSubmissionColumns(
+    ROLES.SECRETARY,
+    allowedActions as string[],
+    handleAction
+  );
 
   return (
     <>
@@ -97,6 +119,7 @@ const SecretarySubmissionsPage = () => {
         columns={columns}
         total={total}
         isLoading={isLoading}
+        onRowClick={handleRowClick}
       />
 
       <SubmissionModal
@@ -107,7 +130,12 @@ const SecretarySubmissionsPage = () => {
         onClose={closeModal}
         handlers={handlers}
         allowTeacherSelection={!!ROLES.SECRETARY}
-        isSubmitting={deleteLoading || censorLoading || printedLoading}
+        allowedActions={allowedActions}
+        isSubmitting={{
+          deleteLoading,
+          censorLoading,
+          printedLoading,
+        }}
       />
     </>
   );

@@ -1,58 +1,83 @@
-import { RealtimeChannel } from "@supabase/supabase-js";
 import type { Notification } from "@/types";
 import { supabase } from "@/lib/supabaseClient";
 import { AppError } from "@/utils";
 
 async function getRecipientsByRole(
+  senderId: string,
   senderRole: string,
   teacherId?: string
 ): Promise<string[]> {
-  const { data: users, error } = await supabase
+  // Step 1: Fetch sender's admin_id (this is key for scoping)
+  const { data: senderData, error: senderError } = await supabase
     .from("profiles")
-    .select("id, role");
-  if (error || !users) return [];
+    .select("id, role, admin_id")
+    .eq("id", senderId)
+    .single();
+
+  if (senderError || !senderData) return [];
+
+  const adminId =
+    senderData.role === "admin"
+      ? senderData.id // If sender is an admin, use their own ID
+      : senderData.admin_id;
+
+  if (!adminId) return [];
+
+  // Step 2: Fetch all users under this admin (including admin)
+  const { data: users, error: usersError } = await supabase
+    .from("profiles")
+    .select("id, role, admin_id");
+
+  if (usersError || !users) return [];
+
+  // Filter only those who belong to the same admin scope
+  const scopedUsers = users.filter(
+    (u) => u.id === adminId || u.admin_id === adminId
+  );
 
   let recipients: string[] = [];
 
   if (senderRole === "teacher") {
-    // Teachers notify all admins and secretaries
-    recipients = users
+    // Notify the admin and secretary under same admin
+    recipients = scopedUsers
       .filter((u) => u.role === "admin" || u.role === "secretary")
       .map((u) => u.id);
   } else if (senderRole === "secretary") {
-    // Secretaries notify the specific teacher and all admins
-    const teacher = teacherId ? users.find((u) => u.id === teacherId) : null;
-    const admins = users.filter((u) => u.role === "admin").map(u => u.id);
-    
-    if (teacher) {
-      recipients.push(teacher.id);
-    }
-    recipients = [...new Set([...recipients, ...admins])]; // Ensure no duplicates
+    // Notify teacher and admin in same admin scope
+    const admins = scopedUsers
+      .filter((u) => u.role === "admin")
+      .map((u) => u.id);
+    const teacher = teacherId
+      ? scopedUsers.find((u) => u.id === teacherId)
+      : null;
+
+    if (teacher) recipients.push(teacher.id);
+    recipients = [...new Set([...recipients, ...admins])];
   } else if (senderRole === "admin") {
-    // Admins notify the secretary and/or teacher
-    const secretaries = users
+    // Notify teacher and secretary under this admin
+    const secretaries = scopedUsers
       .filter((u) => u.role === "secretary")
-      .map(u => u.id);
-      
+      .map((u) => u.id);
+
     if (teacherId) {
-      const teacher = users.find((u) => u.id === teacherId);
-      if (teacher) {
-        recipients.push(teacher.id);
-      }
+      const teacher = scopedUsers.find((u) => u.id === teacherId);
+      if (teacher) recipients.push(teacher.id);
     }
-    
-    recipients = [...new Set([...recipients, ...secretaries])]; // Ensure no duplicates
+
+    recipients = [...new Set([...recipients, ...secretaries])];
   }
 
-  // Exclude sender if somehow included
-  return recipients.filter((id) => id !== senderRole);
+  // Remove sender from recipients
+  return recipients.filter((id) => id !== senderId);
 }
+
 export const notificationService = {
   async getNotifications(userId: string): Promise<Notification[]> {
     const { data, error } = await supabase
       .from("notifications")
       .select("*")
       .eq("receiver_id", userId)
+      .limit(10)
       .order("created_at", { ascending: false });
 
     if (error) {
@@ -81,7 +106,11 @@ export const notificationService = {
     type: string,
     teacherId?: string
   ) {
-    const recipients = await getRecipientsByRole(senderRole, teacherId);
+    const recipients = await getRecipientsByRole(
+      senderId,
+      senderRole,
+      teacherId
+    );
     if (!recipients.length) return;
 
     const { error } = await supabase.from("notifications").insert(
@@ -120,28 +149,27 @@ export const notificationService = {
     }
   },
   subscribe(
-  currentUserId: string,
-  onNotificationReceived: (notification: Notification) => void
-): () => void {
-  const channel = supabase
-    .channel("notifications")
-    .on(
-      "postgres_changes",
-      {
-        event: "INSERT",
-        schema: "public",
-        table: "notifications",
-        filter: `receiver_id=eq.${currentUserId}`,
-      },
-      (payload) => {
-        onNotificationReceived(payload.new as Notification);
-      }
-    )
-    .subscribe();
+    currentUserId: string,
+    onNotificationReceived: (notification: Notification) => void
+  ): () => void {
+    const channel = supabase
+      .channel("notifications")
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "notifications",
+          filter: `receiver_id=eq.${currentUserId}`,
+        },
+        (payload) => {
+          onNotificationReceived(payload.new as Notification);
+        }
+      )
+      .subscribe();
 
-  return () => {
-    supabase.removeChannel(channel);
-  };
-}
-
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  },
 };
