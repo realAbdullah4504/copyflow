@@ -3,6 +3,7 @@ import type { Submission, SubmissionStatus, ClassEntity, User } from "@/types";
 import ActionCell from "../cells/ActionCell";
 import type { Role } from "@/config";
 import { StatusBadge } from "../ui/status-badge";
+import { format, parseISO } from "date-fns";
 import { SUBMISSION_ACTION_CONFIG } from "../actions";
 import { AlertTriangle } from "lucide-react";
 
@@ -97,14 +98,7 @@ export const getSubmissionColumns = (
       header: "Lesson Date",
       cell: ({ getValue }) => {
         const val = getValue<string>();
-        if (!val) return "";
-        const date = new Date(val);
-        // Format as MM/DD/YYYY
-        return date.toLocaleDateString("en-US", {
-          year: "numeric",
-          month: "2-digit",
-          day: "2-digit",
-        });
+        return val ? format(parseISO(val), "MM/dd/yyyy") : "";
       },
       enableSorting: false,
     },
