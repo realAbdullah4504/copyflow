@@ -8,16 +8,16 @@ export const teachers = [
 ];
 
 export const subjects = [
-  "English",
-  "Math",
+  "Writing",
+  "Grammar",
+  "First Aid",
+  "Current Issues",
   "Science",
+  "Business Math",
+  "Geography",
   "History",
-  "Computer Science",
-  "Art",
-  "Music",
-  "Physical Education",
-  "Language",
-  "Other",
+  "Literature",
+  "Vocabulary",
 ];
 
 export const grades = ["9", "10", "11", "12"];
