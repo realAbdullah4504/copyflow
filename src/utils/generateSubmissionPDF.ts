@@ -60,6 +60,9 @@ export const generateSubmissionPDF = (
     ...(data.printSettings.stapled
       ? [{ label: "  • Stapled", value: "Yes" }]
       : []),
+    ...(data.printSettings.twoStaples
+      ? [{ label: "  • Two Staples (Left Side)", value: "Yes" }]
+      : []),
     ...(data.printSettings.color ? [{ label: "  • Color", value: "Yes" }] : []),
     ...(data.printSettings.booklet
       ? [{ label: "  • Booklet", value: "Yes" }]
@@ -69,6 +72,9 @@ export const generateSubmissionPDF = (
       : []),
     ...(data.printSettings.coloredCover
       ? [{ label: "  • Colored Cover", value: "Yes" }]
+      : []),
+    ...(data.printSettings.coloredAnswerSheet
+      ? [{ label: "  • Colored Answer Sheet", value: "Yes" }]
       : []),
     { label: "Notes", value: data.notes || "No notes provided" },
     { label: "Files", value: `${files.length} file(s) attached` },
@@ -81,12 +87,22 @@ export const generateSubmissionPDF = (
       yPosition = 20;
     }
 
+    // Calculate dynamic positions so long labels don't overlap values
+    const labelText = `${item.label}:`;
+    const labelX = 20;
+    const maxPageWidth = 190; // keep some right margin
+
+    // Measure label width and place value text after the label
     doc.setFont("helvetica", "bold");
-    doc.text(`${item.label}:`, 20, yPosition);
+    const labelWidth = doc.getTextWidth(labelText);
+    doc.text(labelText, labelX, yPosition);
+
+    const valueX = labelX + labelWidth + 4; // 4pt gap between label and value
+    const availableWidth = Math.max(40, maxPageWidth - valueX); // ensure a minimum width
 
     doc.setFont("helvetica", "normal");
-    const text = doc.splitTextToSize(item.value, 150);
-    doc.text(text, 60, yPosition);
+    const text = doc.splitTextToSize(item.value, availableWidth);
+    doc.text(text, valueX, yPosition);
 
     yPosition += text.length > 1 ? text.length * 7 : 10;
 

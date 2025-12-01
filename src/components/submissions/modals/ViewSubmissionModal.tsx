@@ -414,18 +414,36 @@ const ViewSubmissionModal = ({
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                  Two Staples (Left Side)
+                </label>
+                <div className="rounded-md border border-input bg-background px-3 py-2 text-sm">
+                  {submission?.printSettings?.twoStaples ? "Yes" : "No"}
+                </div>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                   Hard Cover
                 </label>
                 <div className="rounded-md border border-input bg-background px-3 py-2 text-sm">
                   {submission?.printSettings?.hasCover ? "Yes" : "No"}
                 </div>
               </div>
-              {/* <div>
-              <p className="text-sm font-medium text-gray-500">Colored Cover</p>
-              <p className="mt-1">
-                {submission.printSettings.coloredCover ? "Yes" : "No"}
-              </p>
-            </div> */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                  Colored Cover
+                </label>
+                <div className="rounded-md border border-input bg-background px-3 py-2 text-sm">
+                  {submission?.printSettings?.coloredCover ? "Yes" : "No"}
+                </div>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                  Colored Answer Sheet
+                </label>
+                <div className="rounded-md border border-input bg-background px-3 py-2 text-sm">
+                  {submission?.printSettings?.coloredAnswerSheet ? "Yes" : "No"}
+                </div>
+              </div>
             </div>
 
             <div className="space-y-4">

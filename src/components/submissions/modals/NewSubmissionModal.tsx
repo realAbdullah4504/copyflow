@@ -53,10 +53,12 @@ const NewSubmissionModal = ({
       printSettings: {
         doubleSided: false,
         stapled: false,
+        twoStaples: false,
         color: false,
         booklet: false,
         hasCover: false,
         coloredCover: false,
+        coloredAnswerSheet: false,
       },
       files: [],
     },

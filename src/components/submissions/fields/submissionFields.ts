@@ -13,7 +13,9 @@ export const submissionFormSchema = z.object({
     stapled: z.boolean(),
     booklet: z.boolean(),
     hasCover: z.boolean(),
+    twoStaples: z.boolean(),
     coloredCover: z.boolean(),
+    coloredAnswerSheet: z.boolean(),
     color: z.boolean(),
   }),
   files: z
@@ -112,6 +114,12 @@ export const getSubmissionFields = (options: {
     type: "checkbox" as const,
     className: "md:col-span-1",
   },
+  {
+    name: "printSettings.twoStaples",
+    label: "Two Staples (Left Side)",
+    type: "checkbox" as const,
+    className: "md:col-span-1",
+  },
   // {
   //   name: "printSettings.booklet",
   //   label: "Booklet",
@@ -124,12 +132,18 @@ export const getSubmissionFields = (options: {
     type: "checkbox" as const,
     className: "md:col-span-1",
   },
-  // {
-  //   name: "printSettings.coloredCover",
-  //   label: "Colored Cover",
-  //   type: "checkbox" as const,
-  //   className: "md:col-span-1",
-  // },
+  {
+    name: "printSettings.coloredCover",
+    label: "Colored Cover",
+    type: "checkbox" as const,
+    className: "md:col-span-1",
+  },
+  {
+    name: "printSettings.coloredAnswerSheet",
+    label: "Colored Answer Sheet",
+    type: "checkbox" as const,
+    className: "md:col-span-1",
+  },
 
   // {
   //   name: "printSettings.color",

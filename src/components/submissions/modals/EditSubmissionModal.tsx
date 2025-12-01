@@ -56,10 +56,12 @@ const EditSubmissionModal = ({
       printSettings: {
         doubleSided: submission?.printSettings?.doubleSided || false,
         stapled: submission?.printSettings?.stapled || false,
+        twoStaples: submission?.printSettings?.twoStaples || false,
         color: submission?.printSettings?.color || false,
         booklet: submission?.printSettings?.booklet || false,
         hasCover: submission?.printSettings?.hasCover || false,
         coloredCover: submission?.printSettings?.coloredCover || false,
+        coloredAnswerSheet: submission?.printSettings?.coloredAnswerSheet || false,
       },
       files: submission?.files,
       notes: submission?.notes || "",

@@ -64,10 +64,12 @@ export interface Submission {
   printSettings: {
     doubleSided: boolean;
     stapled: boolean;
+    twoStaples: boolean;
     color: boolean;
     booklet: boolean;
     hasCover: boolean;
     coloredCover: boolean;
+    coloredAnswerSheet: boolean;
   };
   files?: FileItem[];
   isUrgent?: boolean;
