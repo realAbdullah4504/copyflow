@@ -59,7 +59,7 @@ export const getSubmissionColumns = (
         if (!isUrgent) return null;
         return (
           <div className="flex items-center justify-center">
-            <AlertTriangle className="h-4 w-4 text-amber-500" />
+            <AlertTriangle className="h-4 w-4 text-red-500" />
           </div>
         );
       },

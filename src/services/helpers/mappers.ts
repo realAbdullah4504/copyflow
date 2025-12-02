@@ -17,8 +17,8 @@ function isSubmissionUrgent(lessonDate: string): boolean {
   const diffDays =
     (submissionDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24);
 
-  // Check if it's today (0) or tomorrow (1)
-  return diffDays <= 1;
+  // Mark as urgent if the date is today or in the future
+  return diffDays >= 0;
 }
 
 export function buildClassLabel(c: { subject: string; grade: string }) {
