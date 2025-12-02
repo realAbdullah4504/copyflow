@@ -5,20 +5,12 @@ import type {
   SubmissionRow,
   FileItem,
 } from "@/types";
+import { isAfter, isToday, parseISO, startOfDay } from "date-fns";
 
 function isSubmissionUrgent(lessonDate: string): boolean {
-  const today = new Date();
-  const submissionDate = new Date(lessonDate);
-
-  // Reset times to midnight for comparison
-  today.setHours(0, 0, 0, 0);
-  submissionDate.setHours(0, 0, 0, 0);
-
-  const diffDays =
-    (submissionDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24);
-
-  // Mark as urgent if the date is today or in the future
-  return diffDays >= 0;
+  const today = startOfDay(new Date());
+  const submissionDate = startOfDay(parseISO(lessonDate));
+  return isAfter(submissionDate, today) || isToday(submissionDate);
 }
 
 export function buildClassLabel(c: { subject: string; grade: string }) {
