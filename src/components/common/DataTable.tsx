@@ -84,19 +84,26 @@ const DataTable = <TData,>({
               </TableCell>
             </TableRow>
           ) : (
-            table.getRowModel().rows.map((row) => (
-              <TableRow
-                key={row.id}
-                className={cn({ "cursor-pointer": !!onRowClick })}
-                onClick={onRowClick ? () => onRowClick(row.original) : undefined}
-              >
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id}>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
-                ))}
-              </TableRow>
-            ))
+            table.getRowModel().rows.map((row) => {
+              // Check if this is a submission and if it's urgent
+              const isUrgent = (row.original as any).isUrgent;
+              return (
+                <TableRow
+                  key={row.id}
+                  className={cn(
+                    { "cursor-pointer": !!onRowClick },
+                    { "bg-pink-50 hover:bg-pink-100": isUrgent }
+                  )}
+                  onClick={onRowClick ? () => onRowClick(row.original) : undefined}
+                >
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell key={cell.id}>
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              );
+            })
           )}
         </TableBody>
       </Table>

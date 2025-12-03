@@ -5,7 +5,6 @@ import type { Role } from "@/config";
 import { StatusBadge } from "../ui/status-badge";
 import { format, parseISO } from "date-fns";
 import { SUBMISSION_ACTION_CONFIG } from "../actions";
-import { AlertTriangle } from "lucide-react";
 
 const ROLE_COLUMNS: Record<Role, ColumnDef<Submission>[]> = {
   admin: [
@@ -54,18 +53,9 @@ export const getSubmissionColumns = (
     {
       id: "urgency",
       header: "",
-      cell: ({ row }) => {
-        const isUrgent = row.original.isUrgent;
-        if (!isUrgent) return null;
-        return (
-          <div className="flex items-center justify-center">
-            <AlertTriangle className="h-4 w-4 text-red-500" />
-          </div>
-        );
-      },
+      cell: () => null, // Empty cell since we'll use row styling
       size: 20,
-      enableSorting: true,
-      sortDescFirst: true,
+      enableSorting: false,
     },
     ...(ROLE_COLUMNS[role] ?? []),
     {
