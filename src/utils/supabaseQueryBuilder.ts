@@ -6,7 +6,13 @@ export function applyFilters(
 ) {
   if (!filters) return query;
 
-  const { class: classFilter, fileType, status, timeFrame,lessonDate } = filters;
+  const {
+    class: classFilter,
+    fileType,
+    status,
+    timeFrame,
+    lessonDate,
+  } = filters;
 
   if (classFilter) {
     query = query.eq("class_id", classFilter);
@@ -79,15 +85,18 @@ export function applySorting(
     status: "status",
   };
 
+  // If user selected a sorting option → use it
   if (sorting && sorting.length > 0) {
     const sort = sorting[0];
-    const column = SORT_MAP[sort.id] ?? sort.id; // fallback to raw key
+    const column = SORT_MAP[sort.id] ?? sort.id;
     return query.order(column, { ascending: !sort.desc });
   }
 
-  return query.order("created_at", { ascending: false });
+  // Default sort: created_at DESC, then lesson_date DESC
+  return query
+    .order("lesson_date", { ascending: false })
+    .order("created_at", { ascending: false });
 }
-
 
 export function applyPagination(
   query: any,
