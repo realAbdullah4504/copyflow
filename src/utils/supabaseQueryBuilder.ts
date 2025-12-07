@@ -94,8 +94,8 @@ export function applySorting(
 
   // Default sort: created_at DESC, then lesson_date DESC
   return query
-    .order("lesson_date", { ascending: false })
-    .order("created_at", { ascending: false });
+    .order("lesson_date", { ascending: true })
+    .order("created_at", { ascending: true });
 }
 
 export function applyPagination(
