@@ -5,12 +5,14 @@ import type {
   SubmissionRow,
   FileItem,
 } from "@/types";
-import { isAfter, isToday, parseISO, startOfDay } from "date-fns";
+import { isAfter, isToday, parseISO, startOfDay, subDays } from "date-fns";
 
 function isSubmissionUrgent(lessonDate: string): boolean {
   const today = startOfDay(new Date());
   const submissionDate = startOfDay(parseISO(lessonDate));
-  return isAfter(submissionDate, today) || isToday(submissionDate);
+  const dayBeforeSubmission = subDays(submissionDate, 1);
+  // return isAfter(today, dayBeforeSubmission) || isToday(dayBeforeSubmission);
+  return isAfter(today, dayBeforeSubmission) 
 }
 
 export function buildClassLabel(c: { subject: string; grade: string }) {
