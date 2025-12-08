@@ -21,11 +21,24 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { subjects } from "@/constants";
+import { subjects, lessonDays } from "@/constants/shared";
 import { useClassesByTeacher, useClassMutations, useTeachers } from "@/hooks";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { Loader2, Check, ChevronsUpDown } from "lucide-react";
+import { cn } from "@/lib/utils";
 import type { ClassEntity, GradeLevel } from "@/types";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 interface EditClassModalProps {
   open: boolean;
@@ -38,6 +51,7 @@ interface EditClassModalProps {
 interface ClassFormData {
   subject: string;
   teacherId: string;
+  lessonDays: string[];
 }
 
 const EditClassModal = ({
@@ -58,14 +72,16 @@ const EditClassModal = ({
     defaultValues: {
       subject: classData.subject,
       teacherId: classData.teacherId,
+      lessonDays: classData.lessonDays || [],
     },
   });
 
   const onSubmit = async (data: ClassFormData) => {
 
     const isUnchanged = 
-    data.subject === classData.subject &&
-    data.teacherId === classData.teacherId;
+      data.subject === classData.subject &&
+      data.teacherId === classData.teacherId &&
+      JSON.stringify(data.lessonDays?.sort()) === JSON.stringify(classData.lessonDays?.sort());
 
     if (isUnchanged) {
       onOpenChange(false);
@@ -94,6 +110,7 @@ const EditClassModal = ({
           teacherId: data.teacherId,
           subject: data.subject.trim(),
           grade: grade,
+          lessonDays: data.lessonDays,
         },
       },
       {
@@ -198,6 +215,79 @@ const EditClassModal = ({
                 Save Changes
               </Button>
             </div>
+
+            <FormField
+              control={form.control}
+              name="lessonDays"
+              rules={{
+                validate: (value) =>
+                  value && value.length > 0 ? true : "At least one day is required",
+              }}
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel>Lesson Days</FormLabel>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant="outline"
+                          type="button"
+                          className={cn(
+                            "w-full justify-between",
+                            !field.value?.length && "text-muted-foreground"
+                          )}
+                        >
+                          {field.value && field.value.length > 0
+                            ? `${field.value.length} day(s) selected`
+                            : "Select days"}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[200px] p-0">
+                      <Command>
+                        <CommandInput placeholder="Search days..." />
+                        <CommandEmpty>No day found.</CommandEmpty>
+                        <CommandGroup className="max-h-[200px] overflow-auto">
+                          {lessonDays.map((day) => {
+                            const handleSelect = () => {
+                              const currentValue = field.value || [];
+                              const newValue = currentValue.includes(day)
+                                ? currentValue.filter((d) => d !== day)
+                                : [...currentValue, day];
+                              field.onChange(newValue);
+                            };
+                            
+                            return (
+                              <CommandItem
+                                value={day}
+                                key={day}
+                                onSelect={handleSelect}
+                              >
+                              <div className="flex items-center">
+                                <div
+                                  className={cn(
+                                    "mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary",
+                                    field.value?.includes(day)
+                                      ? "bg-primary text-primary-foreground"
+                                      : "opacity-50 [&_svg]:invisible"
+                                  )}
+                                >
+                                  <Check className={cn("h-4 w-4")} />
+                                </div>
+                                <span>{day}</span>
+                              </div>
+                              </CommandItem>
+                            );
+                          })}
+                        </CommandGroup>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </form>
         </Form>
       </DialogContent>

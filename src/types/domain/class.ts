@@ -6,6 +6,7 @@ export interface ClassEntity {
   teacherId: string;
   grade: string;
   subject: string;
+  lessonDays: string[];
   active: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -16,6 +17,7 @@ export type RawClassData = {
   teacher_id: string;
   subject: string;
   grade: string;
+  lesson_days: string[];
   active: boolean;
   created_at: string;
   updated_at: string;
@@ -33,7 +35,7 @@ export type ClassEntityV2 = ClassEntity & { teacher: User };
 
 export type CreateClassInput = Pick<
   ClassEntity,
-  "teacherId" | "grade" | "subject"
+  "teacherId" | "grade" | "subject" | "lessonDays"
 >;
 
 export type GradeLevel = "9" | "10" | "11" | "12";

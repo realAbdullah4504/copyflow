@@ -86,6 +86,7 @@ export const classesService = {
       teacher_id: data.teacherId,
       subject: data.subject,
       grade: data.grade,
+      lesson_days: data.lessonDays,
       active: true,
     };
 
@@ -112,6 +113,7 @@ export const classesService = {
       subject: classData.subject,
       grade: classData.grade,
       active: classData.active,
+      lessonDays: classData.lesson_days,
       label: `Grade ${classData.grade} - ${classData.subject}`,
       createdAt: new Date(classData.created_at),
       updatedAt: new Date(classData.updated_at),
@@ -151,6 +153,7 @@ export const classesService = {
       teacherId: classData.teacher_id,
       subject: classData.subject,
       grade: classData.grade,
+      lessonDays: classData.lesson_days,
       active: classData.active,
       label: `Grade ${classData.grade} - ${classData.subject}`,
       createdAt: new Date(classData.created_at),
@@ -202,6 +205,7 @@ export const classesService = {
       subject: updatedClass.subject,
       grade: updatedClass.grade,
       active: updatedClass.active,
+      lessonDays: updatedClass.lesson_days,
       label: `Grade ${updatedClass.grade} - ${updatedClass.subject}`,
       createdAt: new Date(updatedClass.created_at),
       updatedAt: new Date(updatedClass.updated_at),

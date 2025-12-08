@@ -20,6 +20,8 @@ export const subjects = [
   "Vocabulary",
 ];
 
+export const lessonDays = ["Monday", "Tuesday", "Wednesday", "Thursday"];
+
 export const grades = ["9", "10", "11", "12"];
 
 export const filterTypes = [
