@@ -1,3 +1,4 @@
+import type { Submission } from "./submission";
 import type { User } from "./user";
 import type { WeekDay } from "@/constants/shared";
 
@@ -45,6 +46,7 @@ export interface ClassScheduleLessonDTO {
   id: string;
   subject: string;
   teacher: string;
+  submissions?: Partial<Submission>[];
 }
 
 export interface GradeScheduleDTO {

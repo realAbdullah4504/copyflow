@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { QUERY_KEYS } from "@/config";
-import { classesService, type GradeScheduleDTO } from "@/services/classesService";
+import { classesService} from "@/services/classesService";
+import type { GradeScheduleDTO } from "@/types";
 
 export const useAllGradesSchedule = (adminId: string) => {
   return useQuery<GradeScheduleDTO[]>({

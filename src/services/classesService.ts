@@ -10,6 +10,7 @@ import type {
 import type { WeekDay } from "@/constants/shared";
 import { AppError } from "@/utils";
 import { mapClassesData } from "./helpers/classesMappers";
+import { addDays, endOfWeek, startOfWeek } from "date-fns";
 
 export const classesService = {
   async getByTeacher(
@@ -85,6 +86,7 @@ export const classesService = {
   },
 
   async getAllGradesSchedule(adminId: string): Promise<GradeScheduleDTO[]> {
+    // 1️⃣ Fetch teachers
     const { data: teachers, error } = await supabase
       .from("profiles")
       .select("id")
@@ -97,9 +99,19 @@ export const classesService = {
 
     const teacherIds = teachers.map((t) => t.id);
 
+    // 2️⃣ Fetch classes with all submissions
     const { data: classes, error: classesError } = await supabase
       .from("classes")
-      .select("id, subject, grade, lesson_days, teacher:teacher_id(name)")
+      .select(
+        `
+      id,
+      subject,
+      grade,
+      lesson_days,
+      teacher:teacher_id(name),
+      submissions(id, lesson_date, files)
+    `
+      )
       .in("teacher_id", teacherIds)
       .order("created_at", { ascending: false });
 
@@ -107,29 +119,35 @@ export const classesService = {
       throw await AppError.from(classesError);
     }
 
-    if (!classes) {
-      return [];
-    }
+    if (!classes) return [];
 
+    // 3️⃣ Prepare week start (Monday) for calculating exact lesson dates
+    const today = new Date();
+    const weekStart = startOfWeek(today, { weekStartsOn: 1 }); // Monday
+
+    const weekDayIndexMap: Record<WeekDay, number> = {
+      monday: 0,
+      tuesday: 1,
+      wednesday: 2,
+      thursday: 3,
+    };
+
+    const getLessonDate = (day: WeekDay) =>
+      addDays(weekStart, weekDayIndexMap[day]);
+
+    // 4️⃣ Helper to normalize lesson days
+    const normalizeDay = (day: string): WeekDay | null => {
+      const key = day.toLowerCase() as WeekDay;
+      if (["monday", "tuesday", "wednesday", "thursday"].includes(key))
+        return key;
+      return null;
+    };
+
+    // 5️⃣ Map grades to lessons
     const gradeLessonsMap = new Map<
       string,
       Partial<Record<WeekDay, ClassScheduleLessonDTO>>
     >();
-
-    const normalizeDay = (day: string): WeekDay | null => {
-      const key = day.toLowerCase() as WeekDay;
-
-      if (
-        key === "monday" ||
-        key === "tuesday" ||
-        key === "wednesday" ||
-        key === "thursday"
-      ) {
-        return key;
-      }
-
-      return null;
-    };
 
     for (const cls of classes as Array<{
       id: string;
@@ -137,39 +155,52 @@ export const classesService = {
       grade: string;
       lesson_days: string[];
       teacher?: { name?: string | null } | null;
+      submissions?: Array<{ id: string; lesson_date: string; files?: any }>;
     }>) {
       const teacherName = cls.teacher?.name ?? "";
       const gradeKey = cls.grade;
 
-      if (!gradeLessonsMap.has(gradeKey)) {
-        gradeLessonsMap.set(gradeKey, {});
-      }
-
+      if (!gradeLessonsMap.has(gradeKey)) gradeLessonsMap.set(gradeKey, {});
       const lessons = gradeLessonsMap.get(gradeKey)!;
 
       if (Array.isArray(cls.lesson_days)) {
         for (const day of cls.lesson_days) {
           const key = normalizeDay(day);
+          if (!key) continue;
 
-          if (key && !lessons[key]) {
+          if (!lessons[key]) {
+            const lessonDate = getLessonDate(key); // exact date for this lesson day
+
+            const submissionsThisLesson = (cls.submissions ?? []).filter(
+              (sub) => {
+                const subDate = new Date(sub.lesson_date);
+                return (
+                  subDate.getFullYear() === lessonDate.getFullYear() &&
+                  subDate.getMonth() === lessonDate.getMonth() &&
+                  subDate.getDate() === lessonDate.getDate()
+                );
+              }
+            );
+
             lessons[key] = {
               id: cls.id,
               subject: cls.subject,
               teacher: teacherName,
+              submissions: submissionsThisLesson, // only for this lesson date
             };
           }
         }
       }
     }
 
+    // 6️⃣ Convert Map to sorted array
     return Array.from(gradeLessonsMap.entries())
       .sort(([gradeA], [gradeB]) => {
-        // Convert to numbers for proper numeric sorting (e.g., "9" < "10")
         const numA = parseInt(gradeA, 10);
         const numB = parseInt(gradeB, 10);
         return isNaN(numA) || isNaN(numB)
-          ? gradeA.localeCompare(gradeB) // Fallback to string comparison if not numbers
-          : numA - numB; // Numeric comparison
+          ? gradeA.localeCompare(gradeB)
+          : numA - numB;
       })
       .map(([gradeLabel, lessons]) => ({
         gradeLabel,

@@ -7,10 +7,13 @@ import { WEEK_DAYS, type WeekDay } from "@/constants/shared";
 import type { ClassScheduleLessonDTO } from "@/types";
 
 // Use the shared WEEK_DAYS constant
-const days = WEEK_DAYS.map(day => ({
+const days = WEEK_DAYS.map((day) => ({
   ...day,
   // Format labels to match the previous format (shortened for weekdays)
-  label: day.key === 'monday' ? day.label : day.label.substring(0, 3).replace('day', '')
+  label:
+    day.key === "monday"
+      ? day.label
+      : day.label.substring(0, 3).replace("day", ""),
 }));
 
 const weekLabel = "this week - (Dec 8 - 11)";
@@ -27,8 +30,7 @@ const PrincipalTeachersPage = () => {
     error,
   } = useAllGradesSchedule(user?.adminId || "");
 
-  console.log("schedules", schedules);
-
+  console.log(schedules, "schedules");
   const handleViewLesson = useCallback((lesson: ClassScheduleLessonDTO) => {
     setSelectedLesson(lesson);
     setIsModalOpen(true);
