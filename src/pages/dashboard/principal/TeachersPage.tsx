@@ -5,6 +5,7 @@ import { useAllGradesSchedule } from "@/hooks/queries/useAllGradesSchedule";
 import { useAuth } from "@/hooks/useAuth";
 import { WEEK_DAYS, type WeekDay } from "@/constants/shared";
 import type { ClassScheduleLessonDTO } from "@/types";
+import { Loader2 } from "lucide-react";
 
 // Use the shared WEEK_DAYS constant
 const days = WEEK_DAYS.map((day) => ({
@@ -45,8 +46,8 @@ const PrincipalTeachersPage = () => {
   // Handle loading state
   if (isLoading) {
     return (
-      <div className="flex-1 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="w-8 h-8 animate-spin" />
       </div>
     );
   }
