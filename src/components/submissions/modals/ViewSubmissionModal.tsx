@@ -8,7 +8,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { format, parseISO } from "date-fns";
 import type { Submission } from "@/types";
-import { FileText, Download, Loader2, Printer } from "lucide-react";
+import { Loader2, Printer, FileText, Download, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { submissionService } from "@/services";
 import { useState } from "react";
@@ -43,7 +43,10 @@ const ViewSubmissionModal = ({
   const [downloadingFiles, setDownloadingFiles] = useState<
     Record<string, boolean>
   >({});
-  const [isPreparingPreview, setIsPreparingPreview] = useState(false);
+  const [isLoading, setIsLoading] = useState({
+    preview: false,
+    print: false
+  });
   const isCensored = submission?.status === "censored";
 
   const downloadFile = async (fileName: string): Promise<Blob> => {
@@ -86,11 +89,14 @@ const ViewSubmissionModal = ({
     }
   };
 
-  const handlePreviewAndPrint = async () => {
+  const handlePreview = async (shouldPrint = false) => {
     if (!submission?.files?.length) return;
 
-    setIsPreparingPreview(true);
-    const toastId = toast.loading("Preparing preview...");
+    // Set loading state based on action
+    const loadingKey = shouldPrint ? 'print' : 'preview';
+    setIsLoading(prev => ({ ...prev, [loadingKey]: true }));
+    
+    const toastId = toast.loading(shouldPrint ? "Preparing for print..." : "Preparing preview...");
 
     try {
       const { PDFDocument } = await import("pdf-lib");
@@ -241,69 +247,29 @@ const ViewSubmissionModal = ({
         );
       }
 
-      const mergedBytes = await mergedPdf.save();
-      const finalBlob = new Blob([mergedBytes], { type: "application/pdf" });
-      const previewUrl = URL.createObjectURL(finalBlob);
+      const mergedPdfBytes = await mergedPdf.save();
+      const blob = new Blob([mergedPdfBytes], { type: "application/pdf" });
+      const url = URL.createObjectURL(blob);
 
-      console.log(
-        `🎉 Merged PDF created – Total Pages: ${mergedPdf.getPageCount()}`
-      );
-
-      const printWindow = window.open("", "_blank");
-
-      if (!printWindow) {
-        toast.error("Popup blocked. Please allow popups.", { id: toastId });
-        URL.revokeObjectURL(previewUrl);
-        return;
+      if (shouldPrint) {
+        // Open print dialog
+        const printWindow = window.open(url, "_blank");
+        if (printWindow) {
+          printWindow.onload = () => {
+            printWindow.print();
+          };
+        }
+      } else {
+        // Just preview in new tab
+        window.open(url, "_blank");
       }
-
-      // Inside handlePreviewAndPrint, after creating the iframe, modify the script part:
-
-      const scriptContent = isCensored
-        ? `
-          // Just focus the frame for censored submissions
-          frame.contentWindow.focus();
-        `
-        : `
-          // Auto-print for non-censored submissions
-          frame.contentWindow.focus();
-          try {
-            frame.contentWindow.print();
-          } catch(e) {
-            console.error("Print trigger failed", e);
-          }
-        `;
-
-      printWindow.document.write(`
-      <html>
-        <head>
-          <title>Submission Preview</title>
-          <style>
-            html, body { margin: 0; height: 100%; overflow: hidden; }
-            iframe { width: 100%; height: 100%; border: none; }
-          </style>
-        </head>
-        <body>
-          <iframe id="pdf-frame" src="${previewUrl}"></iframe>
-          <script>
-            const frame = document.getElementById('pdf-frame');
-            frame.onload = () => {
-              ${scriptContent}
-            };
-          </script>
-        </body>
-      </html>
-`);
-
-      printWindow.document.close();
-      printWindow.onbeforeunload = () => URL.revokeObjectURL(previewUrl);
 
       toast.success("Preview ready.", { id: toastId });
     } catch (err) {
       console.error("Fatal error generating print preview:", err);
       toast.error("Something went wrong preparing the PDF.", { id: toastId });
     } finally {
-      setIsPreparingPreview(false);
+      setIsLoading(prev => ({ ...prev, [loadingKey]: false }));
     }
   };
 
@@ -340,113 +306,115 @@ const ViewSubmissionModal = ({
             {/* Left Column - Main Details */}
             <div className="lg:col-span-2 space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                  Teacher
-                </label>
-                <div className="rounded-md border border-input bg-background px-3 py-2 text-sm">
-                  {submission?.teacher?.name || "-"}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                    Teacher
+                  </label>
+                  <div className="rounded-md border border-input bg-background px-3 py-2 text-sm">
+                    {submission?.teacher?.name || "-"}
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                    Status
+                  </label>
+                  <div className="rounded-md border border-input bg-background px-3 py-2 text-sm">
+                    {getStatusBadge(submission?.status || "")}
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                    Subject
+                  </label>
+                  <div className="rounded-md border border-input bg-background px-3 py-2 text-sm">
+                    {submission?.class?.label || "-"}
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                    Lesson Date
+                  </label>
+                  <div className="rounded-md border border-input bg-background px-3 py-2 text-sm">
+                    {submission?.lessonDate
+                      ? format(parseISO(submission.lessonDate), "MM/dd/yyyy")
+                      : "-"}
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                    File Type
+                  </label>
+                  <div className="rounded-md border border-input bg-background px-3 py-2 text-sm">
+                    {submission?.fileType || "-"}
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                    Copies
+                  </label>
+                  <div className="rounded-md border border-input bg-background px-3 py-2 text-sm">
+                    {submission?.copies || "-"}
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                    Paper Color
+                  </label>
+                  <div className="rounded-md border border-input bg-background px-3 py-2 text-sm capitalize">
+                    {submission?.paperColor || "-"}
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                    Double Sided
+                  </label>
+                  <div className="rounded-md border border-input bg-background px-3 py-2 text-sm">
+                    {submission?.printSettings?.doubleSided ? "Yes" : "No"}
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                    Stapled
+                  </label>
+                  <div className="rounded-md border border-input bg-background px-3 py-2 text-sm">
+                    {submission?.printSettings?.stapled ? "Yes" : "No"}
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                    Two Staples (Left Side)
+                  </label>
+                  <div className="rounded-md border border-input bg-background px-3 py-2 text-sm">
+                    {submission?.printSettings?.twoStaples ? "Yes" : "No"}
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                    Hard Cover
+                  </label>
+                  <div className="rounded-md border border-input bg-background px-3 py-2 text-sm">
+                    {submission?.printSettings?.hasCover ? "Yes" : "No"}
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                    Colored Cover
+                  </label>
+                  <div className="rounded-md border border-input bg-background px-3 py-2 text-sm">
+                    {submission?.printSettings?.coloredCover ? "Yes" : "No"}
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                    Colored Answer Sheet
+                  </label>
+                  <div className="rounded-md border border-input bg-background px-3 py-2 text-sm">
+                    {submission?.printSettings?.coloredAnswerSheet
+                      ? "Yes"
+                      : "No"}
+                  </div>
                 </div>
               </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                  Status
-                </label>
-                <div className="rounded-md border border-input bg-background px-3 py-2 text-sm">
-                  {getStatusBadge(submission?.status || "")}
-                </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                  Subject
-                </label>
-                <div className="rounded-md border border-input bg-background px-3 py-2 text-sm">
-                  {submission?.class?.label || "-"}
-                </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                  Lesson Date
-                </label>
-                <div className="rounded-md border border-input bg-background px-3 py-2 text-sm">
-                  {submission?.lessonDate
-                    ? format(parseISO(submission.lessonDate), "MM/dd/yyyy")
-                    : "-"}
-                </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                  File Type
-                </label>
-                <div className="rounded-md border border-input bg-background px-3 py-2 text-sm">
-                  {submission?.fileType || "-"}
-                </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                  Copies
-                </label>
-                <div className="rounded-md border border-input bg-background px-3 py-2 text-sm">
-                  {submission?.copies || "-"}
-                </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                  Paper Color
-                </label>
-                <div className="rounded-md border border-input bg-background px-3 py-2 text-sm capitalize">
-                  {submission?.paperColor || "-"}
-                </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                  Double Sided
-                </label>
-                <div className="rounded-md border border-input bg-background px-3 py-2 text-sm">
-                  {submission?.printSettings?.doubleSided ? "Yes" : "No"}
-                </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                  Stapled
-                </label>
-                <div className="rounded-md border border-input bg-background px-3 py-2 text-sm">
-                  {submission?.printSettings?.stapled ? "Yes" : "No"}
-                </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                  Two Staples (Left Side)
-                </label>
-                <div className="rounded-md border border-input bg-background px-3 py-2 text-sm">
-                  {submission?.printSettings?.twoStaples ? "Yes" : "No"}
-                </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                  Hard Cover
-                </label>
-                <div className="rounded-md border border-input bg-background px-3 py-2 text-sm">
-                  {submission?.printSettings?.hasCover ? "Yes" : "No"}
-                </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                  Colored Cover
-                </label>
-                <div className="rounded-md border border-input bg-background px-3 py-2 text-sm">
-                  {submission?.printSettings?.coloredCover ? "Yes" : "No"}
-                </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                  Colored Answer Sheet
-                </label>
-                <div className="rounded-md border border-input bg-background px-3 py-2 text-sm">
-                  {submission?.printSettings?.coloredAnswerSheet ? "Yes" : "No"}
-                </div>
-              </div>
-            </div>
             </div>
 
             {/* Right Column - Notes, Files and Metadata */}
@@ -465,7 +433,10 @@ const ViewSubmissionModal = ({
                 <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 mb-2">
                   Files
                 </label>
-                <div className="flex-1 overflow-y-auto pr-1" style={{ maxHeight: '200px' }}>
+                <div
+                  className="flex-1 overflow-y-auto pr-1"
+                  style={{ maxHeight: "200px" }}
+                >
                   {submission?.files && submission.files.length > 0 ? (
                     submission.files
                       ?.filter(
@@ -508,7 +479,8 @@ const ViewSubmissionModal = ({
                     {submission?.files && submission.files.length > 0 ? (
                       submission.files
                         ?.filter(
-                          (f): f is { existing: true; name: string } => f.existing
+                          (f): f is { existing: true; name: string } =>
+                            f.existing
                         )
                         .map(({ name: fileName }) => (
                           <div
@@ -548,43 +520,62 @@ const ViewSubmissionModal = ({
               </div>
 
               <div className="rounded-lg border border-gray-200/70 p-4 text-sm text-gray-500 mt-4">
-              <p>
-                Submitted on{" "}
-                {format(
-                  new Date(submission?.createdAt || ""),
-                  "MMM d, yyyy h:mm a"
-                )}
-              </p>
-              {submission?.updatedAt && submission.updatedAt !== submission?.createdAt && (
-                <p className="mt-1">
-                  Last updated on{" "}
+                <p>
+                  Submitted on{" "}
                   {format(
-                    new Date(submission.updatedAt),
+                    new Date(submission?.createdAt || ""),
                     "MMM d, yyyy h:mm a"
                   )}
                 </p>
-              )}
+                {submission?.updatedAt &&
+                  submission.updatedAt !== submission?.createdAt && (
+                    <p className="mt-1">
+                      Last updated on{" "}
+                      {format(
+                        new Date(submission.updatedAt),
+                        "MMM d, yyyy h:mm a"
+                      )}
+                    </p>
+                  )}
               </div>
             </div>
           </div>
         </div>
         <div className="border-t border-gray-200 bg-white py-3 flex flex-col gap-2">
-          {submission?.files && submission.files.length > 1 && (
-            <Button
-              className="w-full justify-center gap-2 bg-blue-50/60 text-blue-700 hover:bg-blue-200 hover:text-blue-800 border border-blue-100"
-              variant="outline"
-              onClick={handlePreviewAndPrint}
-              disabled={isPreparingPreview}
-            >
-              {isPreparingPreview ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Printer className="h-4 w-4" />
+          {submission?.files && submission.files.length > 0 && (
+            <div className="flex  gap-2">
+              {/* Preview Button - Always shown */}
+              <Button
+                className="justify-center flex-1 gap-2 bg-blue-50/60 text-blue-700 hover:bg-blue-200 hover:text-blue-800 border border-blue-100"
+                variant="outline"
+                onClick={() => handlePreview(false)}
+                disabled={isLoading.preview}
+              >
+                {isLoading.preview ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Eye className="h-4 w-4" />
+                )}
+                <span className="text-sm font-medium">Preview</span>
+              </Button>
+              
+              {/* Print Button - Only shown for non-censored submissions */}
+              {!isCensored && (
+                <Button
+                  className="justify-center gap-2 flex-1 bg-blue-50/60 text-blue-700 hover:bg-blue-200 hover:text-blue-800 border border-blue-100"
+                  variant="outline"
+                  onClick={() => handlePreview(true)}
+                  disabled={isLoading.print}
+                >
+                  {isLoading.print ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Printer className="h-4 w-4" />
+                  )}
+                  <span className="text-sm font-medium">Print</span>
+                </Button>
               )}
-              <span className="text-sm font-medium">
-                {isCensored ? "Preview & Censor" : "Preview & Print"}
-              </span>
-            </Button>
+            </div>
           )}
           {((allowedActions?.includes("printed") &&
             submission?.status === "pending") ||
