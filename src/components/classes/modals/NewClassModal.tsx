@@ -6,7 +6,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Form,
   FormControl,
@@ -23,7 +22,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useClassMutations } from "@/hooks/mutations";
-import { subjects, lessonDays } from "@/constants/shared";
+import { subjects, WEEK_DAYS } from "@/constants/shared";
 import { useClassesByTeacher, useTeachers } from "@/hooks";
 import { toast } from "sonner";
 import { Loader2, Check, ChevronsUpDown } from "lucide-react";
@@ -192,8 +191,10 @@ const NewClassModal = ({
                             !field.value?.length && "text-muted-foreground"
                           )}
                         >
-                          {field.value && field.value.length > 0
-                            ? `${field.value.length} day(s) selected`
+                          {field.value?.length > 0
+                            ? field.value
+                                .map((key) => WEEK_DAYS.find((d) => d.key === key)?.label || key)
+                                .join(", ")
                             : "Select days"}
                           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                         </Button>
@@ -204,15 +205,15 @@ const NewClassModal = ({
                         <CommandInput placeholder="Search days..." />
                         <CommandEmpty>No day found.</CommandEmpty>
                         <CommandGroup className="max-h-[200px] overflow-auto">
-                          {lessonDays.map((day) => (
+                          {WEEK_DAYS.map(({ key, label }) => (
                             <CommandItem
-                              value={day}
-                              key={day}
+                              value={key}
+                              key={key}
                               onSelect={() => {
                                 const currentValue = field.value || [];
-                                const newValue = currentValue.includes(day)
-                                  ? currentValue.filter((d) => d !== day)
-                                  : [...currentValue, day];
+                                const newValue = currentValue.includes(key)
+                                  ? currentValue.filter((d) => d !== key)
+                                  : [...currentValue, key];
                                 field.onChange(newValue);
                               }}
                             >
@@ -220,14 +221,14 @@ const NewClassModal = ({
                                 <div
                                   className={cn(
                                     "mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary",
-                                    field.value?.includes(day)
+                                    field.value?.includes(key)
                                       ? "bg-primary text-primary-foreground"
                                       : "opacity-50 [&_svg]:invisible"
                                   )}
                                 >
                                   <Check className={cn("h-4 w-4")} />
                                 </div>
-                                <span>{day}</span>
+                                <span>{label}</span>
                               </div>
                             </CommandItem>
                           ))}

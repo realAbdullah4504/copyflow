@@ -7,6 +7,7 @@ export const teachers = [
   { id: "6", name: "Robert Wilson" },
 ];
 
+
 export const subjects = [
   "Writing",
   "Grammar",
@@ -20,7 +21,17 @@ export const subjects = [
   "Vocabulary",
 ];
 
-export const lessonDays = ["Monday", "Tuesday", "Wednesday", "Thursday"];
+export const WEEK_DAYS = [
+  { key: 'monday', label: 'Monday' },
+  { key: 'tuesday', label: 'Tuesday' },
+  { key: 'wednesday', label: 'Wednesday' },
+  { key: 'thursday', label: 'Thursday' },
+] as const;
+
+export type WeekDay = typeof WEEK_DAYS[number]['key'];
+
+// Helper function to get day labels
+export const getDayLabels = () => WEEK_DAYS.map(day => day.label);
 
 export const grades = ["9", "10", "11", "12"];
 

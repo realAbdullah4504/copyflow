@@ -3,20 +3,15 @@ import { ScheduleView } from "@/components/schedule/ScheduleView";
 import { LessonDetailsModal } from "@/components/schedule/LessonDetailsModal";
 import { useAllGradesSchedule } from "@/hooks/queries/useAllGradesSchedule";
 import { useAuth } from "@/hooks/useAuth";
+import { WEEK_DAYS } from "@/constants/shared";
 import type { ClassScheduleDayKey, ClassScheduleLessonDTO } from "@/types";
 
-// Define the Day type to match what ScheduleView expects
-type Day = {
-  key: ClassScheduleDayKey;
-  label: string;
-};
-
-const days: Day[] = [
-  { key: "monday", label: "Monday" },
-  { key: "tuesday", label: "Tue" },
-  { key: "wednesday", label: "Wed" },
-  { key: "thursday", label: "Thurs" },
-];
+// Use the shared WEEK_DAYS constant
+const days = WEEK_DAYS.map(day => ({
+  ...day,
+  // Format labels to match the previous format (shortened for weekdays)
+  label: day.key === 'monday' ? day.label : day.label.substring(0, 3).replace('day', '')
+}));
 
 const weekLabel = "this week - (Dec 8 - 11)";
 
