@@ -189,7 +189,7 @@ export const classesService = {
     if (data.lessonDays && data.lessonDays.length > 0) {
       const { data: conflicts, error: conflictError } = await supabase
         .from("classes")
-        .select("*")
+        .select("*,teacher:teacher_id(name)")
         .eq("grade", data.grade)
         .overlaps("lesson_days", data.lessonDays);
 
@@ -198,8 +198,9 @@ export const classesService = {
       }
 
       if (conflicts && conflicts.length > 0) {
+        const teacherName = conflicts[0]?.teacher.name ?? "";
         throw new Error(
-          "Another teacher is already assigned on one of these days."
+          `Another teacher ${teacherName} is already assigned on one of these days.`
         );
       }
     }
@@ -250,7 +251,7 @@ export const classesService = {
     if (updates.lessonDays && updates.lessonDays.length > 0) {
       const { data: conflicts, error: conflictError } = await supabase
         .from("classes")
-        .select("*")
+        .select("*,teacher:teacher_id(name)")
         .eq("grade", updates.grade)
         .overlaps("lesson_days", updates.lessonDays);
 
@@ -259,8 +260,9 @@ export const classesService = {
       }
 
       if (conflicts && conflicts.length > 0) {
+        const teacherName = conflicts[0]?.teacher.name ?? "";
         throw new Error(
-          "Another teacher is already assigned on one of these days."
+          `Another teacher ${teacherName} is already assigned on one of these days.`
         );
       }
     }
