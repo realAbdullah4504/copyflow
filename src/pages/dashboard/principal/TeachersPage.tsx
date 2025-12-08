@@ -3,8 +3,8 @@ import { ScheduleView } from "@/components/schedule/ScheduleView";
 import { LessonDetailsModal } from "@/components/schedule/LessonDetailsModal";
 import { useAllGradesSchedule } from "@/hooks/queries/useAllGradesSchedule";
 import { useAuth } from "@/hooks/useAuth";
-import { WEEK_DAYS } from "@/constants/shared";
-import type { ClassScheduleDayKey, ClassScheduleLessonDTO } from "@/types";
+import { WEEK_DAYS, type WeekDay } from "@/constants/shared";
+import type { ClassScheduleLessonDTO } from "@/types";
 
 // Use the shared WEEK_DAYS constant
 const days = WEEK_DAYS.map(day => ({

@@ -2,12 +2,12 @@ import { supabase } from "@/lib/supabaseClient";
 import type {
   ClassEntity,
   ClassEntityV2,
-  ClassScheduleDayKey,
   ClassScheduleLessonDTO,
   CreateClassInput,
   GradeLevel,
   GradeScheduleDTO,
 } from "@/types";
+import type { WeekDay } from "@/constants/shared";
 import { AppError } from "@/utils";
 import { mapClassesData } from "./helpers/classesMappers";
 
@@ -113,11 +113,11 @@ export const classesService = {
 
     const gradeLessonsMap = new Map<
       string,
-      Partial<Record<ClassScheduleDayKey, ClassScheduleLessonDTO>>
+      Partial<Record<WeekDay, ClassScheduleLessonDTO>>
     >();
 
-    const normalizeDay = (day: string): ClassScheduleDayKey | null => {
-      const key = day.toLowerCase() as ClassScheduleDayKey;
+    const normalizeDay = (day: string): WeekDay | null => {
+      const key = day.toLowerCase() as WeekDay;
 
       if (
         key === "monday" ||

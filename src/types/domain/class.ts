@@ -1,4 +1,5 @@
 import type { User } from "./user";
+import type { WeekDay } from "@/constants/shared";
 
 export interface ClassEntity {
   id: string;
@@ -40,12 +41,6 @@ export type CreateClassInput = Pick<
 
 export type GradeLevel = "9" | "10" | "11" | "12";
 
-export type ClassScheduleDayKey =
-  | "monday"
-  | "tuesday"
-  | "wednesday"
-  | "thursday";
-
 export interface ClassScheduleLessonDTO {
   id: string;
   subject: string;
@@ -54,5 +49,5 @@ export interface ClassScheduleLessonDTO {
 
 export interface GradeScheduleDTO {
   gradeLabel: string;
-  lessons: Partial<Record<ClassScheduleDayKey, ClassScheduleLessonDTO>>;
+  lessons: Partial<Record<WeekDay, ClassScheduleLessonDTO>>;
 }
