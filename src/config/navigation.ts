@@ -149,23 +149,11 @@ const ADMIN_NAV_ITEMS: NavItem[] = [
 
 const PRINCIPAL_NAV_ITEMS: NavItem[] = [
   {
-    title: "Dashboard",
+    title: "Teachers",
     href: "/dashboard/principal",
     icon: LayoutDashboard,
     roles: [ROLES.PRINCIPAL],
-  },
-  {
-    title: "Submissions",
-    href: "/dashboard/principal/submissions",
-    icon: FileText,
-    roles: [ROLES.PRINCIPAL],
-  },
-  {
-    title: "Archive Submissions",
-    href: "/dashboard/principal/archive",
-    icon: FileText,
-    roles: [ROLES.PRINCIPAL],
-  },
+  }
 ];
 
 export const NAV_ITEMS: NavItem[] = [
