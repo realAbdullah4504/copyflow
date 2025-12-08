@@ -2,14 +2,14 @@ import { supabase } from "@/lib/supabaseClient";
 import type {
   ClassEntity,
   ClassEntityV2,
+  ClassScheduleDayKey,
+  ClassScheduleLessonDTO,
   CreateClassInput,
   GradeLevel,
   GradeScheduleDTO,
 } from "@/types";
 import { AppError } from "@/utils";
 import { mapClassesData } from "./helpers/classesMappers";
-
-
 
 export const classesService = {
   async getByTeacher(
@@ -163,18 +163,18 @@ export const classesService = {
     }
 
     return Array.from(gradeLessonsMap.entries())
-  .sort(([gradeA], [gradeB]) => {
-    // Convert to numbers for proper numeric sorting (e.g., "9" < "10")
-    const numA = parseInt(gradeA, 10);
-    const numB = parseInt(gradeB, 10);
-    return isNaN(numA) || isNaN(numB) 
-      ? gradeA.localeCompare(gradeB)  // Fallback to string comparison if not numbers
-      : numA - numB;                 // Numeric comparison
-  })
-  .map(([gradeLabel, lessons]) => ({
-    gradeLabel,
-    lessons,
-  }));
+      .sort(([gradeA], [gradeB]) => {
+        // Convert to numbers for proper numeric sorting (e.g., "9" < "10")
+        const numA = parseInt(gradeA, 10);
+        const numB = parseInt(gradeB, 10);
+        return isNaN(numA) || isNaN(numB)
+          ? gradeA.localeCompare(gradeB) // Fallback to string comparison if not numbers
+          : numA - numB; // Numeric comparison
+      })
+      .map(([gradeLabel, lessons]) => ({
+        gradeLabel,
+        lessons,
+      }));
   },
 
   async create(data: CreateClassInput): Promise<ClassEntity> {
@@ -224,8 +224,28 @@ export const classesService = {
       ...(updates.teacherId !== undefined && { teacher_id: updates.teacherId }),
       ...(updates.subject !== undefined && { subject: updates.subject }),
       ...(updates.grade !== undefined && { grade: updates.grade }),
-      ...(updates.lessonDays !== undefined && { lesson_days: updates.lessonDays }),
+      ...(updates.lessonDays !== undefined && {
+        lesson_days: updates.lessonDays,
+      }),
     };
+
+    if (updates.lessonDays && updates.lessonDays.length > 0) {
+      const { data: conflicts, error: conflictError } = await supabase
+        .from("classes")
+        .select("*")
+        .eq("grade", updates.grade)
+        .overlaps("lesson_days", updates.lessonDays);
+
+      if (conflictError) {
+        throw await AppError.from(conflictError);
+      }
+
+      if (conflicts && conflicts.length > 0) {
+        throw new Error(
+          "Another teacher is already assigned on one of these days."
+        );
+      }
+    }
 
     const { data: classData, error } = await supabase
       .from("classes")
