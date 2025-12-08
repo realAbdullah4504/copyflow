@@ -1,61 +1,40 @@
-import { useState, useCallback } from 'react';
-import { ScheduleView } from '@/components/schedule/ScheduleView';
-import { LessonDetailsModal } from '@/components/schedule/LessonDetailsModal';
-import type { IGradeSchedule, IDay, ILesson } from '@/types/schedule';
+import { useState, useCallback } from "react";
+import { ScheduleView } from "@/components/schedule/ScheduleView";
+import { LessonDetailsModal } from "@/components/schedule/LessonDetailsModal";
+import { useAllGradesSchedule } from "@/hooks/queries/useAllGradesSchedule";
+import { useAuth } from "@/hooks/useAuth";
+import type { ClassScheduleDayKey, ClassScheduleLessonDTO } from "@/types";
 
-const weekLabel = "this week - (Dec 8 - 11)";
+// Define the Day type to match what ScheduleView expects
+type Day = {
+  key: ClassScheduleDayKey;
+  label: string;
+};
 
-const days: IDay[] = [
+const days: Day[] = [
   { key: "monday", label: "Monday" },
   { key: "tuesday", label: "Tue" },
   { key: "wednesday", label: "Wed" },
   { key: "thursday", label: "Thurs" },
 ];
 
-const mockSchedule: IGradeSchedule[] = [
-  {
-    gradeLabel: "9th",
-    lessons: {
-      monday: { id: "9-grammar-mon", subject: "Grammar", teacher: "Mrs Schwimmer" },
-      tuesday: { id: "9-math-tue", subject: "Math", teacher: "Mrs Katz" },
-      wednesday: { id: "9-news-wed", subject: "News", teacher: "Mrs Labin" },
-      thursday: { id: "9-news-thu", subject: "News", teacher: "Mrs Smart" },
-    },
-  },
-  {
-    gradeLabel: "10th",
-    lessons: {
-      monday: { id: "10-grammar-mon", subject: "Grammar", teacher: "Mrs Schwimmer" },
-      tuesday: { id: "10-math-tue", subject: "Math", teacher: "Mrs Katz" },
-      wednesday: { id: "10-news-wed", subject: "News", teacher: "Mrs Labin" },
-      thursday: { id: "10-news-thu", subject: "News", teacher: "Mrs Smart" },
-    },
-  },
-  {
-    gradeLabel: "11th",
-    lessons: {
-      monday: { id: "11-literature-mon", subject: "Literature", teacher: "Mr Johnson" },
-      tuesday: { id: "11-physics-tue", subject: "Physics", teacher: "Dr Chen" },
-      wednesday: { id: "11-history-wed", subject: "History", teacher: "Mr Wilson" },
-      thursday: { id: "11-chemistry-thu", subject: "Chemistry", teacher: "Dr Lee" },
-    },
-  },
-  {
-    gradeLabel: "12th",
-    lessons: {
-      monday: { id: "12-economics-mon", subject: "Economics", teacher: "Mr Brown" },
-      tuesday: { id: "12-biology-tue", subject: "Biology", teacher: "Dr Garcia" },
-      wednesday: { id: "12-calculus-wed", subject: "Calculus", teacher: "Mrs Patel" },
-      thursday: { id: "12-literature-thu", subject: "Literature", teacher: "Ms Taylor" },
-    },
-  },
-];
+const weekLabel = "this week - (Dec 8 - 11)";
 
 const PrincipalTeachersPage = () => {
-  const [selectedLesson, setSelectedLesson] = useState<ILesson | null>(null);
+  const { user } = useAuth();
+  const [selectedLesson, setSelectedLesson] =
+    useState<ClassScheduleLessonDTO | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const handleViewLesson = useCallback((lesson: ILesson) => {
+  const {
+    data: schedules,
+    isLoading,
+    error,
+  } = useAllGradesSchedule(user?.adminId || "");
+
+  console.log("schedules", schedules);
+
+  const handleViewLesson = useCallback((lesson: ClassScheduleLessonDTO) => {
     setSelectedLesson(lesson);
     setIsModalOpen(true);
   }, []);
@@ -66,17 +45,50 @@ const PrincipalTeachersPage = () => {
     setTimeout(() => setSelectedLesson(null), 300);
   }, []);
 
+  // Handle loading state
+  if (isLoading) {
+    return (
+      <div className="flex-1 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  // Handle error state
+  if (error) {
+    return (
+      <div className="flex-1 flex items-center justify-center p-4">
+        <div className="text-center text-red-600">
+          <p>Failed to load schedule.</p>
+          <p className="text-sm text-gray-600 mt-2">
+            {(error instanceof Error ? error.message : String(error)) ||
+              "Please try again later."}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Handle empty state
+  if (!schedules || schedules.length === 0) {
+    return (
+      <div className="flex-1 flex items-center justify-center">
+        <p className="text-gray-600">No schedule data available.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="flex-1 flex flex-col items-center p-4">
-      <ScheduleView 
-        schedule={mockSchedule}
+      <ScheduleView
+        schedule={schedules}
         days={days}
         weekLabel={weekLabel}
         onPreviousWeek={() => {}}
         onNextWeek={() => {}}
         onViewLesson={handleViewLesson}
       />
-      
+
       {selectedLesson && (
         <LessonDetailsModal
           isOpen={isModalOpen}

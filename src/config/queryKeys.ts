@@ -12,6 +12,7 @@ export const QUERY_KEYS = {
   CLASSES: "classes",
   TEACHER_CLASSES: "classes:teacher",
   TEACHERS_BY_GRADE: "teachers:grade",
+  GRADE_SCHEDULE: "schedule:grade",
   NOTIFICATIONS: "notifications",
 } as const;
 

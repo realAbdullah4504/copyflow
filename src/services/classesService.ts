@@ -4,10 +4,12 @@ import type {
   ClassEntityV2,
   CreateClassInput,
   GradeLevel,
-  User,
+  GradeScheduleDTO,
 } from "@/types";
 import { AppError } from "@/utils";
 import { mapClassesData } from "./helpers/classesMappers";
+
+
 
 export const classesService = {
   async getByTeacher(
@@ -43,6 +45,7 @@ export const classesService = {
       subject: c.subject,
       grade: c.grade,
       active: c.active,
+      lessonDays: c.lesson_days,
       createdAt: new Date(c.created_at),
       updatedAt: new Date(c.updated_at),
       label: `Grade ${c.grade} - ${c.subject}`,
@@ -79,6 +82,99 @@ export const classesService = {
     const mapped = classes.map(mapClassesData);
 
     return mapped;
+  },
+
+  async getAllGradesSchedule(adminId: string): Promise<GradeScheduleDTO[]> {
+    const { data: teachers, error } = await supabase
+      .from("profiles")
+      .select("id")
+      .eq("role", "teacher")
+      .eq("admin_id", adminId);
+
+    if (!teachers) {
+      throw await AppError.from(error);
+    }
+
+    const teacherIds = teachers.map((t) => t.id);
+
+    const { data: classes, error: classesError } = await supabase
+      .from("classes")
+      .select("id, subject, grade, lesson_days, teacher:teacher_id(name)")
+      .in("teacher_id", teacherIds)
+      .order("created_at", { ascending: false });
+
+    if (classesError) {
+      throw await AppError.from(classesError);
+    }
+
+    if (!classes) {
+      return [];
+    }
+
+    const gradeLessonsMap = new Map<
+      string,
+      Partial<Record<ClassScheduleDayKey, ClassScheduleLessonDTO>>
+    >();
+
+    const normalizeDay = (day: string): ClassScheduleDayKey | null => {
+      const key = day.toLowerCase() as ClassScheduleDayKey;
+
+      if (
+        key === "monday" ||
+        key === "tuesday" ||
+        key === "wednesday" ||
+        key === "thursday"
+      ) {
+        return key;
+      }
+
+      return null;
+    };
+
+    for (const cls of classes as Array<{
+      id: string;
+      subject: string;
+      grade: string;
+      lesson_days: string[];
+      teacher?: { name?: string | null } | null;
+    }>) {
+      const teacherName = cls.teacher?.name ?? "";
+      const gradeKey = cls.grade;
+
+      if (!gradeLessonsMap.has(gradeKey)) {
+        gradeLessonsMap.set(gradeKey, {});
+      }
+
+      const lessons = gradeLessonsMap.get(gradeKey)!;
+
+      if (Array.isArray(cls.lesson_days)) {
+        for (const day of cls.lesson_days) {
+          const key = normalizeDay(day);
+
+          if (key && !lessons[key]) {
+            lessons[key] = {
+              id: cls.id,
+              subject: cls.subject,
+              teacher: teacherName,
+            };
+          }
+        }
+      }
+    }
+
+    return Array.from(gradeLessonsMap.entries())
+  .sort(([gradeA], [gradeB]) => {
+    // Convert to numbers for proper numeric sorting (e.g., "9" < "10")
+    const numA = parseInt(gradeA, 10);
+    const numB = parseInt(gradeB, 10);
+    return isNaN(numA) || isNaN(numB) 
+      ? gradeA.localeCompare(gradeB)  // Fallback to string comparison if not numbers
+      : numA - numB;                 // Numeric comparison
+  })
+  .map(([gradeLabel, lessons]) => ({
+    gradeLabel,
+    lessons,
+  }));
   },
 
   async create(data: CreateClassInput): Promise<ClassEntity> {

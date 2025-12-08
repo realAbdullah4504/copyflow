@@ -39,3 +39,20 @@ export type CreateClassInput = Pick<
 >;
 
 export type GradeLevel = "9" | "10" | "11" | "12";
+
+export type ClassScheduleDayKey =
+  | "monday"
+  | "tuesday"
+  | "wednesday"
+  | "thursday";
+
+export interface ClassScheduleLessonDTO {
+  id: string;
+  subject: string;
+  teacher: string;
+}
+
+export interface GradeScheduleDTO {
+  gradeLabel: string;
+  lessons: Partial<Record<ClassScheduleDayKey, ClassScheduleLessonDTO>>;
+}
