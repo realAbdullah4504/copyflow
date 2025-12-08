@@ -1,6 +1,6 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Download, X } from "lucide-react";
+import { Download} from "lucide-react";
 import type { ILesson } from "@/types/schedule";
 
 interface FileItem {
@@ -54,14 +54,6 @@ export const LessonDetailsModal = ({
         <DialogHeader>
           <div className="flex justify-between items-center">
             <DialogTitle className="text-xl">{lesson.subject}</DialogTitle>
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              onClick={onClose}
-              className="h-8 w-8"
-            >
-              <X className="h-4 w-4" />
-            </Button>
           </div>
           <div className="text-sm text-slate-500">
             Teacher: {lesson.teacher} • Grade: {lesson.id.split('-')[0]}
