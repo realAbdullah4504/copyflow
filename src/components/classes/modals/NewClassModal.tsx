@@ -178,10 +178,6 @@ const NewClassModal = ({
             <FormField
               control={form.control}
               name="lessonDays"
-              rules={{
-                validate: (value) =>
-                  value && value.length > 0 ? true : "At least one day is required",
-              }}
               render={({ field }) => (
                 <FormItem className="flex flex-col">
                   <FormLabel>Lesson Days</FormLabel>

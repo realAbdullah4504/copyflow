@@ -186,6 +186,24 @@ export const classesService = {
       active: true,
     };
 
+    if (data.lessonDays && data.lessonDays.length > 0) {
+      const { data: conflicts, error: conflictError } = await supabase
+        .from("classes")
+        .select("*")
+        .eq("grade", data.grade)
+        .overlaps("lesson_days", data.lessonDays);
+
+      if (conflictError) {
+        throw await AppError.from(conflictError);
+      }
+
+      if (conflicts && conflicts.length > 0) {
+        throw new Error(
+          "Another teacher is already assigned on one of these days."
+        );
+      }
+    }
+
     const { data: classData, error } = await supabase
       .from("classes")
       .insert(insertData)
