@@ -224,6 +224,7 @@ export const classesService = {
       ...(updates.teacherId !== undefined && { teacher_id: updates.teacherId }),
       ...(updates.subject !== undefined && { subject: updates.subject }),
       ...(updates.grade !== undefined && { grade: updates.grade }),
+      ...(updates.lessonDays !== undefined && { lesson_days: updates.lessonDays }),
     };
 
     const { data: classData, error } = await supabase
