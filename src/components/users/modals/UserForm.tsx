@@ -30,7 +30,7 @@ const UserForm = ({
       name: user?.name || "",
       email: user?.email || "",
       active: user ? user.active : true,
-      role: (user?.role as Exclude<UserRole, "admin" | "principal">) || "teacher",
+      role: (user?.role as Exclude<UserRole, "admin">) || "teacher",
     },
   });
 

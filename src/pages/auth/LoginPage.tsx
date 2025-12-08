@@ -32,6 +32,12 @@ const demoAccounts = [
     role: "Admin",
     password: "11111111@",
   },
+  {
+    email: "principal@copyflow.com",
+    name: "Principal",
+    role: "Principal",
+    password: "db481aec",
+  },
 ];
 const LoginPage = () => {
   const { login, isLoggingIn, loginError } = useAuth();
