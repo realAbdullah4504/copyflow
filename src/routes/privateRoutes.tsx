@@ -38,6 +38,9 @@ const AdminClassesPage = lazy(() => import("@/pages/dashboard/admin/classes"));
 const SecretaryClassesPage = lazy(
   () => import("@/pages/dashboard/secretary/ClassesPage")
 );
+const PrincipalTeachersPage = lazy(
+  () => import("@/pages/dashboard/principal/TeachersPage")
+);
 
 // Loading component
 const LoadingFallback = () => (
@@ -217,9 +220,18 @@ export const privateRoutes: RouteObject[] = [
 
       // Principal Routes
       {
-        path:"principal",
-        
-      }
+        path: "principal",
+        children: [
+          {
+            index: true,
+            element: (
+              <Suspense fallback={<LoadingFallback />}>
+                <PrincipalTeachersPage />
+              </Suspense>
+            ),
+          },
+        ],
+      },
     ],
   },
 ];
