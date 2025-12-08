@@ -1,12 +1,13 @@
 import { useState, useCallback } from 'react';
 import { ScheduleView } from '@/components/schedule/ScheduleView';
-import type { IGradeSchedule, IDay } from '@/types/schedule';
+import { LessonDetailsModal } from '@/components/schedule/LessonDetailsModal';
+import type { IGradeSchedule, IDay, ILesson } from '@/types/schedule';
 
 const weekLabel = "this week - (Dec 8 - 11)";
 
 const days: IDay[] = [
-  { key: "monday", label: "Monday - 8th" },
-  { key: "tuesday", label: "Tue - 9th" },
+  { key: "monday", label: "Monday" },
+  { key: "tuesday", label: "Tue" },
   { key: "wednesday", label: "Wed" },
   { key: "thursday", label: "Thurs" },
 ];
@@ -51,21 +52,18 @@ const mockSchedule: IGradeSchedule[] = [
 ];
 
 const PrincipalTeachersPage = () => {
-  const [currentWeek, setCurrentWeek] = useState(0);
+  const [selectedLesson, setSelectedLesson] = useState<ILesson | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const handlePreviousWeek = useCallback(() => {
-    setCurrentWeek(prev => prev - 1);
-    // In a real app, you would fetch the previous week's schedule here
+  const handleViewLesson = useCallback((lesson: ILesson) => {
+    setSelectedLesson(lesson);
+    setIsModalOpen(true);
   }, []);
 
-  const handleNextWeek = useCallback(() => {
-    setCurrentWeek(prev => prev + 1);
-    // In a real app, you would fetch the next week's schedule here
-  }, []);
-
-  const handleViewLesson = useCallback((lesson) => {
-    console.log('View lesson:', lesson);
-    // In a real app, you would navigate to the lesson details page
+  const handleCloseModal = useCallback(() => {
+    setIsModalOpen(false);
+    // Small delay to allow the modal close animation to complete
+    setTimeout(() => setSelectedLesson(null), 300);
   }, []);
 
   return (
@@ -74,10 +72,18 @@ const PrincipalTeachersPage = () => {
         schedule={mockSchedule}
         days={days}
         weekLabel={weekLabel}
-        onPreviousWeek={handlePreviousWeek}
-        onNextWeek={handleNextWeek}
+        onPreviousWeek={() => {}}
+        onNextWeek={() => {}}
         onViewLesson={handleViewLesson}
       />
+      
+      {selectedLesson && (
+        <LessonDetailsModal
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+          lesson={selectedLesson}
+        />
+      )}
     </div>
   );
 };
