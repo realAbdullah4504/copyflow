@@ -327,7 +327,7 @@ const ViewSubmissionModal = ({
   };
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl max-h-[90vh] flex flex-col">
+      <DialogContent className="max-w-6xl w-full max-h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>Submission Details</DialogTitle>
           <DialogDescription>
@@ -336,8 +336,10 @@ const ViewSubmissionModal = ({
         </DialogHeader>
 
         <div className="flex-1 overflow-y-auto">
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Left Column - Main Details */}
+            <div className="lg:col-span-2 space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               <div className="space-y-2">
                 <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                   Teacher
@@ -445,85 +447,107 @@ const ViewSubmissionModal = ({
                 </div>
               </div>
             </div>
+            </div>
 
-            <div className="space-y-4">
-              <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                Notes
-              </label>
-              <div className="rounded-md border border-input bg-background p-3">
-                <p className="whitespace-pre-line text-sm text-foreground">
-                  {submission?.notes || "No notes provided"}
-                </p>
-              </div>
-
-              {submission?.files && submission.files.length > 1 && (
-                <div className="mt-4">
-                  <Button
-                    className="w-full justify-center gap-2 bg-blue-50/60 text-blue-700 hover:bg-blue-200 hover:text-blue-800 border border-blue-100"
-                    variant="outline"
-                    onClick={handlePreviewAndPrint}
-                    disabled={isPreparingPreview}
-                  >
-                    {isPreparingPreview ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <Printer className="h-4 w-4" />
-                    )}
-                    <span className="text-sm font-medium">
-                      {isCensored ? "Preview & Censor" : "Preview & Print"}
-                    </span>
-                  </Button>
+            {/* Right Column - Notes, Files and Metadata */}
+            <div className="flex flex-col h-full">
+              <div className="space-y-4 mb-4">
+                <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                  Notes
+                </label>
+                <div className="rounded-md border border-input bg-background p-3">
+                  <p className="whitespace-pre-line text-sm text-foreground">
+                    {submission?.notes || "No notes provided"}
+                  </p>
                 </div>
-              )}
-            </div>
-
-            <div className="space-y-4">
-              <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                Files
-              </label>
-              <div className="space-y-2">
-                {submission?.files && submission.files.length > 0 ? (
-                  submission.files
-                    ?.filter(
-                      (f): f is { existing: true; name: string } => f.existing
-                    )
-                    .map(({ name: fileName }) => (
-                      <div
-                        key={`file-${fileName}`}
-                        className="flex items-center justify-between group hover:bg-white p-2 rounded-md border border-transparent hover:border-gray-200"
-                      >
-                        <div className="flex items-center gap-2">
-                          <FileText className="h-4 w-4 text-gray-500 flex-shrink-0" />
-                          <span className="text-sm text-gray-700 truncate max-w-xs">
-                            {fileName}
-                          </span>
-                        </div>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-8 px-2 opacity-0 group-hover:opacity-100 transition-opacity"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDownload(fileName);
-                          }}
-                          disabled={downloadingFiles[fileName]}
-                        >
-                          {downloadingFiles[fileName] ? (
-                            <Loader2 className="h-4 w-4 animate-spin" />
-                          ) : (
-                            <Download className="h-4 w-4" />
-                          )}
-                          <span className="sr-only">Download</span>
-                        </Button>
-                      </div>
-                    ))
-                ) : (
-                  <p className="text-sm text-gray-500">No files attached</p>
-                )}
               </div>
-            </div>
+              <div className="flex flex-col flex-1 min-h-0">
+                <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 mb-2">
+                  Files
+                </label>
+                <div className="flex-1 overflow-y-auto pr-1" style={{ maxHeight: '200px' }}>
+                  {submission?.files && submission.files.length > 0 ? (
+                    submission.files
+                      ?.filter(
+                        (f): f is { existing: true; name: string } => f.existing
+                      )
+                      .map(({ name: fileName }) => (
+                        <div
+                          key={`file-${fileName}`}
+                          className="flex items-center justify-between group hover:bg-white p-2 rounded-md border border-transparent hover:border-gray-200"
+                        >
+                          <div className="flex items-center gap-2">
+                            <FileText className="h-4 w-4 text-gray-500 flex-shrink-0" />
+                            <span className="text-sm text-gray-700 truncate max-w-[180px]">
+                              {fileName}
+                            </span>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 px-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDownload(fileName);
+                            }}
+                            disabled={downloadingFiles[fileName]}
+                          >
+                            {downloadingFiles[fileName] ? (
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                              <Download className="h-4 w-4" />
+                            )}
+                            <span className="sr-only">Download</span>
+                          </Button>
+                        </div>
+                      ))
+                  ) : (
+                    <p className="text-sm text-gray-500">No files attached</p>
+                  )}
+                  <div className="space-y-2">
+                    {submission?.files && submission.files.length > 0 ? (
+                      submission.files
+                        ?.filter(
+                          (f): f is { existing: true; name: string } => f.existing
+                        )
+                        .map(({ name: fileName }) => (
+                          <div
+                            key={`file-${fileName}`}
+                            className="flex items-center justify-between group hover:bg-white p-2 rounded-md border border-transparent hover:border-gray-200"
+                          >
+                            <div className="flex items-center gap-2">
+                              <FileText className="h-4 w-4 text-gray-500 flex-shrink-0" />
+                              <span className="text-sm text-gray-700 truncate max-w-[180px]">
+                                {fileName}
+                              </span>
+                            </div>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-8 px-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDownload(fileName);
+                              }}
+                              disabled={downloadingFiles[fileName]}
+                            >
+                              {downloadingFiles[fileName] ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              ) : (
+                                <Download className="h-4 w-4" />
+                              )}
+                              <span className="sr-only">Download</span>
+                            </Button>
+                          </div>
+                        ))
+                    ) : (
+                      <p className="text-sm text-gray-500">No files attached</p>
+                    )}
+                  </div>
+                </div>
+              </div>
 
-            <div className="rounded-lg border border-gray-200/70 p-4 text-sm text-gray-500">
+              <div className="rounded-lg border border-gray-200/70 p-4 text-sm text-gray-500 mt-4">
               <p>
                 Submitted on{" "}
                 {format(
@@ -531,72 +555,94 @@ const ViewSubmissionModal = ({
                   "MMM d, yyyy h:mm a"
                 )}
               </p>
-              {submission?.updatedAt !== submission?.createdAt && (
+              {submission?.updatedAt && submission.updatedAt !== submission?.createdAt && (
                 <p className="mt-1">
                   Last updated on{" "}
                   {format(
-                    new Date(submission?.updatedAt || ""),
+                    new Date(submission.updatedAt),
                     "MMM d, yyyy h:mm a"
                   )}
                 </p>
               )}
+              </div>
             </div>
           </div>
         </div>
-
-        {(allowedActions?.includes("printed") &&
-          submission?.status === "pending") ||
-        (allowedActions?.includes("censorship") &&
-          submission?.status !== "censored") ? (
-          <div className="border-t border-gray-200 bg-white  py-3 flex flex-col gap-2">
-            {allowedActions?.includes("printed") &&
-              submission?.status === "pending" && (
-                <Button
-                  className="w-full justify-center bg-green-50/60 text-green-700 hover:bg-green-200 hover:text-green-800 border border-green-100"
-                  variant="outline"
-                  onClick={handlers?.onPrintedConfirm}
-                  disabled={isSubmitting?.printedLoading}
-                >
-                  {isSubmitting?.printedLoading ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    "Mark as Printed"
-                  )}
-                </Button>
-              )}
-
-            {allowedActions?.includes("censorship") && (
-              <Button
-                className="w-full justify-center bg-red-50/60 text-red-700 hover:bg-red-200 hover:text-red-800 border border-red-100"
-                variant="outline"
-                onClick={handlers?.onCensorshipConfirm}
-                disabled={isSubmitting?.censorLoading}
-              >
-                {isSubmitting?.censorLoading ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  "Send to Censorship"
-                )}
-              </Button>
-            )}
-          </div>
-        ) : null}
-
-        {allowedActions?.includes("approve") &&
-          submission?.status === "censored" && (
+        <div className="border-t border-gray-200 bg-white py-3 flex flex-col gap-2">
+          {submission?.files && submission.files.length > 1 && (
             <Button
-              className="w-full justify-center bg-green-50/60 text-green-700 hover:bg-green-200 hover:text-green-800 border border-green-100"
+              className="w-full justify-center gap-2 bg-blue-50/60 text-blue-700 hover:bg-blue-200 hover:text-blue-800 border border-blue-100"
               variant="outline"
-              onClick={handlers?.onUnCensorshipConfirm}
-              disabled={isSubmitting?.unCensorLoading}
+              onClick={handlePreviewAndPrint}
+              disabled={isPreparingPreview}
             >
-              {isSubmitting?.unCensorLoading ? (
+              {isPreparingPreview ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
-                "Approve to Print"
+                <Printer className="h-4 w-4" />
               )}
+              <span className="text-sm font-medium">
+                {isCensored ? "Preview & Censor" : "Preview & Print"}
+              </span>
             </Button>
           )}
+          {((allowedActions?.includes("printed") &&
+            submission?.status === "pending") ||
+            (allowedActions?.includes("censorship") &&
+              submission?.status !== "censored") ||
+            (allowedActions?.includes("approve") &&
+              submission?.status === "censored")) && (
+            <>
+              {allowedActions?.includes("printed") &&
+                submission?.status === "pending" && (
+                  <Button
+                    className="w-full justify-center bg-green-50/60 text-green-700 hover:bg-green-200 hover:text-green-800 border border-green-100"
+                    variant="outline"
+                    onClick={handlers?.onPrintedConfirm}
+                    disabled={isSubmitting?.printedLoading}
+                  >
+                    {isSubmitting?.printedLoading ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      "Mark as Printed"
+                    )}
+                  </Button>
+                )}
+
+              {allowedActions?.includes("censorship") &&
+                submission?.status !== "censored" && (
+                  <Button
+                    className="w-full justify-center bg-red-50/60 text-red-700 hover:bg-red-200 hover:text-red-800 border border-red-100"
+                    variant="outline"
+                    onClick={handlers?.onCensorshipConfirm}
+                    disabled={isSubmitting?.censorLoading}
+                  >
+                    {isSubmitting?.censorLoading ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      "Send to Censorship"
+                    )}
+                  </Button>
+                )}
+
+              {allowedActions?.includes("approve") &&
+                submission?.status === "censored" && (
+                  <Button
+                    className="w-full justify-center bg-green-50/60 text-green-700 hover:bg-green-200 hover:text-green-800 border border-green-100"
+                    variant="outline"
+                    onClick={handlers?.onUnCensorshipConfirm}
+                    disabled={isSubmitting?.unCensorLoading}
+                  >
+                    {isSubmitting?.unCensorLoading ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      "Approve to Print"
+                    )}
+                  </Button>
+                )}
+            </>
+          )}
+        </div>
       </DialogContent>
     </Dialog>
   );
