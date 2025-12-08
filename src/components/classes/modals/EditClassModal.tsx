@@ -77,11 +77,11 @@ const EditClassModal = ({
   });
 
   const onSubmit = async (data: ClassFormData) => {
-
-    const isUnchanged = 
+    const isUnchanged =
       data.subject === classData.subject &&
       data.teacherId === classData.teacherId &&
-      JSON.stringify(data.lessonDays?.sort()) === JSON.stringify(classData.lessonDays?.sort());
+      JSON.stringify(data.lessonDays?.sort()) ===
+        JSON.stringify(classData.lessonDays?.sort());
 
     if (isUnchanged) {
       onOpenChange(false);
@@ -198,30 +198,14 @@ const EditClassModal = ({
                 </FormItem>
               )}
             />
-
-            <div className="flex justify-end space-x-2 pt-4">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => onOpenChange(false)}
-                disabled={updateLoading}
-              >
-                Cancel
-              </Button>
-              <Button type="submit" disabled={updateLoading}>
-                {updateLoading && (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                )}
-                Save Changes
-              </Button>
-            </div>
-
             <FormField
               control={form.control}
               name="lessonDays"
               rules={{
                 validate: (value) =>
-                  value && value.length > 0 ? true : "At least one day is required",
+                  value && value.length > 0
+                    ? true
+                    : "At least one day is required",
               }}
               render={({ field }) => (
                 <FormItem className="flex flex-col">
@@ -257,26 +241,26 @@ const EditClassModal = ({
                                 : [...currentValue, day];
                               field.onChange(newValue);
                             };
-                            
+
                             return (
                               <CommandItem
                                 value={day}
                                 key={day}
                                 onSelect={handleSelect}
                               >
-                              <div className="flex items-center">
-                                <div
-                                  className={cn(
-                                    "mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary",
-                                    field.value?.includes(day)
-                                      ? "bg-primary text-primary-foreground"
-                                      : "opacity-50 [&_svg]:invisible"
-                                  )}
-                                >
-                                  <Check className={cn("h-4 w-4")} />
+                                <div className="flex items-center">
+                                  <div
+                                    className={cn(
+                                      "mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary",
+                                      field.value?.includes(day)
+                                        ? "bg-primary text-primary-foreground"
+                                        : "opacity-50 [&_svg]:invisible"
+                                    )}
+                                  >
+                                    <Check className={cn("h-4 w-4")} />
+                                  </div>
+                                  <span>{day}</span>
                                 </div>
-                                <span>{day}</span>
-                              </div>
                               </CommandItem>
                             );
                           })}
@@ -288,6 +272,22 @@ const EditClassModal = ({
                 </FormItem>
               )}
             />
+            <div className="flex justify-end space-x-2 pt-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+                disabled={updateLoading}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" disabled={updateLoading}>
+                {updateLoading && (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                )}
+                Save Changes
+              </Button>
+            </div>
           </form>
         </Form>
       </DialogContent>
