@@ -22,7 +22,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useClassMutations } from "@/hooks/mutations";
-import { subjects, WEEK_DAYS } from "@/constants/shared";
+import { subjects, WEEK_DAYS, type WeekDay } from "@/constants/shared";
 import { useClassesByTeacher, useTeachers } from "@/hooks";
 import { toast } from "sonner";
 import { Loader2, Check, ChevronsUpDown } from "lucide-react";
@@ -51,7 +51,7 @@ interface NewClassModalProps {
 interface ClassFormData {
   subject: string;
   teacherId: string;
-  lessonDays: string[];
+  lessonDays: WeekDay[];
 }
 
 const NewClassModal = ({
@@ -177,6 +177,12 @@ const NewClassModal = ({
             <FormField
               control={form.control}
               name="lessonDays"
+              rules={{
+                validate: (value) =>
+                  value && value.length > 0
+                    ? true
+                    : "Please select at least one lesson day",
+              }}
               render={({ field }) => (
                 <FormItem className="flex flex-col">
                   <FormLabel>Lesson Days</FormLabel>
@@ -193,7 +199,11 @@ const NewClassModal = ({
                         >
                           {field.value?.length > 0
                             ? field.value
-                                .map((key) => WEEK_DAYS.find((d) => d.key === key)?.label || key)
+                                .map(
+                                  (key) =>
+                                    WEEK_DAYS.find((d) => d.key === key)
+                                      ?.label || key
+                                )
                                 .join(", ")
                             : "Select days"}
                           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />

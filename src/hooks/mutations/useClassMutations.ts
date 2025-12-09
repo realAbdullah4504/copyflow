@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { classesService } from "@/services/classesService";
-import type { ClassEntity } from "@/types";
+import type {ClassesWithSchedules } from "@/types";
 import { QUERY_KEYS } from "@/config";
 import { mutationHandlers } from "./mutationHandlers";
 import type { CreateClassInput } from "@/types";
@@ -20,7 +20,7 @@ export const useClassMutations = () => {
       updates,
     }: {
       id: string;
-      updates: Partial<ClassEntity>;
+      updates: Partial<ClassesWithSchedules>;
     }) => classesService.update(id, updates),
     ...mutationHandlers({
       successMessage: "Class Updated",

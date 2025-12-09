@@ -21,12 +21,12 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { subjects, WEEK_DAYS } from "@/constants/shared";
+import { subjects, WEEK_DAYS, type WeekDay } from "@/constants/shared";
 import { useClassesByTeacher, useClassMutations, useTeachers } from "@/hooks";
 import { toast } from "sonner";
 import { Loader2, Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { ClassEntity, GradeLevel } from "@/types";
+import type { ClassesWithSchedules, GradeLevel } from "@/types";
 import {
   Command,
   CommandEmpty,
@@ -42,7 +42,7 @@ import {
 
 interface EditClassModalProps {
   open: boolean;
-  classData: ClassEntity;
+  classData: ClassesWithSchedules;
   onOpenChange: (open: boolean) => void;
   grade: GradeLevel;
   adminId: string;
@@ -51,7 +51,7 @@ interface EditClassModalProps {
 interface ClassFormData {
   subject: string;
   teacherId: string;
-  lessonDays: string[];
+  lessonDays: WeekDay[];
 }
 
 const EditClassModal = ({
@@ -201,6 +201,12 @@ const EditClassModal = ({
             <FormField
               control={form.control}
               name="lessonDays"
+              rules={{
+                validate: (value) =>
+                  value && value.length > 0
+                    ? true
+                    : "Please select at least one lesson day",
+              }}
               render={({ field }) => (
                 <FormItem className="flex flex-col">
                   <FormLabel>Lesson Days</FormLabel>
@@ -217,8 +223,10 @@ const EditClassModal = ({
                         >
                           {field.value?.length > 0
                             ? field.value
-                                .map((k) =>
-                                  WEEK_DAYS.find((d) => d.key === k)?.label || k
+                                .map(
+                                  (k) =>
+                                    WEEK_DAYS.find((d) => d.key === k)?.label ||
+                                    k
                                 )
                                 .join(", ")
                             : "Select days"}

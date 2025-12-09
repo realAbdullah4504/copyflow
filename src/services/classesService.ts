@@ -285,7 +285,7 @@ export const classesService = {
 
   async update(
     id: string,
-    updates: Partial<Omit<ClassEntity, "id" | "createdAt" | "updatedAt">> & {
+    updates: Partial<Omit<ClassesWithSchedules, "id" | "createdAt" | "updatedAt">> & {
       lessonDays?: WeekDay[];
     }
   ): Promise<ClassesWithSchedules> {
