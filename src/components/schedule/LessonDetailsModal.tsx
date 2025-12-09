@@ -10,14 +10,6 @@ import type { ClassScheduleLessonDTO } from "@/types";
 import { useState } from "react";
 import { submissionService } from "@/services";
 import { toast } from "sonner";
-
-interface FileItem {
-  name: string;
-  url?: string;
-  size?: number;
-  type?: string;
-}
-
 interface LessonDetailsModalProps {
   isOpen: boolean;
   onClose: () => void;
