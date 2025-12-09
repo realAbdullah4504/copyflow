@@ -1,15 +1,16 @@
 import type { ColumnDef } from "@tanstack/react-table";
-import type { ClassEntityV2 } from "@/types";
+import type { ClassesWithSchedules } from "@/types";
 import { cn } from "@/utils";
 import ClassActionCell from "../cells/ClassActionCell";
+import { getDayLabel } from "@/constants";
 
 export const getClassV2Columns = (
   handlers: {
-    onEdit?: (row: ClassEntityV2) => void;
-    onToggle?: (row: ClassEntityV2) => void;
-    onDelete?: (row: ClassEntityV2) => void;
+    onEdit?: (row: ClassesWithSchedules) => void;
+    onToggle?: (row: ClassesWithSchedules) => void;
+    onDelete?: (row: ClassesWithSchedules) => void;
   } = {}
-): ColumnDef<ClassEntityV2>[] => {
+): ColumnDef<ClassesWithSchedules>[] => {
   return [
     {
       accessorKey: "teacher",
@@ -22,6 +23,17 @@ export const getClassV2Columns = (
     {
       accessorKey: "subject",
       header: "Subject",
+    },
+    {
+      accessorKey: "lessonDays",
+      header: "Lesson Days",
+      cell: ({ row }) => {
+        const days = row.original.lessonDays;
+
+        if (!days?.length) return "—";
+
+        return days.map((d) => getDayLabel(d)).join(", ");
+      },
     },
     {
       accessorKey: "active",

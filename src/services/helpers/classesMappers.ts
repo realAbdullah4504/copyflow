@@ -1,13 +1,14 @@
 import type { ClassesWithSchedules, RawClassData, User } from "@/types";
 
 export function mapClassesData(data: RawClassData): ClassesWithSchedules {
+  const schedule = data.schedules[0];
   return {
     id: data.id,
     teacherId: data.teacher_id,
     subject: data.subject,
     grade: data.grade,
     active: data.active,
-    lessonDays: data.schedules[0].lesson_days,
+    lessonDays: schedule ? schedule.lesson_days : [],
     createdAt: new Date(data.created_at),
     updatedAt: new Date(data.updated_at),
     label: `Grade ${data.grade} - ${data.subject}`,

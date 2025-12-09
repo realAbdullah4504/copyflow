@@ -7,7 +7,7 @@ import {
   useModal,
   useTeachersByGrade,
 } from "@/hooks";
-import type { ClassEntityV2, GradeLevel } from "@/types";
+import type { ClassesWithSchedules, GradeLevel } from "@/types";
 import {
   ClassesTable,
   ClassModal,
@@ -23,9 +23,9 @@ const AdminClassesPage = () => {
   );
   const { deleteClass, toggleActive, toggleLoading, deleteLoading } =
     useClassMutations();
-  const { modal, openModal, closeModal } = useModal<ClassEntityV2>();
+  const { modal, openModal, closeModal } = useModal<ClassesWithSchedules>();
 
-  const handleAction = (action: string, row: ClassEntityV2) => {
+  const handleAction = (action: string, row: ClassesWithSchedules) => {
     openModal(action, row);
   };
 
