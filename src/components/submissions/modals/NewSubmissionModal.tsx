@@ -18,6 +18,8 @@ import { generateSubmissionPDF } from "@/utils/generateSubmissionPDF";
 import { toast } from "sonner";
 import type { FileType, PaperColor } from "@/types/domain/submission";
 import { filterTypes, paperColors } from "@/constants";
+import type { ClassesWithSchedules } from "@/types";
+import type { WeekDay } from "@/constants/shared";
 import { useAuth, useCreateNotification } from "@/hooks";
 
 interface NewSubmissionModalProps {
@@ -71,6 +73,7 @@ const NewSubmissionModal = ({
     teacherId || form.watch("teacherId"),
     activeClasses
   );
+  console.log("classes", classes);
   const { teachers } = useTeachers(adminId!,activeTeachers);
 
   const fileTypeMap: Record<string, FileType> = {
@@ -79,6 +82,36 @@ const NewSubmissionModal = ({
     handout: "handout",
     lesson_plan: "worksheet", // Map to closest match
     other: "handout", // Map to closest match
+  };
+
+  const getLessonDateFilter = (selectedClass: ClassesWithSchedules | undefined) => {
+    if (!selectedClass || !selectedClass.lessonDays?.length) {
+      return (date: Date) => date >= new Date();
+    }
+
+    const dayMap: Record<WeekDay, number> = {
+      monday: 1,
+      tuesday: 2,
+      wednesday: 3,
+      thursday: 4,
+    };
+
+    const allowedDays = new Set(
+      selectedClass.lessonDays
+        .map((d) => dayMap[d])
+        .filter((d): d is number => d !== undefined)
+    );
+
+    return (date: Date) => {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const current = new Date(date);
+      current.setHours(0, 0, 0, 0);
+
+      if (current < today) return false;
+
+      return allowedDays.size === 0 ? true : allowedDays.has(current.getDay());
+    };
   };
 
   // Map form paper color values to PaperColor type
@@ -160,13 +193,27 @@ const NewSubmissionModal = ({
     );
   };
 
-  const formFields = getSubmissionFields({
+  const selectedClassId = form.watch("classId");
+  const selectedClass = (classes as ClassesWithSchedules[] | undefined)?.find(
+    (cls) => cls.id === selectedClassId
+  );
+
+  const baseFormFields = getSubmissionFields({
     classes: classes || [],
     fileTypes: filterTypes,
     paperColors: paperColors,
     teachers: teachers || [],
     disabledFields: !allowTeacherSelection && teacherId ? ["teacherId"] : [],
   });
+
+  const formFields = baseFormFields.map((field) =>
+    field.name === "lessonDate"
+      ? {
+          ...field,
+          filterDate: getLessonDateFilter(selectedClass),
+        }
+      : field
+  );
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
