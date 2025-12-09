@@ -215,7 +215,25 @@ export const classesService = {
       }));
   },
 
-  async create(data: CreateClassInput): Promise<ClassEntity> {
+  async create(data: CreateClassInput): Promise<ClassesWithSchedules> {
+    // Check for conflicts: max 4 teachers per day per grade
+    for (const day of data.lessonDays) {
+      const { data: existingSchedules, error: conflictError } = await supabase
+        .from("schedules")
+        .select("id, teacher_id")
+        .eq("grade", data.grade)
+        .contains("lesson_days", [day]);
+
+      if (conflictError) throw await AppError.from(conflictError);
+
+      if (existingSchedules && existingSchedules.length >= 4) {
+        throw new Error(
+          `Cannot assign lesson on ${day}. Maximum 4 teachers already scheduled for grade ${data.grade}.`
+        );
+      }
+    }
+
+    // Insert the class
     const insertData = {
       teacher_id: data.teacherId,
       subject: data.subject,
@@ -226,25 +244,30 @@ export const classesService = {
     const { data: classData, error } = await supabase
       .from("classes")
       .insert(insertData)
-      .select()
+      .select("*, teacher:teacher_id(*)")
       .single();
 
-    if (error) {
-      throw await AppError.from(error);
-    }
-
-    if (!classData) {
+    if (error) throw await AppError.from(error);
+    if (!classData)
       throw await AppError.from({
         message: "Failed to create class",
         status: 500,
       });
-    }
-    await supabase.from("schedules").insert({
+
+    // Insert the schedule
+    const scheduleEntry = {
       teacher_id: data.teacherId,
       grade: data.grade,
       class_id: classData.id,
-      lesson_days: data.lessonDays,
-    });
+      lesson_days: data.lessonDays, // array of WeekDay
+      period: 1, // default period
+    };
+
+    const { error: scheduleError } = await supabase
+      .from("schedules")
+      .insert([scheduleEntry]);
+
+    if (scheduleError) throw await AppError.from(scheduleError);
 
     return {
       id: classData.id,
@@ -252,9 +275,11 @@ export const classesService = {
       subject: classData.subject,
       grade: classData.grade,
       active: classData.active,
-      label: `Grade ${classData.grade} - ${classData.subject}`,
+      teacher: classData.teacher,
+      lessonDays: data.lessonDays,
       createdAt: new Date(classData.created_at),
       updatedAt: new Date(classData.updated_at),
+      label: `Grade ${classData.grade} - ${classData.subject}`,
     };
   },
 
