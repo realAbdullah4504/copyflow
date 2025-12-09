@@ -1,11 +1,24 @@
 import type { ColumnDef } from "@tanstack/react-table";
-import type { ClassEntity } from "@/types";
+import type { ClassesWithSchedules } from "@/types";
 import { cn } from "@/utils";
+import { getDayLabel } from "@/constants";
 
-export const getClassColumns = (): ColumnDef<ClassEntity>[] => {
+export const getClassColumns = (): ColumnDef<ClassesWithSchedules>[] => {
   return [
     { accessorKey: "subject", header: "Subject" },
     { accessorKey: "grade", header: "Grade" },
+    {
+      accessorKey: "lessonDays",
+      header: "Lesson Days",
+      cell: ({ row }) => {
+        const days = row.original.lessonDays;
+
+        if (!days?.length) return "—";
+
+        return days.map((d) => getDayLabel(d)).join(", ");
+      },
+    },
+
     // Update the status cell to include background colors
     {
       accessorKey: "active",

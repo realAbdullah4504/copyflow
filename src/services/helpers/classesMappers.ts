@@ -1,13 +1,13 @@
-import type { ClassEntityV2, RawClassData, User } from "@/types";
+import type { ClassesWithSchedules, RawClassData, User } from "@/types";
 
-export function mapClassesData(data: RawClassData): ClassEntityV2 {
+export function mapClassesData(data: RawClassData): ClassesWithSchedules {
   return {
     id: data.id,
     teacherId: data.teacher_id,
     subject: data.subject,
     grade: data.grade,
     active: data.active,
-    lessonDays: data.lesson_days,
+    lessonDays: data.schedules[0].lesson_days,
     createdAt: new Date(data.created_at),
     updatedAt: new Date(data.updated_at),
     label: `Grade ${data.grade} - ${data.subject}`,

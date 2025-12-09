@@ -31,7 +31,9 @@ export const WEEK_DAYS = [
 export type WeekDay = typeof WEEK_DAYS[number]['key'];
 
 // Helper function to get day labels
-export const getDayLabels = () => WEEK_DAYS.map(day => day.label);
+export const getDayLabel = (key: WeekDay) =>
+  WEEK_DAYS.find(d => d.key === key)?.label ?? key;
+
 
 export const grades = ["9", "10", "11", "12"];
 

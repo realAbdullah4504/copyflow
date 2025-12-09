@@ -1,4 +1,4 @@
-import type { Submission } from "./submission";
+import type { Schedule } from "./schedule";
 import type { User } from "./user";
 import type { WeekDay } from "@/constants/shared";
 
@@ -8,7 +8,6 @@ export interface ClassEntity {
   teacherId: string;
   grade: string;
   subject: string;
-  lessonDays: string[];
   active: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -19,10 +18,10 @@ export type RawClassData = {
   teacher_id: string;
   subject: string;
   grade: string;
-  lesson_days: string[];
   active: boolean;
   created_at: string;
   updated_at: string;
+  schedules: Schedule[];
   teacher: {
     id: string;
     name: string;
@@ -34,22 +33,15 @@ export type RawClassData = {
 };
 
 export type ClassEntityV2 = ClassEntity & { teacher: User };
+export type ClassesWithSchedules = ClassEntityV2 & {
+  lessonDays: WeekDay[];
+};
 
 export type CreateClassInput = Pick<
   ClassEntity,
-  "teacherId" | "grade" | "subject" | "lessonDays"
->;
+  "teacherId" | "grade" | "subject"
+> & {
+  lessonDays: WeekDay[];
+};
 
 export type GradeLevel = "9" | "10" | "11" | "12";
-
-export interface ClassScheduleLessonDTO {
-  id: string;
-  subject: string;
-  teacher: string;
-  submissions?: Partial<Submission>[];
-}
-
-export interface GradeScheduleDTO {
-  gradeLabel: string;
-  lessons: Partial<Record<WeekDay, ClassScheduleLessonDTO>>;
-}

@@ -6,7 +6,7 @@ export interface Schedule {
   classId: string; // reference to classes
   teacherId: string; // reference to profiles
   grade: string; // grade label
-  lessonDay: WeekDay; // day of the week
+  lessonDay: WeekDay[]; // day of the week
   period: number; // period number (0 → period 1)
   viewed: boolean; // viewed or not
   createdAt: string; // ISO timestamp

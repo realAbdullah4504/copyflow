@@ -1,25 +1,23 @@
 import { supabase } from "@/lib/supabaseClient";
 import type {
   ClassEntity,
-  ClassEntityV2,
-  ClassScheduleLessonDTO,
+  ClassesWithSchedules,
   CreateClassInput,
   GradeLevel,
-  GradeScheduleDTO,
 } from "@/types";
 import type { WeekDay } from "@/constants/shared";
 import { AppError } from "@/utils";
 import { mapClassesData } from "./helpers/classesMappers";
-import { addDays, endOfWeek, startOfWeek } from "date-fns";
+import { addDays, startOfWeek } from "date-fns";
 
 export const classesService = {
   async getByTeacher(
     teacherId: string,
     status?: boolean
-  ): Promise<ClassEntity[]> {
+  ): Promise<ClassesWithSchedules[]> {
     let query = supabase
       .from("classes")
-      .select("*")
+      .select("*, schedules(*),teacher:teacher_id(*)")
       .eq("teacher_id", teacherId)
       .order("created_at", { ascending: false });
 
@@ -33,30 +31,36 @@ export const classesService = {
       throw await AppError.from(error);
     }
 
-    if (!classes) {
+    if (!classes || classes.length === 0) {
       throw await AppError.from({
         message: "Classes not found",
         status: 404,
       });
     }
 
-    return classes.map((c) => ({
-      id: c.id,
-      teacherId: c.teacher_id,
-      subject: c.subject,
-      grade: c.grade,
-      active: c.active,
-      lessonDays: c.lesson_days,
-      createdAt: new Date(c.created_at),
-      updatedAt: new Date(c.updated_at),
-      label: `Grade ${c.grade} - ${c.subject}`,
-    }));
+    return classes.map((c) => {
+      const schedule = c.schedules?.[0] || null;
+      console.log(schedule)
+
+      return {
+        id: c.id,
+        teacherId: c.teacher_id,
+        subject: c.subject,
+        grade: c.grade,
+        active: c.active,
+        teacher: c.teacher,
+        lessonDays: schedule ? schedule.lesson_days : [], // always returns array
+        createdAt: new Date(c.created_at),
+        updatedAt: new Date(c.updated_at),
+        label: `Grade ${c.grade} - ${c.subject}`,
+      };
+    });
   },
 
   async getTeachersByGrade(
     grade: GradeLevel,
     adminId: string
-  ): Promise<ClassEntityV2[]> {
+  ): Promise<ClassesWithSchedules[]> {
     const { data: teachers, error } = await supabase
       .from("profiles")
       .select("id")
@@ -71,7 +75,9 @@ export const classesService = {
 
     const { data: classes } = await supabase
       .from("classes")
-      .select("*, teacher:teacher_id(id, name, email, role,admin_id,active)")
+      .select(
+        "*, teacher:teacher_id(id, name, email, role,admin_id,active),schedules(*)"
+      )
       .eq("grade", grade)
       .in("teacher_id", teacherIds)
       .order("created_at", { ascending: false });
@@ -79,6 +85,8 @@ export const classesService = {
     if (!classes) {
       throw await AppError.from(error);
     }
+
+    console.log("classes", classes);
 
     const mapped = classes.map(mapClassesData);
 
@@ -213,28 +221,8 @@ export const classesService = {
       teacher_id: data.teacherId,
       subject: data.subject,
       grade: data.grade,
-      lesson_days: data.lessonDays,
       active: true,
     };
-
-    if (data.lessonDays && data.lessonDays.length > 0) {
-      const { data: conflicts, error: conflictError } = await supabase
-        .from("classes")
-        .select("*,teacher:teacher_id(name)")
-        .eq("grade", data.grade)
-        .overlaps("lesson_days", data.lessonDays);
-
-      if (conflictError) {
-        throw await AppError.from(conflictError);
-      }
-
-      if (conflicts && conflicts.length > 0) {
-        const teacherName = conflicts[0]?.teacher.name ?? "";
-        throw new Error(
-          `Another teacher ${teacherName} is already assigned on one of these days.`
-        );
-      }
-    }
 
     const { data: classData, error } = await supabase
       .from("classes")
@@ -252,6 +240,12 @@ export const classesService = {
         status: 500,
       });
     }
+    await supabase.from("schedules").insert({
+      teacher_id: data.teacherId,
+      grade: data.grade,
+      class_id: classData.id,
+      lesson_days: data.lessonDays,
+    });
 
     return {
       id: classData.id,
@@ -259,7 +253,6 @@ export const classesService = {
       subject: classData.subject,
       grade: classData.grade,
       active: classData.active,
-      lessonDays: classData.lesson_days,
       label: `Grade ${classData.grade} - ${classData.subject}`,
       createdAt: new Date(classData.created_at),
       updatedAt: new Date(classData.updated_at),
@@ -268,36 +261,94 @@ export const classesService = {
 
   async update(
     id: string,
-    updates: Partial<ClassEntity>
+    updates: Partial<Omit<ClassEntity, "id" | "createdAt" | "updatedAt">> & {
+      lessonDays?: WeekDay[];
+    }
   ): Promise<ClassEntity> {
+    // Update basic class info
     const updateData = {
       ...(updates.teacherId !== undefined && { teacher_id: updates.teacherId }),
       ...(updates.subject !== undefined && { subject: updates.subject }),
       ...(updates.grade !== undefined && { grade: updates.grade }),
-      ...(updates.lessonDays !== undefined && {
-        lesson_days: updates.lessonDays,
-      }),
     };
 
+    // If lessonDays are being updated, handle the schedule updates
     if (updates.lessonDays && updates.lessonDays.length > 0) {
+      // Check for schedule conflicts - allow max 4 schedules per day
       const { data: conflicts, error: conflictError } = await supabase
-        .from("classes")
-        .select("*,teacher:teacher_id(name)")
+        .from("schedules")
+        .select("lesson_day, period, teacher:teacher_id(name)")
         .eq("grade", updates.grade)
-        .overlaps("lesson_days", updates.lessonDays);
+        .in("lesson_day", updates.lessonDays)
+        .neq("class_id", id); // Exclude current class from conflict check
 
       if (conflictError) {
         throw await AppError.from(conflictError);
       }
 
       if (conflicts && conflicts.length > 0) {
-        const teacherName = conflicts[0]?.teacher.name ?? "";
-        throw new Error(
-          `Another teacher ${teacherName} is already assigned on one of these days.`
-        );
+        // Group conflicts by day and count periods
+        const periodsByDay: Record<string, Set<number>> = {};
+        const teachersByDay: Record<string, string[]> = {};
+
+        for (const conflict of conflicts) {
+          const day = conflict.lesson_day;
+          const period = conflict.period || 1;
+
+          if (!periodsByDay[day]) {
+            periodsByDay[day] = new Set();
+            teachersByDay[day] = [];
+          }
+
+          periodsByDay[day].add(period);
+          const teacherName = conflict.teacher?.name ?? "Unknown Teacher";
+          teachersByDay[day].push(teacherName);
+        }
+
+        // Find days that already have 4 periods
+        const fullDays = Object.entries(periodsByDay)
+          .filter(([_, periods]) => periods.size >= 4)
+          .map(([day]) => day);
+
+        if (fullDays.length > 0) {
+          const conflictMessages = fullDays.map((day) => {
+            const teachers = [...new Set(teachersByDay[day])]; // Get unique teachers
+            return `${
+              day.charAt(0).toUpperCase() + day.slice(1)
+            }: All 4 periods are taken by ${teachers.length} teacher(s)`;
+          });
+
+          throw new Error(
+            `Cannot schedule class. Maximum capacity reached for:\n${conflictMessages.join(
+              "\n"
+            )}`
+          );
+        }
+      }
+
+      // Delete existing schedules for this class
+      await supabase.from("schedules").delete().eq("class_id", id);
+
+      // Create new schedule entries
+      const scheduleEntries = updates.lessonDays.map((day) => ({
+        class_id: id,
+        teacher_id: updates.teacherId,
+        grade: updates.grade,
+        lesson_day: day,
+        // You might want to get the period from the existing schedule or as part of updates
+        period: 1, // Default or get from input
+      }));
+
+      const { error: scheduleError } = await supabase
+        .from("schedules")
+        .insert(scheduleEntries);
+
+      if (scheduleError) {
+        throw await AppError.from(scheduleError);
       }
     }
 
+    // Update the class
     const { data: classData, error } = await supabase
       .from("classes")
       .update(updateData)
@@ -321,7 +372,6 @@ export const classesService = {
       teacherId: classData.teacher_id,
       subject: classData.subject,
       grade: classData.grade,
-      lessonDays: classData.lesson_days,
       active: classData.active,
       label: `Grade ${classData.grade} - ${classData.subject}`,
       createdAt: new Date(classData.created_at),
