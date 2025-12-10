@@ -42,9 +42,10 @@ export const classesService = {
       const classIds = (classes || []).map((c) => c.id);
       const { data: subs } = await supabase
         .from("submissions")
-        .select("class_id, files")
+        .select("class_id, files,id")
         .in("class_id", classIds)
-        .eq("lesson_date", lessonDate);
+        .eq("lesson_date", lessonDate)
+        .eq("status", "pending");
 
       submissions = subs || [];
     }
@@ -52,7 +53,24 @@ export const classesService = {
     // 4️⃣ Map classes
     return (classes || []).map((cls) => {
       const schedule = schedules?.find((s) => s.class_id === cls.id);
-      const classSubmissions = submissions.filter((s) => s.class_id === cls.id);
+      // Define a more precise type for the submission object
+      interface SubmissionWithId {
+        id: string;
+        class_id: string;
+        files: string | string[];
+      }
+
+      // Cast the submissions to the correct type and filter by class ID
+      const classSubmissions = (
+        submissions as unknown as SubmissionWithId[]
+      ).filter((s) => s.class_id === cls.id);
+
+      // Convert files to an array if it's a string
+      const normalizeFiles = (files: string | string[]): string[] => {
+        if (Array.isArray(files)) return files;
+        return files ? [files] : [];
+      };
+
       return {
         id: cls.id,
         teacherId: cls.teacher_id,
@@ -61,7 +79,15 @@ export const classesService = {
         active: cls.active,
         teacher: cls.teacher,
         lessonDays: schedule?.lesson_days ?? [],
-        submissionFiles: classSubmissions.flatMap((s) => s.files || []),
+        submissionFiles: classSubmissions.flatMap((submission) =>
+          normalizeFiles(submission.files).map(
+            (fileName: string, index: number) => ({
+              id: `${submission.id}-${index}`, // Generate a unique ID for each file
+              name: fileName,
+              submissionId: submission.id,
+            })
+          )
+        ),
         createdAt: new Date(cls.created_at),
         updatedAt: new Date(cls.updated_at),
         label: `Grade ${cls.grade} - ${cls.subject}`,

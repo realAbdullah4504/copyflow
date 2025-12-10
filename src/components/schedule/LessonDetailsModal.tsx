@@ -10,6 +10,7 @@ import { useState } from "react";
 import { submissionService } from "@/services";
 import { toast } from "sonner";
 import type { LessonSlot } from "@/types";
+import type { SubmissionFile } from "@/types/domain/class";
 interface LessonDetailsModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -43,14 +44,6 @@ const getFileIcon = (fileName: string) => {
   }
 };
 
-const formatFileSize = (bytes?: number): string => {
-  if (!bytes) return "0 Bytes";
-  const k = 1024;
-  const sizes = ["Bytes", "KB", "MB", "GB"];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
-};
-
 export const LessonDetailsModal = ({
   isOpen,
   onClose,
@@ -60,41 +53,42 @@ export const LessonDetailsModal = ({
     Record<string, boolean>
   >({});
 
-  if (!lesson) return null;
+  const handleDownload = async (file: SubmissionFile) => {
+  setDownloadingFiles((prev) => ({ ...prev, [file.id]: true }));
+  try {
+    const { data, error } = await submissionService.downloadFile(
+      file.submissionId,
+      file.name
+    );
+    
+    if (error) {
+      throw error;
+    }
 
-  const handleDownload = async (fileName: string, submissionId: string) => {
-    if (!submissionId) return;
-
-    setDownloadingFiles((prev) => ({ ...prev, [fileName]: true }));
-
-    try {
-      const { data: blob, error } = await submissionService.downloadFile(
-        submissionId,
-        fileName
-      );
-
-      if (error || !blob) {
-        throw error || new Error(`Failed to download file: ${fileName}`);
-      }
-
-      const url = window.URL.createObjectURL(blob);
+    if (data) {
+      const url = globalThis.URL.createObjectURL(data);
       const a = document.createElement("a");
       a.href = url;
-      a.download = fileName;
+      a.download = file.name;
       document.body.appendChild(a);
       a.click();
-      window.URL.revokeObjectURL(url);
+      globalThis.URL.revokeObjectURL(url);
       a.remove();
-
-      toast.success(`Downloaded ${fileName} successfully`);
-    } catch (error) {
-      console.error("Download error:", error);
-      toast.error(`Failed to download ${fileName}. Please try again.`);
-    } finally {
-      setDownloadingFiles((prev) => ({ ...prev, [fileName]: false }));
+      toast.success(`Downloaded ${file.name}`);
+    } else {
+      throw new Error('No file data received');
     }
-  };
-  const allFiles = lesson.submissionFiles;
+  } catch (error) {
+    console.error("Error downloading file:", error);
+    toast.error(`Failed to download ${file.name}`);
+  } finally {
+    setDownloadingFiles((prev) => ({ ...prev, [file.id]: false }));
+  }
+};
+
+  if (!lesson) return null;
+
+  const allFiles = lesson.submissionFiles || [];
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -112,17 +106,17 @@ export const LessonDetailsModal = ({
           <div className="mt-6">
             <h3 className="text-lg font-medium mb-3">Lesson Materials</h3>
             <div className="space-y-3 max-h-[300px] overflow-y-auto pr-2">
-              {allFiles.map((file: string, index: number) => (
+              {allFiles.map((file: SubmissionFile) => (
                 <div
-                  key={`${file}-${index}`}
+                  key={file.id}
                   className="flex items-center justify-between p-3 bg-muted/50 rounded-lg hover:bg-muted/80 transition-colors"
                 >
                   <div className="flex items-center space-x-3 min-w-0">
                     <span className="text-2xl flex-shrink-0">
-                      {getFileIcon(file)}
+                      {getFileIcon(file.name)}
                     </span>
                     <div className="min-w-0">
-                      <p className="font-medium truncate">{file}</p>
+                      <p className="font-medium truncate">{file.name}</p>
                       {/* <p className="text-sm text-muted-foreground">
                         {file.size ? formatFileSize(file.size) : "Unknown size"}{" "}
                         •
@@ -138,11 +132,11 @@ export const LessonDetailsModal = ({
                     className="h-8 w-8 flex-shrink-0"
                     onClick={(e) => {
                       e.stopPropagation();
-                      handleDownload(file, file);
+                      handleDownload(file);
                     }}
-                    disabled={downloadingFiles[file]}
+                    disabled={downloadingFiles[file.id]}
                   >
-                    {downloadingFiles[file] ? (
+                    {downloadingFiles[file.id] ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
                     ) : (
                       <Download className="h-4 w-4" />

@@ -45,7 +45,7 @@ const ViewSubmissionModal = ({
   >({});
   const [isLoading, setIsLoading] = useState({
     preview: false,
-    print: false
+    print: false,
   });
   const isCensored = submission?.status === "censored";
 
@@ -93,10 +93,12 @@ const ViewSubmissionModal = ({
     if (!submission?.files?.length) return;
 
     // Set loading state based on action
-    const loadingKey = shouldPrint ? 'print' : 'preview';
-    setIsLoading(prev => ({ ...prev, [loadingKey]: true }));
-    
-    const toastId = toast.loading(shouldPrint ? "Preparing for print..." : "Preparing preview...");
+    const loadingKey = shouldPrint ? "print" : "preview";
+    setIsLoading((prev) => ({ ...prev, [loadingKey]: true }));
+
+    const toastId = toast.loading(
+      shouldPrint ? "Preparing for print..." : "Preparing preview..."
+    );
 
     try {
       const { PDFDocument } = await import("pdf-lib");
@@ -269,7 +271,7 @@ const ViewSubmissionModal = ({
       console.error("Fatal error generating print preview:", err);
       toast.error("Something went wrong preparing the PDF.", { id: toastId });
     } finally {
-      setIsLoading(prev => ({ ...prev, [loadingKey]: false }));
+      setIsLoading((prev) => ({ ...prev, [loadingKey]: false }));
     }
   };
 
@@ -429,7 +431,7 @@ const ViewSubmissionModal = ({
                   </p>
                 </div>
               </div>
-              <div className="flex flex-col flex-1 min-h-0">
+              <div className="space-y-2">
                 <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 mb-2">
                   Files
                 </label>
@@ -475,47 +477,6 @@ const ViewSubmissionModal = ({
                   ) : (
                     <p className="text-sm text-gray-500">No files attached</p>
                   )}
-                  <div className="space-y-2">
-                    {submission?.files && submission.files.length > 0 ? (
-                      submission.files
-                        ?.filter(
-                          (f): f is { existing: true; name: string } =>
-                            f.existing
-                        )
-                        .map(({ name: fileName }) => (
-                          <div
-                            key={`file-${fileName}`}
-                            className="flex items-center justify-between group hover:bg-white p-2 rounded-md border border-transparent hover:border-gray-200"
-                          >
-                            <div className="flex items-center gap-2">
-                              <FileText className="h-4 w-4 text-gray-500 flex-shrink-0" />
-                              <span className="text-sm text-gray-700 truncate max-w-[180px]">
-                                {fileName}
-                              </span>
-                            </div>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-8 px-2 opacity-0 group-hover:opacity-100 transition-opacity"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleDownload(fileName);
-                              }}
-                              disabled={downloadingFiles[fileName]}
-                            >
-                              {downloadingFiles[fileName] ? (
-                                <Loader2 className="h-4 w-4 animate-spin" />
-                              ) : (
-                                <Download className="h-4 w-4" />
-                              )}
-                              <span className="sr-only">Download</span>
-                            </Button>
-                          </div>
-                        ))
-                    ) : (
-                      <p className="text-sm text-gray-500">No files attached</p>
-                    )}
-                  </div>
                 </div>
               </div>
 
@@ -558,7 +519,7 @@ const ViewSubmissionModal = ({
                 )}
                 <span className="text-sm font-medium">Preview</span>
               </Button>
-              
+
               {/* Print Button - Only shown for non-censored submissions */}
               {!isCensored && (
                 <Button

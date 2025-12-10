@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, FileText, Archive, AlertTriangle, CheckCircle, Clock } from "lucide-react";
+import { Loader2, FileText, AlertTriangle, CheckCircle, Clock } from "lucide-react";
 import { submissionService } from "@/services/submissionService";
 import { useAuth } from "@/hooks/useAuth";
 
