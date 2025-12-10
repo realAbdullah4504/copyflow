@@ -65,10 +65,10 @@ export const classesService = {
         submissions as unknown as SubmissionWithId[]
       ).filter((s) => s.class_id === cls.id);
 
-      // Convert files to an array if it's a string
+      // Convert files to an array if it's a string and filter out submission-details files
       const normalizeFiles = (files: string | string[]): string[] => {
-        if (Array.isArray(files)) return files;
-        return files ? [files] : [];
+        const filesArray = Array.isArray(files) ? files : files ? [files] : [];
+        return filesArray.filter(file => !file.includes('submission-details-'));
       };
 
       return {
