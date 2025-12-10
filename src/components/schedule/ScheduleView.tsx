@@ -1,7 +1,21 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { WEEK_DAYS } from "@/constants/shared";
-import type { IGradeSchedule, IScheduleViewProps, ILesson } from "@/types/schedule";
+import type { LessonSlot } from "@/types/domain/schedule";
+
+interface IGradeSchedule {
+  grade: string;
+  lessons: Record<string, (LessonSlot | null)[]>;
+}
+
+interface ILesson extends LessonSlot {
+  classId: string;
+}
+
+interface IScheduleViewProps {
+  schedule: IGradeSchedule[];
+  onViewLesson?: (lesson: ILesson) => void;
+}
 
 interface ScheduleHeaderProps {
   selectedDayLabel: string;
@@ -56,7 +70,7 @@ interface LessonCardProps {
 const LessonCard = ({ lesson, onViewLesson }: LessonCardProps) => (
   <div className="w-full h-full flex flex-col items-center justify-center bg-slate-50 rounded-xl border border-slate-200 text-center px-3 shadow-sm hover:shadow-md transition-shadow">
     <div className="text-sm font-semibold text-slate-900">{lesson.subject}</div>
-    <div className="mt-1 text-xs text-slate-600">{lesson.teacher}</div>
+    <div className="mt-1 text-xs text-slate-600">{lesson.teacherName}</div>
     {onViewLesson && (
       <Button
         size="sm"
@@ -77,6 +91,19 @@ interface ScheduleGridProps {
 }
 
 const ScheduleGrid = ({ schedule, dayKey, onViewLesson }: ScheduleGridProps) => {
+  // Get the lessons for the current day, or an empty array if no lessons exist
+  const getDayLessons = (gradeSchedule: IGradeSchedule) => {
+    const daySchedule = gradeSchedule.lessons[dayKey.toLowerCase()];
+    if (!daySchedule) return Array(4).fill(null);
+    
+    // Ensure we always return an array of 4 items
+    const result = [...daySchedule];
+    while (result.length < 4) {
+      result.push(null);
+    }
+    return result.slice(0, 4);
+  };
+
   return (
     <div className="grid grid-cols-[90px_repeat(4,minmax(0,1fr))] gap-3 md:gap-4">
       <div className="flex items-end justify-center pb-2 text-xs font-medium text-slate-500 uppercase tracking-wide">
@@ -88,23 +115,17 @@ const ScheduleGrid = ({ schedule, dayKey, onViewLesson }: ScheduleGridProps) => 
         </div>
       ))}
 
-      {schedule.map((row) => {
-        const dayLessons: (ILesson | null)[] = Array(4).fill(null);
-
-        // Fill lessons for this day if available
-        const lessonKeys = Object.keys(row.lessons).filter((key) => key === dayKey);
-        lessonKeys.forEach((key, i) => {
-          if (i < 4) dayLessons[i] = row.lessons[key];
-        });
-
+      {schedule.map((gradeSchedule) => {
+        const dayLessons = getDayLessons(gradeSchedule);
+        
         return (
-          <div key={row.gradeLabel} className="contents">
+          <div key={`${gradeSchedule.grade}-${dayKey}`} className="contents">
             <div className="flex items-center justify-center bg-slate-50 rounded-xl border border-slate-200 text-sm font-semibold text-slate-800 shadow-sm">
-              {row.gradeLabel}
+              Grade {gradeSchedule.grade}
             </div>
             {dayLessons.map((lesson, idx) => (
               <div
-                key={`${row.gradeLabel}-${idx}`}
+                key={`${gradeSchedule.grade}-${dayKey}-${idx}`}
                 className="h-32 flex items-center justify-center"
               >
                 {lesson ? (

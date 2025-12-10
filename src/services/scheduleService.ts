@@ -4,6 +4,22 @@ import type { Schedule } from "@/types";
 import { AppError } from "@/utils";
 
 export const scheduleService = {
+  async getSchedulesForClasses(
+    classIds: string[]
+  ): Promise<Record<string, Schedule>> {
+    const { data, error } = await supabase
+      .from("schedules")
+      .select("*")
+      .in("class_id", classIds);
+
+    if (error) throw await AppError.from(error);
+
+    // Map schedules by classId for easy lookup
+    return data.reduce((acc, schedule) => {
+      acc[schedule.class_id] = schedule;
+      return acc;
+    }, {} as Record<string, Schedule>);
+  },
   async validateConflicts(
     grade: string,
     lessonDays: WeekDay[],
@@ -54,7 +70,9 @@ export const scheduleService = {
   async updateSchedule(classId: string, updates: Partial<Schedule>) {
     const updateData = {
       ...(updates.teacherId !== undefined && { teacher_id: updates.teacherId }),
-      ...(updates.lessonDays !== undefined && { lesson_days: updates.lessonDays }),
+      ...(updates.lessonDays !== undefined && {
+        lesson_days: updates.lessonDays,
+      }),
       ...(updates.grade !== undefined && { grade: updates.grade }),
     };
     const { data: updatedSchedule, error } = await supabase

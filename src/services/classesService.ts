@@ -1,17 +1,42 @@
 import { supabase } from "@/lib/supabaseClient";
 import type {
-  ClassEntity,
   ClassesWithSchedules,
   CreateClassInput,
   GradeLevel,
+  PrincipalScheduleDTO,
 } from "@/types";
 import type { WeekDay } from "@/constants/shared";
-import { AppError } from "@/utils";
+import { AppError, getWeekDayKey } from "@/utils";
 import { mapClassesData } from "./helpers/classesMappers";
-import { addDays, startOfWeek } from "date-fns";
 import { scheduleService } from "./scheduleService";
 
 export const classesService = {
+  async getAllClassesWithSchedules(): Promise<ClassesWithSchedules[]> {
+    const { data: classes, error } = await supabase
+      .from("classes")
+      .select("*, schedules(*), teacher:teacher_id(*)")
+      .order("grade", { ascending: true })
+      .order("created_at", { ascending: true });
+
+    if (error) throw await AppError.from(error);
+
+    return (classes || []).map((c) => {
+      const schedule = c.schedules?.[0];
+
+      return {
+        id: c.id,
+        teacherId: c.teacher_id,
+        subject: c.subject,
+        grade: c.grade,
+        active: c.active,
+        teacher: c.teacher,
+        lessonDays: schedule?.lesson_days ?? [],
+        createdAt: new Date(c.created_at),
+        updatedAt: new Date(c.updated_at),
+        label: `Grade ${c.grade} - ${c.subject}`,
+      };
+    });
+  },
   async getByTeacher(
     teacherId: string,
     status?: boolean
@@ -93,6 +118,51 @@ export const classesService = {
     return mapped;
   },
 
+  async getAllGradesWithSchedule(): Promise<PrincipalScheduleDTO[]> {
+    // Fetch all classes with schedules
+    const classes: ClassesWithSchedules[] =
+      await this.getAllClassesWithSchedules();
+
+    // Initialize grades 9–12
+    const grouped: Record<GradeLevel, PrincipalScheduleDTO> = [
+      "9",
+      "10",
+      "11",
+      "12",
+    ].reduce((acc, grade) => {
+      acc[grade as GradeLevel] = { grade: grade as GradeLevel, lessons: {} };
+      return acc;
+    }, {} as Record<GradeLevel, PrincipalScheduleDTO>);
+
+    for (const cls of classes) {
+      const gradeGroup = grouped[cls.grade as GradeLevel];
+
+      for (const day of cls.lessonDays) {
+        if (!gradeGroup.lessons[day]) gradeGroup.lessons[day] = [];
+
+        // Fill up to 4 slots
+        if (gradeGroup.lessons[day].length < 4) {
+          gradeGroup.lessons[day].push({
+            teacherName: cls.teacher.name,
+            subject: cls.subject,
+            classId: cls.id,
+          });
+        }
+      }
+    }
+
+    // Ensure all grades/days have exactly 4 slots (null for empty)
+    Object.values(grouped).forEach((grade) => {
+      Object.keys(grade.lessons).forEach((dayKey) => {
+        while (grade.lessons[dayKey].length < 4) {
+          grade.lessons[dayKey].push(null);
+        }
+      });
+    });
+
+    return Object.values(grouped);
+  },
+
   async create(data: CreateClassInput): Promise<ClassesWithSchedules> {
     // 1️⃣ Validate schedule availability BEFORE creation
     await scheduleService.validateConflicts(data.grade, data.lessonDays);
@@ -168,7 +238,6 @@ export const classesService = {
       });
     }
 
-    // 3️⃣ Update the class itself
     const { data: classData, error } = await supabase
       .from("classes")
       .update(updateData)

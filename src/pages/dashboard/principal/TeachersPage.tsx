@@ -3,19 +3,23 @@ import { ScheduleView } from "@/components/schedule/ScheduleView";
 import { LessonDetailsModal } from "@/components/schedule/LessonDetailsModal";
 import { useAllGradesSchedule } from "@/hooks/queries/useAllGradesSchedule";
 import { useAuth } from "@/hooks/useAuth";
-import type { ClassScheduleLessonDTO } from "@/types";
 import { Loader2 } from "lucide-react";
+import type { LessonSlot } from "@/types";
 
 const PrincipalTeachersPage = () => {
   const { user } = useAuth();
-  const [selectedLesson, setSelectedLesson] =
-    useState<ClassScheduleLessonDTO | null>(null);
+  const [selectedLesson, setSelectedLesson] = useState<LessonSlot | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const { data: schedules, isLoading, error } =
-    useAllGradesSchedule(user?.adminId || "");
+  const {
+    data: schedules,
+    isLoading,
+    error,
+  } = useAllGradesSchedule(user?.adminId || "");
 
-  const handleViewLesson = useCallback((lesson: ClassScheduleLessonDTO) => {
+  console.log("schedules", schedules);
+
+  const handleViewLesson = useCallback((lesson: LessonSlot) => {
     setSelectedLesson(lesson);
     setIsModalOpen(true);
   }, []);

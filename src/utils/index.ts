@@ -12,6 +12,4 @@ export * from "./toFilterObject.ts";
 export * from "./errorUtils.ts";
 export * from "./getChangedFields.ts";
 export * from "./getFilesDiff.ts";
-
-
-
+export * from "./getWeekDay.ts"
