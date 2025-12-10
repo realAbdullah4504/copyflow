@@ -132,7 +132,11 @@ export const classesService = {
     return mapped;
   },
 
-  async getGradesScheduleByDay(day: WeekDay): Promise<PrincipalScheduleDTO[]> {
+  async getGradesScheduleByDay(
+    day: WeekDay,
+    date?: Date
+  ): Promise<PrincipalScheduleDTO[]> {
+    console.log(date, "date");
     // Fetch all classes that have the given day in their schedule
     const classes: ClassesWithSchedules[] =
       await this.getAllClassesWithSchedules(day);

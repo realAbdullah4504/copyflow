@@ -1,12 +1,20 @@
-import { WEEK_DAYS, type WeekDay } from "@/constants/shared";
+import { getDay, parseISO, addDays } from "date-fns";
 
-/**
- * Returns the WeekDay key (e.g., 'monday', 'tuesday') for a given Date
- */
-export function getWeekDayKey(date: Date): WeekDay {
-  // JS getDay() returns 0 (Sunday) - 6 (Saturday)
-  const jsDay = date.getDay();
-  // WEEK_DAYS is assumed to start with Monday as index 0
-  const weekIndex = jsDay === 0 ? 6 : jsDay - 1;
-  return WEEK_DAYS[weekIndex].key as WeekDay;
+// Monday = 0, Sunday = 6
+export function getNextWeekDayDate(
+  dayIndex: number,
+  referenceDateStr?: string,
+  forward = true
+): string {
+  const referenceDate = referenceDateStr ? parseISO(referenceDateStr) : new Date();
+  const currentWeekDay = (getDay(referenceDate) + 6) % 7; // shift Sunday = 6
+
+  let diff = dayIndex - currentWeekDay;
+
+  // Do not move if it's today
+  if (forward && diff < 0) diff += 7;       // move forward only if day passed
+  if (!forward && diff > 0) diff -= 7;     // move backward only if day ahead
+
+  const targetDate = addDays(referenceDate, diff);
+  return targetDate.toISOString().split("T")[0];
 }

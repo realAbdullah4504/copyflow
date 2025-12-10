@@ -15,6 +15,7 @@ interface IScheduleViewProps {
   schedule: IGradeSchedule[];
   currentDay: WeekDay;
   currentDayLabel: string;
+  displayDate: string;
   onPreviousDay: () => void;
   onNextDay: () => void;
   onToday: () => void;
@@ -23,6 +24,7 @@ interface IScheduleViewProps {
 
 interface ScheduleHeaderProps {
   selectedDayLabel: string;
+  displayDate: string;
   onPreviousDay: () => void;
   onNextDay: () => void;
   onToday: () => void;
@@ -30,6 +32,7 @@ interface ScheduleHeaderProps {
 
 const ScheduleHeader = ({
   selectedDayLabel,
+  displayDate,
   onPreviousDay,
   onNextDay,
   onToday,
@@ -54,7 +57,9 @@ const ScheduleHeader = ({
         >
           {"<"}
         </button>
-        <span className="whitespace-nowrap">{selectedDayLabel}</span>
+        <span className="whitespace-nowrap">
+          {selectedDayLabel} {displayDate}
+        </span>
         <button
           onClick={onNextDay}
           className="px-2 py-1 rounded-full hover:bg-slate-200 transition-colors cursor-pointer select-none"
@@ -94,7 +99,11 @@ interface ScheduleGridProps {
   onViewLesson?: (lesson: ILesson) => void;
 }
 
-const ScheduleGrid = ({ schedule, dayKey, onViewLesson }: ScheduleGridProps) => {
+const ScheduleGrid = ({
+  schedule,
+  dayKey,
+  onViewLesson,
+}: ScheduleGridProps) => {
   // Get the lessons for the current day, or an empty array if no lessons exist
   const getDayLessons = (gradeSchedule: IGradeSchedule) => {
     const daySchedule = gradeSchedule.lessons[dayKey];
@@ -114,14 +123,17 @@ const ScheduleGrid = ({ schedule, dayKey, onViewLesson }: ScheduleGridProps) => 
         Grade
       </div>
       {[1, 2, 3, 4].map((period) => (
-        <div key={period} className="text-center text-sm font-medium text-slate-700">
+        <div
+          key={period}
+          className="text-center text-sm font-medium text-slate-700"
+        >
           Period {period}
         </div>
       ))}
 
       {schedule.map((gradeSchedule) => {
         const dayLessons = getDayLessons(gradeSchedule);
-        
+
         return (
           <div key={`${gradeSchedule.grade}-${dayKey}`} className="contents">
             <div className="flex items-center justify-center bg-slate-50 rounded-xl border border-slate-200 text-sm font-semibold text-slate-800 shadow-sm">
@@ -150,6 +162,7 @@ export const ScheduleView = ({
   schedule,
   currentDay,
   currentDayLabel,
+  displayDate,
   onPreviousDay,
   onNextDay,
   onToday,
@@ -159,6 +172,7 @@ export const ScheduleView = ({
     <div className="w-full bg-white shadow-sm rounded-2xl border border-slate-200 p-4 md:p-6 lg:p-8">
       <ScheduleHeader
         selectedDayLabel={currentDayLabel}
+        displayDate={displayDate}
         onPreviousDay={onPreviousDay}
         onNextDay={onNextDay}
         onToday={onToday}

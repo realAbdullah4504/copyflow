@@ -6,13 +6,22 @@ import { useAuth } from "@/hooks/useAuth";
 import { Loader2 } from "lucide-react";
 import type { LessonSlot } from "@/types";
 import { WEEK_DAYS, getDayLabel, type WeekDay } from "@/constants";
+import { getNextWeekDayDate } from "@/utils";
+import { addDays, format, parseISO, startOfWeek } from "date-fns";
 
 const PrincipalTeachersPage = () => {
   const { user } = useAuth();
   const [selectedLesson, setSelectedLesson] = useState<LessonSlot | null>(null);
-  const todayIndex = (new Date().getDay() + 6) % 7;
-  const initialIndex = Math.min(todayIndex, WEEK_DAYS.length - 1);
-  const [currentDayIndex, setCurrentDayIndex] = useState<number>(initialIndex);
+  const today = new Date();
+  const todayIndex = (today.getDay() + 6) % 7; // Monday = 0
+  const weekStart = startOfWeek(today, { weekStartsOn: 1 });
+  const initialDate = addDays(weekStart, todayIndex);
+  const [currentDayIndex, setCurrentDayIndex] = useState(todayIndex);
+  const [selectedDate, setSelectedDate] = useState(
+    initialDate.toISOString().split("T")[0]
+  );
+  // format for display
+  const displayDate = format(parseISO(selectedDate), "MM/dd/yyyy");
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const currentDay: WeekDay = WEEK_DAYS[currentDayIndex].key;
@@ -22,7 +31,7 @@ const PrincipalTeachersPage = () => {
     data: schedules,
     isLoading,
     error,
-  } = useAllGradesSchedule(user?.adminId || "", currentDay);
+  } = useAllGradesSchedule(user?.adminId || "", currentDay, selectedDate);
   const handleViewLesson = useCallback((lesson: LessonSlot) => {
     setSelectedLesson(lesson);
     setIsModalOpen(true);
@@ -33,17 +42,31 @@ const PrincipalTeachersPage = () => {
     setTimeout(() => setSelectedLesson(null), 300);
   }, []);
 
-  const handlePreviousDay = useCallback(() => {
-    setCurrentDayIndex((prev) => (prev > 0 ? prev - 1 : WEEK_DAYS.length - 1));
-  }, []);
-
   const handleNextDay = useCallback(() => {
-    setCurrentDayIndex((prev) => (prev < WEEK_DAYS.length - 1 ? prev + 1 : 0));
-  }, []);
+    setCurrentDayIndex((prev) => {
+      const newIndex = prev < WEEK_DAYS.length - 1 ? prev + 1 : 0;
+      setSelectedDate(getNextWeekDayDate(newIndex, selectedDate, true));
+      return newIndex;
+    });
+  }, [selectedDate]);
+
+  const handlePreviousDay = useCallback(() => {
+    setCurrentDayIndex((prev) => {
+      const newIndex = prev > 0 ? prev - 1 : WEEK_DAYS.length - 1;
+      setSelectedDate(getNextWeekDayDate(newIndex, selectedDate, false));
+      return newIndex;
+    });
+  }, [selectedDate]);
 
   const handleToday = useCallback(() => {
-    setCurrentDayIndex(initialIndex);
-  }, [initialIndex]);
+    const today = new Date();
+    const todayIndex = (today.getDay() + 6) % 7;
+    const weekStart = startOfWeek(today, { weekStartsOn: 1 });
+    const todayDate = addDays(weekStart, todayIndex);
+
+    setCurrentDayIndex(todayIndex);
+    setSelectedDate(todayDate.toISOString().split("T")[0]);
+  }, []);
 
   if (isLoading) {
     return (
@@ -67,20 +90,13 @@ const PrincipalTeachersPage = () => {
     );
   }
 
-  if (!schedules || schedules.length === 0) {
-    return (
-      <div className="flex-1 flex items-center justify-center">
-        <p className="text-gray-600">No schedule data available.</p>
-      </div>
-    );
-  }
-
   return (
     <div className="w-full p-4">
       <ScheduleView
-        schedule={schedules}
+        schedule={schedules!}
         currentDay={currentDay}
         currentDayLabel={currentDayLabel}
+        displayDate={displayDate}
         onPreviousDay={handlePreviousDay}
         onNextDay={handleNextDay}
         onToday={handleToday}
