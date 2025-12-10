@@ -6,14 +6,14 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Download, FileText, Loader2 } from "lucide-react";
-import type { ClassScheduleLessonDTO } from "@/types";
 import { useState } from "react";
 import { submissionService } from "@/services";
 import { toast } from "sonner";
+import type { LessonSlot } from "@/types";
 interface LessonDetailsModalProps {
   isOpen: boolean;
   onClose: () => void;
-  lesson: ClassScheduleLessonDTO | null;
+  lesson: LessonSlot | null;
 }
 
 const getFileIcon = (fileName: string) => {
@@ -94,17 +94,7 @@ export const LessonDetailsModal = ({
       setDownloadingFiles((prev) => ({ ...prev, [fileName]: false }));
     }
   };
-
-  // Update the file mapping to include submissionId
-  const allFiles = (lesson.submissions || []).flatMap((submission) =>
-    (submission.files || [])
-      .filter((fileName) => !fileName.startsWith("submission-details-"))
-      .map((fileName) => ({
-        name: fileName,
-        submissionId: submission.id,
-        submissionDate: submission.lessonDate,
-      }))
-  );
+  const allFiles = lesson.submissionFiles;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -114,7 +104,7 @@ export const LessonDetailsModal = ({
             <DialogTitle className="text-xl">{lesson.subject}</DialogTitle>
           </div>
           <div className="text-sm text-slate-500">
-            Teacher: {lesson.teacher} • Grade: {lesson.id.split("-")[0]}
+            Teacher: {lesson.teacherName} • Subject: {lesson.subject}
           </div>
         </DialogHeader>
 
@@ -122,17 +112,17 @@ export const LessonDetailsModal = ({
           <div className="mt-6">
             <h3 className="text-lg font-medium mb-3">Lesson Materials</h3>
             <div className="space-y-3 max-h-[300px] overflow-y-auto pr-2">
-              {allFiles.map((file, index) => (
+              {allFiles.map((file: string, index: number) => (
                 <div
-                  key={`${file.name}-${index}`}
+                  key={`${file}-${index}`}
                   className="flex items-center justify-between p-3 bg-muted/50 rounded-lg hover:bg-muted/80 transition-colors"
                 >
                   <div className="flex items-center space-x-3 min-w-0">
                     <span className="text-2xl flex-shrink-0">
-                      {getFileIcon(file.name)}
+                      {getFileIcon(file)}
                     </span>
                     <div className="min-w-0">
-                      <p className="font-medium truncate">{file.name}</p>
+                      <p className="font-medium truncate">{file}</p>
                       {/* <p className="text-sm text-muted-foreground">
                         {file.size ? formatFileSize(file.size) : "Unknown size"}{" "}
                         •
@@ -148,11 +138,11 @@ export const LessonDetailsModal = ({
                     className="h-8 w-8 flex-shrink-0"
                     onClick={(e) => {
                       e.stopPropagation();
-                      handleDownload(file.name, file.submissionId);
+                      handleDownload(file, file);
                     }}
-                    disabled={downloadingFiles[file.name]}
+                    disabled={downloadingFiles[file]}
                   >
-                    {downloadingFiles[file.name] ? (
+                    {downloadingFiles[file] ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
                     ) : (
                       <Download className="h-4 w-4" />
@@ -174,9 +164,9 @@ export const LessonDetailsModal = ({
         <div className="mt-6 pt-4 border-t border-slate-200">
           <h3 className="font-medium text-slate-900 mb-3">Lesson Notes</h3>
           <div className="bg-slate-50 p-4 rounded-lg text-sm text-slate-700">
-            {lesson.teacher} will be covering {lesson.subject.toLowerCase()} for{" "}
-            {lesson.grade} grade. Please review the materials before
-            the class and complete the assigned worksheet.
+            {lesson.teacherName} will be covering {lesson.subject.toLowerCase()}
+            . Please review the materials before the class and complete the
+            assigned worksheet.
           </div>
         </div>
       </DialogContent>

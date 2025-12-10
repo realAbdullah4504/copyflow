@@ -37,6 +37,10 @@ export type ClassesWithSchedules = ClassEntityV2 & {
   lessonDays: WeekDay[];
 };
 
+export type ClassWithSubmissionsScheduleFiles = ClassesWithSchedules & {
+  submissionFiles: string[];
+};
+
 export type CreateClassInput = Pick<
   ClassEntity,
   "teacherId" | "grade" | "subject"

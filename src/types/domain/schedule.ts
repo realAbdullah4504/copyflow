@@ -29,4 +29,5 @@ export type LessonSlot = {
   teacherName: string;
   subject: string;
   classId: string;
+  submissionFiles: string[];
 };

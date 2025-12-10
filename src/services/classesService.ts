@@ -1,6 +1,7 @@
 import { supabase } from "@/lib/supabaseClient";
 import type {
   ClassesWithSchedules,
+  ClassWithSubmissionsScheduleFiles,
   CreateClassInput,
   GradeLevel,
   PrincipalScheduleDTO,
@@ -12,16 +13,18 @@ import { scheduleService } from "./scheduleService";
 
 export const classesService = {
   async getAllClassesWithSchedules(
-    filterByDay?: WeekDay
-  ): Promise<ClassesWithSchedules[]> {
+    filterByDay?: WeekDay,
+    lessonDate?: string
+  ): Promise<ClassWithSubmissionsScheduleFiles[]> {
+    // 1️⃣ Fetch classes
     const classesQuery = supabase
       .from("classes")
       .select("*, teacher:teacher_id(*)")
       .order("grade", { ascending: true })
       .order("created_at", { ascending: true });
 
+    // 2️⃣ Fetch schedules
     let schedulesQuery = supabase.from("schedules").select("*");
-
     if (filterByDay) {
       schedulesQuery = schedulesQuery.contains("lesson_days", [filterByDay]);
     }
@@ -34,10 +37,22 @@ export const classesService = {
     if (classesError) throw await AppError.from(classesError);
     if (schedulesError) throw await AppError.from(schedulesError);
 
-    return (classes || []).map((cls) => {
-      // attach the filtered schedule for this class
-      const schedule = schedules?.find((s) => s.class_id === cls.id);
+    let submissions: { class_id: string; files: string }[] = [];
+    if (lessonDate) {
+      const classIds = (classes || []).map((c) => c.id);
+      const { data: subs } = await supabase
+        .from("submissions")
+        .select("class_id, files")
+        .in("class_id", classIds)
+        .eq("lesson_date", lessonDate);
 
+      submissions = subs || [];
+    }
+
+    // 4️⃣ Map classes
+    return (classes || []).map((cls) => {
+      const schedule = schedules?.find((s) => s.class_id === cls.id);
+      const classSubmissions = submissions.filter((s) => s.class_id === cls.id);
       return {
         id: cls.id,
         teacherId: cls.teacher_id,
@@ -46,6 +61,7 @@ export const classesService = {
         active: cls.active,
         teacher: cls.teacher,
         lessonDays: schedule?.lesson_days ?? [],
+        submissionFiles: classSubmissions.flatMap((s) => s.files || []),
         createdAt: new Date(cls.created_at),
         updatedAt: new Date(cls.updated_at),
         label: `Grade ${cls.grade} - ${cls.subject}`,
@@ -136,12 +152,11 @@ export const classesService = {
     day: WeekDay,
     date?: string
   ): Promise<PrincipalScheduleDTO[]> {
-    console.log(date, "date");
-    // Fetch all classes that have the given day in their schedule
+    // 1️⃣ Fetch all classes that have the given day and optional date
     const classes: ClassesWithSchedules[] =
-      await this.getAllClassesWithSchedules(day);
+      await this.getAllClassesWithSchedules(day, date);
 
-    // Initialize grades 9–12
+    // 2️⃣ Initialize grades 9–12
     const grouped: Record<GradeLevel, PrincipalScheduleDTO> = [
       "9",
       "10",
@@ -152,6 +167,7 @@ export const classesService = {
       return acc;
     }, {} as Record<GradeLevel, PrincipalScheduleDTO>);
 
+    // 3️⃣ Build the DTO
     for (const cls of classes) {
       const gradeGroup = grouped[cls.grade as GradeLevel];
 
@@ -163,12 +179,13 @@ export const classesService = {
             teacherName: cls.teacher.name,
             subject: cls.subject,
             classId: cls.id,
+            submissionFiles: cls.submissionFiles || [], // include filenames
           });
         }
       }
     }
 
-    // Ensure all grades/days have exactly 4 slots (null for empty)
+    // 4️⃣ Ensure exactly 4 slots per grade/day
     Object.values(grouped).forEach((grade) => {
       if (!grade.lessons[day]) grade.lessons[day] = [];
       while (grade.lessons[day].length < 4) {
@@ -178,7 +195,6 @@ export const classesService = {
 
     return Object.values(grouped);
   },
-
   async create(data: CreateClassInput): Promise<ClassesWithSchedules> {
     // 1️⃣ Validate schedule availability BEFORE creation
     await scheduleService.validateConflicts(data.grade, data.lessonDays);
