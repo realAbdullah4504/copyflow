@@ -1,20 +1,24 @@
-import { getDay, parseISO, addDays } from "date-fns";
+import { getDay, parseISO, addDays, format } from "date-fns";
 
-// Monday = 0, Sunday = 6
+/**
+ * dayIndex: 0 = Monday, 1 = Tuesday, etc. (based on WEEK_DAYS array)
+ * referenceDateStr: string "YYYY-MM-DD"
+ * forward: true = next day, false = previous day
+ */
 export function getNextWeekDayDate(
   dayIndex: number,
   referenceDateStr?: string,
   forward = true
 ): string {
   const referenceDate = referenceDateStr ? parseISO(referenceDateStr) : new Date();
-  const currentWeekDay = (getDay(referenceDate) + 6) % 7; // shift Sunday = 6
+  const currentWeekDay = (getDay(referenceDate) + 6) % 7; // Monday = 0
 
   let diff = dayIndex - currentWeekDay;
 
-  // Do not move if it's today
-  if (forward && diff < 0) diff += 7;       // move forward only if day passed
-  if (!forward && diff > 0) diff -= 7;     // move backward only if day ahead
+  // Adjust for forward/backward wrap
+  if (forward && diff <= 0) diff += 7;   // move to next occurrence
+  if (!forward && diff >= 0) diff -= 7;  // move to previous occurrence
 
   const targetDate = addDays(referenceDate, diff);
-  return targetDate.toISOString().split("T")[0];
+  return format(targetDate, "yyyy-MM-dd"); // keep local date
 }

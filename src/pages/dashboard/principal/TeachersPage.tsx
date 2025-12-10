@@ -18,7 +18,7 @@ const PrincipalTeachersPage = () => {
   const initialDate = addDays(weekStart, todayIndex);
   const [currentDayIndex, setCurrentDayIndex] = useState(todayIndex);
   const [selectedDate, setSelectedDate] = useState(
-    initialDate.toISOString().split("T")[0]
+    format(initialDate, "yyyy-MM-dd")
   );
   // format for display
   const displayDate = format(parseISO(selectedDate), "MM/dd/yyyy");
@@ -65,7 +65,7 @@ const PrincipalTeachersPage = () => {
     const todayDate = addDays(weekStart, todayIndex);
 
     setCurrentDayIndex(todayIndex);
-    setSelectedDate(todayDate.toISOString().split("T")[0]);
+    setSelectedDate(format(todayDate, "yyyy-MM-dd"));
   }, []);
 
   if (isLoading) {

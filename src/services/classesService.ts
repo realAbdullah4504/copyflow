@@ -134,7 +134,7 @@ export const classesService = {
 
   async getGradesScheduleByDay(
     day: WeekDay,
-    date?: Date
+    date?: string
   ): Promise<PrincipalScheduleDTO[]> {
     console.log(date, "date");
     // Fetch all classes that have the given day in their schedule
