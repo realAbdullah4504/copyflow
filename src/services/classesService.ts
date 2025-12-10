@@ -6,37 +6,53 @@ import type {
   PrincipalScheduleDTO,
 } from "@/types";
 import type { WeekDay } from "@/constants/shared";
-import { AppError, getWeekDayKey } from "@/utils";
+import { AppError } from "@/utils";
 import { mapClassesData } from "./helpers/classesMappers";
 import { scheduleService } from "./scheduleService";
 
 export const classesService = {
-  async getAllClassesWithSchedules(): Promise<ClassesWithSchedules[]> {
-    const { data: classes, error } = await supabase
+  async getAllClassesWithSchedules(
+    filterByDay?: WeekDay
+  ): Promise<ClassesWithSchedules[]> {
+    const classesQuery = supabase
       .from("classes")
-      .select("*, schedules(*), teacher:teacher_id(*)")
+      .select("*, teacher:teacher_id(*)")
       .order("grade", { ascending: true })
       .order("created_at", { ascending: true });
 
-    if (error) throw await AppError.from(error);
+    let schedulesQuery = supabase.from("schedules").select("*");
 
-    return (classes || []).map((c) => {
-      const schedule = c.schedules?.[0];
+    if (filterByDay) {
+      schedulesQuery = schedulesQuery.contains("lesson_days", [filterByDay]);
+    }
+
+    const [
+      { data: classes, error: classesError },
+      { data: schedules, error: schedulesError },
+    ] = await Promise.all([classesQuery, schedulesQuery]);
+
+    if (classesError) throw await AppError.from(classesError);
+    if (schedulesError) throw await AppError.from(schedulesError);
+
+    return (classes || []).map((cls) => {
+      // attach the filtered schedule for this class
+      const schedule = schedules?.find((s) => s.class_id === cls.id);
 
       return {
-        id: c.id,
-        teacherId: c.teacher_id,
-        subject: c.subject,
-        grade: c.grade,
-        active: c.active,
-        teacher: c.teacher,
+        id: cls.id,
+        teacherId: cls.teacher_id,
+        subject: cls.subject,
+        grade: cls.grade,
+        active: cls.active,
+        teacher: cls.teacher,
         lessonDays: schedule?.lesson_days ?? [],
-        createdAt: new Date(c.created_at),
-        updatedAt: new Date(c.updated_at),
-        label: `Grade ${c.grade} - ${c.subject}`,
+        createdAt: new Date(cls.created_at),
+        updatedAt: new Date(cls.updated_at),
+        label: `Grade ${cls.grade} - ${cls.subject}`,
       };
     });
   },
+
   async getByTeacher(
     teacherId: string,
     status?: boolean
@@ -111,17 +127,15 @@ export const classesService = {
       throw await AppError.from(error);
     }
 
-    console.log("classes", classes);
-
     const mapped = classes.map(mapClassesData);
 
     return mapped;
   },
 
-  async getAllGradesWithSchedule(): Promise<PrincipalScheduleDTO[]> {
-    // Fetch all classes with schedules
+  async getGradesScheduleByDay(day: WeekDay): Promise<PrincipalScheduleDTO[]> {
+    // Fetch all classes that have the given day in their schedule
     const classes: ClassesWithSchedules[] =
-      await this.getAllClassesWithSchedules();
+      await this.getAllClassesWithSchedules(day);
 
     // Initialize grades 9–12
     const grouped: Record<GradeLevel, PrincipalScheduleDTO> = [
@@ -137,10 +151,9 @@ export const classesService = {
     for (const cls of classes) {
       const gradeGroup = grouped[cls.grade as GradeLevel];
 
-      for (const day of cls.lessonDays) {
+      if (cls.lessonDays.includes(day)) {
         if (!gradeGroup.lessons[day]) gradeGroup.lessons[day] = [];
 
-        // Fill up to 4 slots
         if (gradeGroup.lessons[day].length < 4) {
           gradeGroup.lessons[day].push({
             teacherName: cls.teacher.name,
@@ -153,11 +166,10 @@ export const classesService = {
 
     // Ensure all grades/days have exactly 4 slots (null for empty)
     Object.values(grouped).forEach((grade) => {
-      Object.keys(grade.lessons).forEach((dayKey) => {
-        while (grade.lessons[dayKey].length < 4) {
-          grade.lessons[dayKey].push(null);
-        }
-      });
+      if (!grade.lessons[day]) grade.lessons[day] = [];
+      while (grade.lessons[day].length < 4) {
+        grade.lessons[day].push(null);
+      }
     });
 
     return Object.values(grouped);

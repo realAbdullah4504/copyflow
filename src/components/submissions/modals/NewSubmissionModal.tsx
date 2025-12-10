@@ -73,7 +73,6 @@ const NewSubmissionModal = ({
     teacherId || form.watch("teacherId"),
     activeClasses
   );
-  console.log("classes", classes);
   const { teachers } = useTeachers(adminId!,activeTeachers);
 
   const fileTypeMap: Record<string, FileType> = {

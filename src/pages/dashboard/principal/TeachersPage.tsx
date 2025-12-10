@@ -5,20 +5,24 @@ import { useAllGradesSchedule } from "@/hooks/queries/useAllGradesSchedule";
 import { useAuth } from "@/hooks/useAuth";
 import { Loader2 } from "lucide-react";
 import type { LessonSlot } from "@/types";
+import { WEEK_DAYS, getDayLabel, type WeekDay } from "@/constants";
 
 const PrincipalTeachersPage = () => {
   const { user } = useAuth();
   const [selectedLesson, setSelectedLesson] = useState<LessonSlot | null>(null);
+  const todayIndex = (new Date().getDay() + 6) % 7;
+  const initialIndex = Math.min(todayIndex, WEEK_DAYS.length - 1);
+  const [currentDayIndex, setCurrentDayIndex] = useState<number>(initialIndex);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const currentDay: WeekDay = WEEK_DAYS[currentDayIndex].key;
+  const currentDayLabel = getDayLabel(currentDay);
 
   const {
     data: schedules,
     isLoading,
     error,
-  } = useAllGradesSchedule(user?.adminId || "");
-
-  console.log("schedules", schedules);
-
+  } = useAllGradesSchedule(user?.adminId || "", currentDay);
   const handleViewLesson = useCallback((lesson: LessonSlot) => {
     setSelectedLesson(lesson);
     setIsModalOpen(true);
@@ -28,6 +32,18 @@ const PrincipalTeachersPage = () => {
     setIsModalOpen(false);
     setTimeout(() => setSelectedLesson(null), 300);
   }, []);
+
+  const handlePreviousDay = useCallback(() => {
+    setCurrentDayIndex((prev) => (prev > 0 ? prev - 1 : WEEK_DAYS.length - 1));
+  }, []);
+
+  const handleNextDay = useCallback(() => {
+    setCurrentDayIndex((prev) => (prev < WEEK_DAYS.length - 1 ? prev + 1 : 0));
+  }, []);
+
+  const handleToday = useCallback(() => {
+    setCurrentDayIndex(initialIndex);
+  }, [initialIndex]);
 
   if (isLoading) {
     return (
@@ -61,7 +77,15 @@ const PrincipalTeachersPage = () => {
 
   return (
     <div className="w-full p-4">
-      <ScheduleView schedule={schedules} onViewLesson={handleViewLesson} />
+      <ScheduleView
+        schedule={schedules}
+        currentDay={currentDay}
+        currentDayLabel={currentDayLabel}
+        onPreviousDay={handlePreviousDay}
+        onNextDay={handleNextDay}
+        onToday={handleToday}
+        onViewLesson={handleViewLesson}
+      />
 
       {selectedLesson && (
         <LessonDetailsModal

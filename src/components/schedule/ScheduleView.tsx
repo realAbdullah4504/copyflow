@@ -1,6 +1,5 @@
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { WEEK_DAYS } from "@/constants/shared";
+import type { WeekDay } from "@/constants";
 import type { LessonSlot } from "@/types/domain/schedule";
 
 interface IGradeSchedule {
@@ -14,6 +13,11 @@ interface ILesson extends LessonSlot {
 
 interface IScheduleViewProps {
   schedule: IGradeSchedule[];
+  currentDay: WeekDay;
+  currentDayLabel: string;
+  onPreviousDay: () => void;
+  onNextDay: () => void;
+  onToday: () => void;
   onViewLesson?: (lesson: ILesson) => void;
 }
 
@@ -93,9 +97,9 @@ interface ScheduleGridProps {
 const ScheduleGrid = ({ schedule, dayKey, onViewLesson }: ScheduleGridProps) => {
   // Get the lessons for the current day, or an empty array if no lessons exist
   const getDayLessons = (gradeSchedule: IGradeSchedule) => {
-    const daySchedule = gradeSchedule.lessons[dayKey.toLowerCase()];
-    if (!daySchedule) return Array(4).fill(null);
-    
+    const daySchedule = gradeSchedule.lessons[dayKey];
+    if (!daySchedule) return new Array(4).fill(null);
+
     // Ensure we always return an array of 4 items
     const result = [...daySchedule];
     while (result.length < 4) {
@@ -142,29 +146,26 @@ const ScheduleGrid = ({ schedule, dayKey, onViewLesson }: ScheduleGridProps) => 
   );
 };
 
-export const ScheduleView = ({ schedule, onViewLesson }: IScheduleViewProps) => {
-  const todayIndex = new Date().getDay() === 0 ? 6 : new Date().getDay() - 1; // Sunday = 0 -> 6
-  const [currentDayIndex, setCurrentDayIndex] = useState(todayIndex);
-
-  const currentDay = WEEK_DAYS[currentDayIndex];
-
-  const handlePreviousDay = () =>
-    setCurrentDayIndex((prev) => (prev > 0 ? prev - 1 : WEEK_DAYS.length - 1));
-  const handleNextDay = () =>
-    setCurrentDayIndex((prev) => (prev < WEEK_DAYS.length - 1 ? prev + 1 : 0));
-  const handleToday = () => setCurrentDayIndex(todayIndex);
-
+export const ScheduleView = ({
+  schedule,
+  currentDay,
+  currentDayLabel,
+  onPreviousDay,
+  onNextDay,
+  onToday,
+  onViewLesson,
+}: IScheduleViewProps) => {
   return (
     <div className="w-full bg-white shadow-sm rounded-2xl border border-slate-200 p-4 md:p-6 lg:p-8">
       <ScheduleHeader
-        selectedDayLabel={currentDay.label}
-        onPreviousDay={handlePreviousDay}
-        onNextDay={handleNextDay}
-        onToday={handleToday}
+        selectedDayLabel={currentDayLabel}
+        onPreviousDay={onPreviousDay}
+        onNextDay={onNextDay}
+        onToday={onToday}
       />
       <ScheduleGrid
         schedule={schedule}
-        dayKey={currentDay.key}
+        dayKey={currentDay}
         onViewLesson={onViewLesson}
       />
     </div>
