@@ -9,6 +9,7 @@ import type { WeekDay } from "@/constants/shared";
 import { AppError } from "@/utils";
 import { mapClassesData } from "./helpers/classesMappers";
 import { addDays, startOfWeek } from "date-fns";
+import { scheduleService } from "./scheduleService";
 
 export const classesService = {
   async getByTeacher(
@@ -93,24 +94,10 @@ export const classesService = {
   },
 
   async create(data: CreateClassInput): Promise<ClassesWithSchedules> {
-    // Check for conflicts: max 4 teachers per day per grade
-    for (const day of data.lessonDays) {
-      const { data: existingSchedules, error: conflictError } = await supabase
-        .from("schedules")
-        .select("id, teacher_id")
-        .eq("grade", data.grade)
-        .contains("lesson_days", [day]);
+    // 1️⃣ Validate schedule availability BEFORE creation
+    await scheduleService.validateConflicts(data.grade, data.lessonDays);
 
-      if (conflictError) throw await AppError.from(conflictError);
-
-      if (existingSchedules && existingSchedules.length >= 4) {
-        throw new Error(
-          `Cannot assign lesson on ${day}. Maximum 4 teachers already scheduled for grade ${data.grade}.`
-        );
-      }
-    }
-
-    // Insert the class
+    // 2️⃣ Insert the class
     const insertData = {
       teacher_id: data.teacherId,
       subject: data.subject,
@@ -125,26 +112,19 @@ export const classesService = {
       .single();
 
     if (error) throw await AppError.from(error);
-    if (!classData)
+    if (!classData) {
       throw await AppError.from({
         message: "Failed to create class",
         status: 500,
       });
+    }
 
-    // Insert the schedule
-    const scheduleEntry = {
-      teacher_id: data.teacherId,
+    await scheduleService.createSchedule({
+      teacherId: data.teacherId,
       grade: data.grade,
-      class_id: classData.id,
-      lesson_days: data.lessonDays, // array of WeekDay
-      period: 1, // default period
-    };
-
-    const { error: scheduleError } = await supabase
-      .from("schedules")
-      .insert([scheduleEntry]);
-
-    if (scheduleError) throw await AppError.from(scheduleError);
+      classId: classData.id,
+      lessonDays: data.lessonDays,
+    });
 
     return {
       id: classData.id,
@@ -168,52 +148,27 @@ export const classesService = {
       lessonDays?: WeekDay[];
     }
   ): Promise<ClassesWithSchedules> {
-    // Update class info
     const updateData = {
       ...(updates.teacherId !== undefined && { teacher_id: updates.teacherId }),
       ...(updates.subject !== undefined && { subject: updates.subject }),
       ...(updates.grade !== undefined && { grade: updates.grade }),
     };
 
-    // Handle schedule update if lessonDays are provided
     if (updates.lessonDays && updates.lessonDays.length > 0) {
-      // Check for conflicts: max 4 per day per grade
-      for (const day of updates.lessonDays) {
-        const { data: existingSchedules, error: conflictError } = await supabase
-          .from("schedules")
-          .select("id, teacher_id")
-          .eq("grade", updates.grade)
-          .contains("lesson_days", [day])
-          .neq("class_id", id); // exclude current class
+      await scheduleService.validateConflicts(
+        updates.grade!,
+        updates.lessonDays,
+        id
+      );
 
-        if (conflictError) throw await AppError.from(conflictError);
-
-        if (existingSchedules && existingSchedules.length >= 4) {
-          throw new Error(
-            `Cannot assign lesson on ${day}. Maximum 4 teachers already scheduled for grade ${updates.grade}.`
-          );
-        }
-      }
-
-      // Delete existing schedules for this class
-      await supabase.from("schedules").delete().eq("class_id", id);
-
-      // Insert new schedule
-      const scheduleEntry = {
-        class_id: id,
-        teacher_id: updates.teacherId!,
+      await scheduleService.updateSchedule(id, {
+        teacherId: updates.teacherId!,
         grade: updates.grade!,
-        lesson_days: updates.lessonDays, // array of WeekDay
-      };
-
-      const { error: scheduleError } = await supabase
-        .from("schedules")
-        .insert([scheduleEntry]);
-
-      if (scheduleError) throw await AppError.from(scheduleError);
+        lessonDays: updates.lessonDays,
+      });
     }
 
-    // Update the class itself
+    // 3️⃣ Update the class itself
     const { data: classData, error } = await supabase
       .from("classes")
       .update(updateData)
