@@ -80,7 +80,7 @@ const LessonCard = ({ lesson, onViewLesson }: LessonCardProps) => (
   <div className="w-full h-full flex flex-col items-center justify-center bg-slate-50 rounded-xl border border-slate-200 text-center px-3 shadow-sm hover:shadow-md transition-shadow">
     <div className="text-sm font-semibold text-slate-900">{lesson.subject}</div>
     <div className="mt-1 text-xs text-slate-600">{lesson.teacherName}</div>
-    {onViewLesson && (
+    {onViewLesson && lesson.submissionFiles.length > 0 && (
       <Button
         size="sm"
         variant="outline"

@@ -32,7 +32,6 @@ const PrincipalTeachersPage = () => {
     isLoading,
     error,
   } = useAllGradesSchedule(user?.adminId || "", currentDay, selectedDate);
-  console.log("schedules", schedules);
   const handleViewLesson = useCallback((lesson: LessonSlot) => {
     setSelectedLesson(lesson);
     setIsModalOpen(true);

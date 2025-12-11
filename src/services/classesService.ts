@@ -45,7 +45,7 @@ export const classesService = {
         .select("class_id, files,id")
         .in("class_id", classIds)
         .eq("lesson_date", lessonDate)
-        .eq("status", "pending");
+        .eq("status", "printed");
 
       submissions = subs || [];
     }
