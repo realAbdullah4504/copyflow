@@ -38,7 +38,7 @@ const NewSubmissionModal = ({
   const { createSubmissionWithFiles, createWithFilesLoading: isSubmitting } =
     useSubmissionMutations();
   const { user } = useAuth();
-  const adminId=user?.adminId;
+  const adminId = user?.adminId;
   const { createNotification } = useCreateNotification();
   const role = user?.role;
 
@@ -73,7 +73,7 @@ const NewSubmissionModal = ({
     teacherId || form.watch("teacherId"),
     activeClasses
   );
-  const { teachers } = useTeachers(adminId!,activeTeachers);
+  const { teachers } = useTeachers(adminId!, activeTeachers);
 
   const fileTypeMap: Record<string, FileType> = {
     worksheet: "worksheet",
@@ -83,7 +83,9 @@ const NewSubmissionModal = ({
     other: "handout", // Map to closest match
   };
 
-  const getLessonDateFilter = (selectedClass: ClassesWithSchedules | undefined) => {
+  const getLessonDateFilter = (
+    selectedClass: ClassesWithSchedules | undefined
+  ) => {
     if (!selectedClass || !selectedClass.lessonDays?.length) {
       return (date: Date) => date >= new Date();
     }
@@ -181,7 +183,9 @@ const NewSubmissionModal = ({
           createNotification({
             senderId: user!.id,
             senderRole: role!,
-            message: `${result.class?.label} ${result.fileType} New submission created by ${user!.name}`,
+            message: `${result.class?.label} ${
+              result.fileType
+            } New submission created by ${user!.name}`,
             type: "newSubmission",
             teacherId: values.teacherId,
           });
@@ -193,6 +197,7 @@ const NewSubmissionModal = ({
   };
 
   const selectedClassId = form.watch("classId");
+  const selectedTeacherId = form.watch("teacherId");
   const selectedClass = (classes as ClassesWithSchedules[] | undefined)?.find(
     (cls) => cls.id === selectedClassId
   );
@@ -205,14 +210,22 @@ const NewSubmissionModal = ({
     disabledFields: !allowTeacherSelection && teacherId ? ["teacherId"] : [],
   });
 
-  const formFields = baseFormFields.map((field) =>
-    field.name === "lessonDate"
-      ? {
-          ...field,
-          filterDate: getLessonDateFilter(selectedClass),
-        }
-      : field
-  );
+  const formFields = baseFormFields.map((field) => {
+    if (field.name === "classId") {
+      return {
+        ...field,
+        disabled: !selectedTeacherId, // Disable if no teacher selected
+      };
+    }
+    if (field.name === "lessonDate") {
+      return {
+        ...field,
+        disabled: !selectedClassId, // Disable if no class selected
+        filterDate: getLessonDateFilter(selectedClass),
+      };
+    }
+    return field;
+  });
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
