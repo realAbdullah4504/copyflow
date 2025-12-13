@@ -24,7 +24,7 @@ const PrincipalTeachersPage = () => {
   const displayDate = format(parseISO(selectedDate), "MM/dd/yyyy");
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const currentDay: WeekDay = WEEK_DAYS[currentDayIndex].key;
+  const currentDay: WeekDay = WEEK_DAYS[currentDayIndex]?.key;
   const currentDayLabel = getDayLabel(currentDay);
 
   const {
