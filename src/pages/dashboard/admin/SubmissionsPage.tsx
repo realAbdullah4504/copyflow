@@ -48,6 +48,7 @@ const SubmissionPage = () => {
       <SubmissionTable
         data={submissions}
         columns={columns}
+        showUrgent={true}
         isLoading={isLoading}
         onRowClick={handleRowClick}
       />

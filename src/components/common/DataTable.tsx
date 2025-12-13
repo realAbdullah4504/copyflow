@@ -17,6 +17,7 @@ interface DataTableProps<TData> {
   isLoading?: boolean;
   showSorting?: boolean;
   onRowClick?: (row: TData) => void;
+  showUrgent?: boolean;
 }
 
 const DataTable = <TData,>({
@@ -25,6 +26,7 @@ const DataTable = <TData,>({
   isLoading = false,
   showSorting = false,
   onRowClick,
+  showUrgent = false,
 }: DataTableProps<TData>) => {
   return (
     <div className="rounded-md border">
@@ -92,7 +94,7 @@ const DataTable = <TData,>({
                   key={row.id}
                   className={cn(
                     { "cursor-pointer": !!onRowClick },
-                    { "bg-pink-50 hover:bg-pink-100": isUrgent }
+                    { "bg-pink-50 hover:bg-pink-100": isUrgent && showUrgent }
                   )}
                   onClick={onRowClick ? () => onRowClick(row.original) : undefined}
                 >

@@ -30,6 +30,7 @@ interface SubmissionTableProps {
   showPagination?: boolean;
   showSorting?: boolean;
   onRowClick?: (row: Submission) => void;
+  showUrgent?: boolean;
 }
 
 const SubmissionTable = ({
@@ -41,6 +42,7 @@ const SubmissionTable = ({
   onPaginationChange,
   onColumnFiltersChange,
   onSortingChange,
+  showUrgent = false,
   total,
   isLoading,
   showFilters = false,
@@ -85,6 +87,7 @@ const SubmissionTable = ({
         isLoading={isLoading}
         showSorting={showSorting}
         onRowClick={onRowClick}
+        showUrgent={showUrgent}
       />
       {showPagination && pagination && onPaginationChange && (
         <PaginationControls table={table} />

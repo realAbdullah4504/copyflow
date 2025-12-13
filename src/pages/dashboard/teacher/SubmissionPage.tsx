@@ -75,6 +75,7 @@ const SubmissionPage = () => {
       />
       <SubmissionTable
         data={submissions}
+        showUrgent={true}
         columns={columns}
         isLoading={isLoading}
         total={total}

@@ -117,6 +117,7 @@ const SecretarySubmissionsPage = () => {
       <SubmissionTable
         data={submissions}
         columns={columns}
+        showUrgent={true}
         total={total}
         isLoading={isLoading}
         onRowClick={handleRowClick}
