@@ -92,10 +92,10 @@ export function applySorting(
     return query.order(column, { ascending: !sort.desc });
   }
 
-  // Default sort: created_at DESC, then lesson_date DESC
+  // Default sort: created_at DESC (newest first), then lesson_date DESC
   return query
-    .order("lesson_date", { ascending: true })
-    .order("created_at", { ascending: true });
+    .order("created_at", { ascending: false })
+    .order("lesson_date", { ascending: false });
 }
 
 export function applyPagination(

@@ -17,8 +17,8 @@ import {
       this.details = details;
       this.code = code;
   
-      if (Error.captureStackTrace) {
-        Error.captureStackTrace(this, AppError);
+      if ((Error as any).captureStackTrace) {
+        (Error as any).captureStackTrace(this, AppError);
       }
     }
   

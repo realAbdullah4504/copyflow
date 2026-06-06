@@ -26,6 +26,7 @@ interface Props {
   };
   allowedActions?: readonly string[];
   teacherId?: string;
+  isArchive?: boolean;
 }
 
 const SubmissionModal = ({
@@ -39,6 +40,7 @@ const SubmissionModal = ({
   teacherId,
   allowTeacherSelection = false,
   allowedActions = [],
+  isArchive = false,
 }: Props) => {
   if (!type) return null;
 
@@ -72,6 +74,7 @@ const SubmissionModal = ({
             handlers={handlers}
             isSubmitting={isSubmitting}
             allowedActions={allowedActions}
+            isArchive={isArchive}
           />
         )
       );

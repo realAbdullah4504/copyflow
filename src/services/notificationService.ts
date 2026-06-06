@@ -1,5 +1,5 @@
 import type { Notification } from "@/types";
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "@/integrations/supabase/client";
 import { AppError } from "@/utils";
 
 async function getRecipientsByRole(

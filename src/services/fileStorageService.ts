@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "@/integrations/supabase/client";
 
 type FileObject = {
   name: string;
@@ -25,7 +25,7 @@ export const fileStorageService = {
       const sanitizedFileName = file.name.replaceAll(/[^a-zA-Z0-9.\-_]/g, "_");
       const path = `${submissionId}/${timestamp}_${sanitizedFileName}`;
 
-      const { data: uploadData, error: uploadError } = await supabase.storage
+      const { error: uploadError } = await supabase.storage
         .from(BUCKET_NAME)
         .upload(path, file, {
           upsert: false,

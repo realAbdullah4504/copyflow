@@ -11,7 +11,7 @@ import {
   applyPagination,
 } from "@/utils/supabaseQueryBuilder";
 import { AppError } from "@/utils";
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "@/integrations/supabase/client";
 
 export const submissionService = {
   urgentAtTop: (submissions: Submission[]): Submission[] => {

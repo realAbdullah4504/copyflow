@@ -1,2 +1,2 @@
 /* eslint-disable react-refresh/only-export-components */
-export * from "./data-table";
+// Barrel file for UI components - add exports as needed

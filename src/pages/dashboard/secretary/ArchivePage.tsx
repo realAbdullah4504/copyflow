@@ -76,6 +76,7 @@ export default function SecretaryArchivePage() {
         showSorting
       />
       <SubmissionModal
+        isArchive
         data={modal.data}
         type={modal.type}
         open={modal.isOpen}

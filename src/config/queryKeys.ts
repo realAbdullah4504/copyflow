@@ -14,6 +14,10 @@ export const QUERY_KEYS = {
   TEACHERS_BY_GRADE: "teachers:grade",
   GRADE_SCHEDULE: "schedule:grade",
   NOTIFICATIONS: "notifications",
+  STUDENTS: "students",
+  ATTENDANCE: "attendance",
+  TERMS: "terms",
+  ABSENCE_ALERTS: "absence_alerts",
 } as const;
 
 export type QueryKeys = (typeof QUERY_KEYS)[keyof typeof QUERY_KEYS];

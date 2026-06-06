@@ -115,11 +115,7 @@ const EditClassModal = ({
       },
       {
         onSuccess: () => {
-          toast.success("Class updated successfully");
           onOpenChange(false);
-        },
-        onError: (error) => {
-          toast.error(error.message || "Failed to update class");
         },
       }
     );

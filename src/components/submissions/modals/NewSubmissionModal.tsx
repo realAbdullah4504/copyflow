@@ -1,4 +1,3 @@
-import * as z from "zod";
 import {
   Dialog,
   DialogContent,
@@ -6,21 +5,28 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { Form as RHFForm, FormField } from "@/components/common";
+import { z } from "zod";
 import { useSubmissionMutations } from "@/hooks/mutations";
 import { getSubmissionFields, submissionFormSchema } from "../fields";
-import { format } from "date-fns";
-import { useClassesByTeacher } from "@/hooks/queries";
-import { useForm } from "react-hook-form";
-import { useTeachers } from "@/hooks/queries/useTeachers";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { generateSubmissionPDF } from "@/utils/generateSubmissionPDF";
-import { toast } from "sonner";
-import type { FileType, PaperColor } from "@/types/domain/submission";
-import { filterTypes, paperColors } from "@/constants";
-import type { ClassesWithSchedules } from "@/types";
+import {
+  useTeachers,
+  useClassesByTeacher,
+  useAuth,
+  useCreateNotification,
+} from "@/hooks";
+import type {
+  CreateSubmissionInput,
+  FileType,
+  PaperColor,
+  ClassesWithSchedules,
+} from "@/types";
 import type { WeekDay } from "@/constants/shared";
-import { useAuth, useCreateNotification } from "@/hooks";
+import { FormField, Form as RHFForm } from "@/components/common";
+import { filterTypes, paperColors } from "@/constants";
+import { generateSubmissionPDF } from "@/utils/generateSubmissionPDF";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 
 interface NewSubmissionModalProps {
   open: boolean;
@@ -33,14 +39,17 @@ const NewSubmissionModal = ({
   open,
   onOpenChange,
   teacherId,
-  allowTeacherSelection,
+  allowTeacherSelection = false,
 }: NewSubmissionModalProps) => {
   const { createSubmissionWithFiles, createWithFilesLoading: isSubmitting } =
     useSubmissionMutations();
+
   const { user } = useAuth();
   const adminId = user?.adminId;
-  const { createNotification } = useCreateNotification();
   const role = user?.role;
+  const active = true;
+  const { teachers } = useTeachers(adminId!, active);
+  const { createNotification } = useCreateNotification();
 
   const form = useForm<z.infer<typeof submissionFormSchema>>({
     resolver: zodResolver(submissionFormSchema),
@@ -48,10 +57,9 @@ const NewSubmissionModal = ({
       teacherId: teacherId || "",
       classId: "",
       fileType: "",
-      lessonDate: format(new Date(), "yyyy-MM-dd"),
+      lessonDate: "",
       copies: null,
-      paperColor: "white",
-      notes: "",
+      paperColor: "",
       printSettings: {
         doubleSided: false,
         stapled: false,
@@ -63,25 +71,13 @@ const NewSubmissionModal = ({
         coloredAnswerSheet: false,
       },
       files: [],
+      notes: "",
     },
     mode: "onChange",
   });
 
-  const activeClasses = true;
-  const activeTeachers = true;
-  const { classes } = useClassesByTeacher(
-    teacherId || form.watch("teacherId"),
-    activeClasses
-  );
-  const { teachers } = useTeachers(adminId!, activeTeachers);
-
-  const fileTypeMap: Record<string, FileType> = {
-    worksheet: "worksheet",
-    exam: "exam",
-    handout: "handout",
-    lesson_plan: "worksheet", // Map to closest match
-    other: "handout", // Map to closest match
-  };
+  const selectedTeacherId = form.watch("teacherId");
+  const { classes } = useClassesByTeacher(selectedTeacherId, active);
 
   const getLessonDateFilter = (
     selectedClass: ClassesWithSchedules | undefined
@@ -115,77 +111,61 @@ const NewSubmissionModal = ({
     };
   };
 
-  // Map form paper color values to PaperColor type
-  const paperColorMap: Record<string, PaperColor> = {
-    White: "white",
-    Yellow: "yellow",
-    Blue: "blue",
-    Green: "green",
-    Pink: "pink",
-  };
-
   const onSubmit = async (values: z.infer<typeof submissionFormSchema>) => {
-    // Validate against the schema first
     const result = submissionFormSchema.safeParse(values);
     if (!result.success) {
       console.error("Validation failed:", result.error);
       return;
     }
 
-    // Convert form values to correct types
-    const fileType = fileTypeMap[values.fileType] || "handout";
-    const paperColor = paperColorMap[values.paperColor] || "white";
-    const lessonDate = values.lessonDate;
-
-    const submissionData = {
-      classId: values.classId,
-      teacherId: values.teacherId,
-      fileType,
-      paperColor,
-      lessonDate,
-      notes: values.notes,
-      copies: values.copies,
-      printSettings: values.printSettings,
-    };
-
-    // Get the files from the form
-    const selectedFiles = Array.isArray(values.files)
-      ? [...values.files]
-      : [values.files];
-
-    const newFiles: File[] = selectedFiles.map(
-      (f) => (f as { existing: false; file: File }).file
-    );
+    // Extract new files
+    const newFiles = values.files
+      .filter((f): f is { existing: false; file: File } => !f.existing)
+      .map((f) => f.file);
 
     // Runtime safeguard: only allow PDF uploads
     const hasNonPdf = newFiles.some(
-      (file) => !file.name.toLowerCase().endsWith(".pdf")
+      (f) => !f.name.toLowerCase().endsWith(".pdf")
     );
-
     if (hasNonPdf) {
       toast.error("Only PDF files are allowed.");
       return;
     }
-    // Generate PDF and add it to the files
-    const pdfBlob = generateSubmissionPDF(values, newFiles, teachers, classes);
+
+    const submission: CreateSubmissionInput = {
+      teacherId: values.teacherId,
+      classId: values.classId,
+      fileType: values.fileType as FileType,
+      lessonDate: values.lessonDate,
+      copies: values.copies || null,
+      paperColor: values.paperColor as PaperColor,
+      printSettings: values.printSettings,
+      notes: values.notes ?? "",
+    };
+
+    // Generate submission details PDF
+    const allFileNames = newFiles.map((f) => f.name);
+    const pdfBlob = generateSubmissionPDF(
+      values,
+      allFileNames as unknown as File[],
+      teachers,
+      classes
+    );
     const pdfFile = new File(
       [pdfBlob],
       `submission-details-${Date.now()}.pdf`,
       { type: "application/pdf" }
     );
-
-    const allFiles = [pdfFile, ...newFiles];
+    const totalFiles = [pdfFile, ...newFiles];
 
     createSubmissionWithFiles(
-      { submission: submissionData, files: allFiles },
+      { submission, files: totalFiles },
       {
-        onSuccess: (result) => {
+        onSuccess: () => {
           createNotification({
             senderId: user!.id,
             senderRole: role!,
-            message: `${result.class?.label} ${
-              result.fileType
-            } New submission created by ${user!.name}`,
+            message: `New submission created by ${user?.name}`,
             type: "newSubmission",
             teacherId: values.teacherId,
           });
@@ -197,35 +177,23 @@ const NewSubmissionModal = ({
   };
 
   const selectedClassId = form.watch("classId");
-  const selectedTeacherId = form.watch("teacherId");
   const selectedClass = (classes as ClassesWithSchedules[] | undefined)?.find(
     (cls) => cls.id === selectedClassId
   );
 
   const baseFormFields = getSubmissionFields({
-    classes: classes || [],
+    classes: classes,
     fileTypes: filterTypes,
     paperColors: paperColors,
     teachers: teachers || [],
-    disabledFields: !allowTeacherSelection && teacherId ? ["teacherId"] : [],
+    disabledFields: allowTeacherSelection ? [] : ["teacherId"],
   });
 
-  const formFields = baseFormFields.map((field) => {
-    if (field.name === "classId") {
-      return {
-        ...field,
-        disabled: !selectedTeacherId, // Disable if no teacher selected
-      };
-    }
-    if (field.name === "lessonDate") {
-      return {
-        ...field,
-        disabled: !selectedClassId, // Disable if no class selected
-        filterDate: getLessonDateFilter(selectedClass),
-      };
-    }
-    return field;
-  });
+  const formFields = baseFormFields.map((field) =>
+    field.name === "lessonDate"
+      ? { ...field, filterDate: getLessonDateFilter(selectedClass) }
+      : field
+  );
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -236,12 +204,11 @@ const NewSubmissionModal = ({
             Fill in the details below to create a new print request
           </DialogDescription>
         </DialogHeader>
-
         <RHFForm
           form={form}
           onSubmit={onSubmit}
           isSubmitting={isSubmitting}
-          submitText="Submit Print Request"
+          submitText="Create Print Request"
           className="space-y-6"
         >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

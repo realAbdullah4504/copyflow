@@ -29,6 +29,7 @@ export const useClassMutations = () => {
     }) => classesService.update(id, updates),
     ...mutationHandlers({
       successMessage: "Class Updated",
+      errorMessage: "Failed to update class",
       invalidateKeys: invalidateClassKeys,
     }),
   });

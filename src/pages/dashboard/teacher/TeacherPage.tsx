@@ -45,11 +45,13 @@ const TeacherPage = () => {
   const { user } = useAuth();
   const teacherId = user?.id || '';
 
-  const { data: submissions = [], isLoading } = useQuery({
+  const { data: submissionsResult, isLoading } = useQuery({
     queryKey: ['submissions', 'teacher', teacherId],
     queryFn: () => submissionService.getSubmissionsByTeacher(teacherId),
     enabled: !!teacherId,
   });
+
+  const submissions = Array.isArray(submissionsResult) ? submissionsResult : submissionsResult?.data ?? [];
 
   if (isLoading) {
     return (
@@ -75,7 +77,7 @@ const TeacherPage = () => {
       value: pendingSubmissions.length,
       icon: <Clock className="h-4 w-4 text-amber-500" />,
       trend: `${pendingSubmissions.length} pending`,
-      trendType: pendingSubmissions.length > 0 ? 'down' : 'neutral'
+      trendType: pendingSubmissions.length > 0 ? 'down' as const : 'neutral' as const
     },
     {
       title: 'In Review',
@@ -88,7 +90,7 @@ const TeacherPage = () => {
       value: printedSubmissions.length,
       icon: <CheckCircle className="h-4 w-4 text-green-500" />,
       trend: `${printedSubmissions.length} completed`,
-      trendType: 'up'
+      trendType: 'up' as const
     },
   ];
 

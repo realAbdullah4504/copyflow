@@ -5,10 +5,8 @@ import { Sidebar, Header } from "@/components/dashboard";
 import BreadcrumbNavigation from "@/components/common/BreadcrumbNavigation";
 
 const DashboardLayout = () => {
-  const { user, logout, isAuthenticated } = useAuth();
+  const { user, logout, isLoggingOut, isAuthenticated } = useAuth();
   const navigate = useNavigate();
-
-
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -26,15 +24,21 @@ const DashboardLayout = () => {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden">
+    <div className="flex h-screen">
       <Sidebar
         userRole={user.role}
         userName={user.name}
         onLogout={handleLogout}
+        isLoggingOut={isLoggingOut}
       />
 
       <div className="flex flex-1 flex-col overflow-hidden">
-        <Header title={<BreadcrumbNavigation />} userName={user.name} onLogout={handleLogout} userId={user.id} />
+        <Header
+          title={<BreadcrumbNavigation />}
+          userName={user.name}
+          onLogout={handleLogout}
+          userId={user.id}
+        />
 
         <main className="flex-1 overflow-y-auto bg-slate-100 p-6">
           <Outlet />

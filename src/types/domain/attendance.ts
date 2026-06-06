@@ -1,9 +1,11 @@
 /**
- * Attendance domain types
+ * Attendance domain types (legacy)
  * Core business entities related to attendance tracking
  */
 
-export interface AttendanceRecord {
+// Legacy type - kept for backward compatibility
+// New attendance types are in student.ts
+export interface AttendanceSummary {
   id: string;
   grade: string;
   date: Date;

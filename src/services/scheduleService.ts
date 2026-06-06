@@ -1,5 +1,5 @@
 import type { WeekDay } from "@/constants";
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "@/integrations/supabase/client";
 import type { Schedule } from "@/types";
 import { AppError } from "@/utils";
 

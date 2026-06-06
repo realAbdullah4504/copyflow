@@ -4,4 +4,6 @@ export * from "./useClassMutations";
 export * from "./useUserMutations";
 export * from "./useCreateNotifications";
 export * from "./useMarkNotifications"
+export * from "./useStudentMutations"
+export * from "./useAbsenceAlertMutations"
 

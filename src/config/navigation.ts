@@ -2,12 +2,14 @@ import {
   // General
   LayoutDashboard,
   FileText,
+  UsersRound,
   Archive,
   Users,
   // File related
   FileArchive,
   FileCheck,
   GraduationCap,
+  UserCheck,
 } from "lucide-react";
 import type { NavItem } from "@/types/navigation";
 import { ROLES } from "./roles";
@@ -85,6 +87,29 @@ const SECRETARY_NAV_ITEMS: NavItem[] = [
     icon: Archive,
     roles: [ROLES.SECRETARY],
   },
+  {
+    title: "Students",
+    href: "/dashboard/secretary/students",
+    icon: UsersRound,
+    roles: [ROLES.SECRETARY],
+  },
+  {
+    title: "Attendance",
+    icon: UserCheck,
+    roles: [ROLES.SECRETARY],
+    children: [
+      {
+        title: "Entry",
+        href: "/dashboard/secretary/attendance/entry",
+        roles: [ROLES.SECRETARY],
+      },
+      {
+        title: "Report",
+        href: "/dashboard/secretary/attendance/report",
+        roles: [ROLES.SECRETARY],
+      },
+    ],
+  },
 ];
 
 const ADMIN_NAV_ITEMS: NavItem[] = [
@@ -145,6 +170,23 @@ const ADMIN_NAV_ITEMS: NavItem[] = [
     icon: FileArchive,
     roles: [ROLES.ADMIN],
   },
+  {
+    title: "Attendance",
+    icon: UserCheck,
+    roles: [ROLES.ADMIN],
+    children: [
+      {
+        title: "Entry",
+        href: "/dashboard/admin/attendance/entry",
+        roles: [ROLES.ADMIN],
+      },
+      {
+        title: "Report",
+        href: "/dashboard/admin/attendance/report",
+        roles: [ROLES.ADMIN],
+      },
+    ],
+  },
 ];
 
 const PRINCIPAL_NAV_ITEMS: NavItem[] = [
@@ -153,7 +195,30 @@ const PRINCIPAL_NAV_ITEMS: NavItem[] = [
     href: "/dashboard/principal",
     icon: LayoutDashboard,
     roles: [ROLES.PRINCIPAL],
-  }
+  },
+  {
+    title: "Attendance",
+    icon: UserCheck,
+    roles: [ROLES.PRINCIPAL],
+    children: [
+      {
+        title: "View",
+        href: "/dashboard/principal/attendance/entry",
+        roles: [ROLES.PRINCIPAL],
+      },
+      {
+        title: "Report",
+        href: "/dashboard/principal/attendance/report",
+        roles: [ROLES.PRINCIPAL],
+      },
+    ],
+  },
+  {
+    title: "Archive",
+    href: "/dashboard/principal/archive",
+    icon: Archive,
+    roles: [ROLES.PRINCIPAL],
+  },
 ];
 
 export const NAV_ITEMS: NavItem[] = [

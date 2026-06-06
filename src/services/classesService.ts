@@ -1,9 +1,10 @@
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "@/integrations/supabase/client";
 import type {
   ClassesWithSchedules,
   ClassWithSubmissionsScheduleFiles,
   CreateClassInput,
   GradeLevel,
+  LessonSlot,
   PrincipalScheduleDTO,
 } from "@/types";
 import type { WeekDay } from "@/constants/shared";
@@ -16,56 +17,51 @@ export const classesService = {
     filterByDay?: WeekDay,
     lessonDate?: string
   ): Promise<ClassWithSubmissionsScheduleFiles[]> {
-    // 1️⃣ Fetch classes
-    const classesQuery = supabase
+    // Fetch classes with schedules joined (avoids separate schedules request)
+    const { data: classes, error: classesError } = await supabase
       .from("classes")
-      .select("*, teacher:teacher_id(*)")
+      .select("*, teacher:teacher_id(*), schedules(*)")
       .order("grade", { ascending: true })
       .order("created_at", { ascending: true });
 
-    // 2️⃣ Fetch schedules
-    let schedulesQuery = supabase.from("schedules").select("*");
-    if (filterByDay) {
-      schedulesQuery = schedulesQuery.contains("lesson_days", [filterByDay]);
-    }
-
-    const [
-      { data: classes, error: classesError },
-      { data: schedules, error: schedulesError },
-    ] = await Promise.all([classesQuery, schedulesQuery]);
-
     if (classesError) throw await AppError.from(classesError);
-    if (schedulesError) throw await AppError.from(schedulesError);
+
+    // Filter classes by day if needed (using joined schedule data)
+    const filteredClasses = filterByDay
+      ? (classes || []).filter((cls) => {
+          const schedule = cls.schedules?.[0];
+          return schedule?.lesson_days?.includes(filterByDay);
+        })
+      : classes || [];
 
     let submissions: { class_id: string; files: string }[] = [];
     if (lessonDate) {
-      const classIds = (classes || []).map((c) => c.id);
-      const { data: subs } = await supabase
-        .from("submissions")
-        .select("class_id, files,id")
-        .in("class_id", classIds)
-        .eq("lesson_date", lessonDate)
-        .eq("status", "printed");
+      const classIds = filteredClasses.map((c) => c.id);
+      if (classIds.length > 0) {
+        const { data: subs } = await supabase
+          .from("submissions")
+          .select("class_id, files,id")
+          .in("class_id", classIds)
+          .eq("lesson_date", lessonDate)
+          .eq("status", "printed");
 
-      submissions = subs || [];
+        submissions = subs || [];
+      }
     }
 
-    // 4️⃣ Map classes
-    return (classes || []).map((cls) => {
-      const schedule = schedules?.find((s) => s.class_id === cls.id);
-      // Define a more precise type for the submission object
+    // Map classes
+    return filteredClasses.map((cls) => {
+      const schedule = cls.schedules?.[0];
       interface SubmissionWithId {
         id: string;
         class_id: string;
         files: string | string[];
       }
 
-      // Cast the submissions to the correct type and filter by class ID
       const classSubmissions = (
         submissions as unknown as SubmissionWithId[]
       ).filter((s) => s.class_id === cls.id);
 
-      // Convert files to an array if it's a string and filter out submission-details files
       const normalizeFiles = (files: string | string[]): string[] => {
         const filesArray = Array.isArray(files) ? files : files ? [files] : [];
         return filesArray.filter(file => !file.includes('submission-details-'));
@@ -82,14 +78,14 @@ export const classesService = {
         submissionFiles: classSubmissions.flatMap((submission) =>
           normalizeFiles(submission.files).map(
             (fileName: string, index: number) => ({
-              id: `${submission.id}-${index}`, // Generate a unique ID for each file
+              id: `${submission.id}-${index}`,
               name: fileName,
               submissionId: submission.id,
             })
           )
         ),
         createdAt: new Date(cls.created_at),
-        updatedAt: new Date(cls.updated_at),
+        updatedAt: new Date(cls.created_at),
         label: `Grade ${cls.grade} - ${cls.subject}`,
       };
     });
@@ -189,7 +185,7 @@ export const classesService = {
       "11",
       "12",
     ].reduce((acc, grade) => {
-      acc[grade as GradeLevel] = { grade: grade as GradeLevel, lessons: {} };
+      acc[grade as GradeLevel] = { grade: grade as GradeLevel, lessons: {} as Record<WeekDay, LessonSlot[]> };
       return acc;
     }, {} as Record<GradeLevel, PrincipalScheduleDTO>);
 
@@ -205,7 +201,7 @@ export const classesService = {
             teacherName: cls.teacher.name,
             subject: cls.subject,
             classId: cls.id,
-            submissionFiles: cls.submissionFiles || [], // include filenames
+            submissionFiles: (cls as any).submissionFiles || [],
           });
         }
       }
@@ -215,7 +211,7 @@ export const classesService = {
     Object.values(grouped).forEach((grade) => {
       if (!grade.lessons[day]) grade.lessons[day] = [];
       while (grade.lessons[day].length < 4) {
-        grade.lessons[day].push(null);
+        grade.lessons[day].push(null as unknown as LessonSlot);
       }
     });
 

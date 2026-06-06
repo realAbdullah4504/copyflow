@@ -9,11 +9,14 @@ export const generateMockClasses = (teacherId: string, count: number): ClassEnti
   const result: ClassEntity[] = [];
   for (let i = 1; i <= count; i++) {
     const createdAt = getRandomDate(new Date(2025, 0, 1), new Date());
+    const grade = getRandomElement(grades);
+    const subject = getRandomElement(subjects);
     result.push({
       id: `${teacherId}-${i}`,
       teacherId,
-      grade: getRandomElement(grades),
-      subject: getRandomElement(subjects),
+      label: `${grade} - ${subject}`,
+      grade,
+      subject,
       active: Math.random() > 0.3,
       createdAt,
       updatedAt: createdAt,

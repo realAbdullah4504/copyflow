@@ -1,4 +1,3 @@
-import * as React from "react";
 import { UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { UserModal, UsersTable } from "@/components/users";
@@ -9,6 +8,7 @@ import { showPasswordToast } from "@/components/users/PasswordToast";
 
 const UsersPage = () => {
   const { user } = useAuth();
+  console.log(user)
   const { users, isLoading } = useUsers(user?.id);
   const {
     createUser,

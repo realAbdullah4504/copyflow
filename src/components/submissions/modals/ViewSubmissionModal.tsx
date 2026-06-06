@@ -30,6 +30,7 @@ interface ViewSubmissionModalProps {
     unCensorLoading?: boolean;
   };
   readonly allowedActions?: readonly string[];
+  readonly isArchive?: boolean;
 }
 
 const ViewSubmissionModal = ({
@@ -39,6 +40,7 @@ const ViewSubmissionModal = ({
   handlers,
   isSubmitting,
   allowedActions,
+  isArchive = false,
 }: ViewSubmissionModalProps) => {
   const [downloadingFiles, setDownloadingFiles] = useState<
     Record<string, boolean>
@@ -124,17 +126,15 @@ const ViewSubmissionModal = ({
         return;
       }
 
-      // Sort: submission-details PDF first if exists, then keep the rest order
-      const instructionFile = supportedFiles.find(
-        ({ name }) =>
-          name.startsWith("submission-details-") &&
-          name.toLowerCase().endsWith(".pdf")
-      );
-      const otherFiles = supportedFiles.filter(
-        (file) => file !== instructionFile
-      );
-      const orderedFiles = instructionFile
-        ? [instructionFile, ...otherFiles]
+      // Filter out the instruction sheet only in archive view
+      const orderedFiles = isArchive
+        ? supportedFiles.filter(
+            ({ name }) =>
+              !(
+                name.startsWith("submission-details-") &&
+                name.toLowerCase().endsWith(".pdf")
+              )
+          )
         : supportedFiles;
 
       console.log(
@@ -250,7 +250,7 @@ const ViewSubmissionModal = ({
       }
 
       const mergedPdfBytes = await mergedPdf.save();
-      const blob = new Blob([mergedPdfBytes], { type: "application/pdf" });
+      const blob = new Blob([mergedPdfBytes as unknown as BlobPart], { type: "application/pdf" });
       const url = URL.createObjectURL(blob);
 
       if (shouldPrint) {
@@ -295,7 +295,7 @@ const ViewSubmissionModal = ({
   };
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-6xl w-full max-h-[95vh] flex flex-col">
+      <DialogContent className="max-w-6xl w-[95vw] max-h-[95vh] flex flex-col bg-background">
         <DialogHeader>
           <DialogTitle>Submission Details</DialogTitle>
           <DialogDescription>
@@ -337,9 +337,9 @@ const ViewSubmissionModal = ({
                     Lesson Date
                   </label>
                   <div className="rounded-md border border-input bg-background px-3 py-2 text-sm">
-                    {submission?.lessonDate
+                    <span className="whitespace-nowrap">{submission?.lessonDate
                       ? format(parseISO(submission.lessonDate), "MM/dd/yyyy")
-                      : "-"}
+                      : "-"}</span>
                   </div>
                 </div>
                 <div className="space-y-2">

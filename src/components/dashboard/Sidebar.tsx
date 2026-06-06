@@ -12,6 +12,7 @@ interface SidebarProps {
   userRole: UserRole;
   userName: string;
   onLogout: () => void;
+  isLoggingOut: boolean;
 }
 
 const MOBILE_BREAKPOINT = 768; // md breakpoint
@@ -20,6 +21,7 @@ export default function Sidebar({
   userRole,
   userName,
   onLogout,
+  isLoggingOut,
 }: SidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -288,6 +290,7 @@ export default function Sidebar({
               isCollapsed ? "p-2" : "px-4"
             )}
             onClick={onLogout}
+            disabled={isLoggingOut}
             title={isCollapsed ? "Logout" : undefined}
           >
             <LogOut

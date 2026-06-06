@@ -1,11 +1,11 @@
 import type { ModalActionType } from "@/hooks/useModal";
-import type { ClassEntity, ClassEntityV2, GradeLevel } from "@/types";
+import type { ClassesWithSchedules, GradeLevel } from "@/types";
 import NewClassModal from "./NewClassModal";
 import EditClassModal from "./EditClassModal";
 import { ConfirmModal } from "@/components/common";
 interface Props {
   type: ModalActionType;
-  data?: ClassEntityV2;
+  data?: ClassesWithSchedules;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onClose: () => void;

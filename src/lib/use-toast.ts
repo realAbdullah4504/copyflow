@@ -179,4 +179,3 @@ function useToast() {
 export { useToast, toast }
 
 export { ToastProvider } from "@/components/ui/toast"
-export { Toaster } from "@/components/ui/toaster"

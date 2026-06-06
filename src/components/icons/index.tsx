@@ -1,13 +1,13 @@
 import { SettingsIcon } from "lucide-react";
 import DashboardIcon from "./DashboardIcon";
 import UsersIcon from "./UsersIcon";
-import type { IconName } from "@/types";
+
+type IconName = "dashboard-icon" | "users-icon" | "settings-icon";
 
 const icons: Record<IconName, React.ComponentType<{ className?: string }>> = {
   "dashboard-icon": DashboardIcon,
   "users-icon": UsersIcon,
   "settings-icon": SettingsIcon,
-  // Add more icons as needed
 };
 
 export const Icon = ({

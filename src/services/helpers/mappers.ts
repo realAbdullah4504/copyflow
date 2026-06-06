@@ -5,7 +5,7 @@ import type {
   SubmissionRow,
   FileItem,
 } from "@/types";
-import { isAfter, isToday, parseISO, startOfDay, subDays } from "date-fns";
+import { isAfter, parseISO, startOfDay, subDays } from "date-fns";
 
 function isSubmissionUrgent(lessonDate: string): boolean {
   const today = startOfDay(new Date());

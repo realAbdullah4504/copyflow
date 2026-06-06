@@ -8,7 +8,7 @@ export function mapClassesData(data: RawClassData): ClassesWithSchedules {
     subject: data.subject,
     grade: data.grade,
     active: data.active,
-    lessonDays: schedule ? schedule.lesson_days : [],
+    lessonDays: schedule ? schedule.lessonDays : [],
     createdAt: new Date(data.created_at),
     updatedAt: new Date(data.updated_at),
     label: `Grade ${data.grade} - ${data.subject}`,

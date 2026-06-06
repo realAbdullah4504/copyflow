@@ -125,7 +125,7 @@ const EditSubmissionModal = ({
 
     // Runtime safeguard: only allow PDF uploads for newly added files
     const hasNonPdfNewFile = newFiles.some((f) =>
-      "file" in f ? !f.file.name.toLowerCase().endsWith(".pdf") : false
+      "file" in f ? !(f.file as File).name.toLowerCase().endsWith(".pdf") : false
     );
 
     if (hasNonPdfNewFile) {
@@ -172,8 +172,8 @@ const EditSubmissionModal = ({
       ...previousPDFs.map((f) => f.name), // old generated PDFs
     ];
 
-    const allFiles = [...keptExisting, ...newFiles].map((f) => f.name);
-    const pdfBlob = generateSubmissionPDF(values, allFiles, teachers, classes);
+    const allFileNames = [...keptExisting, ...newFiles].map((f) => f.name);
+    const pdfBlob = generateSubmissionPDF(values, allFileNames as unknown as File[], teachers, classes);
     const pdfFile = new File(
       [pdfBlob],
       `submission-details-${Date.now()}.pdf`,

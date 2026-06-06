@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "@/integrations/supabase/client";
 import type { CreateUserResponse, GetUsersResponse, User } from "@/types";
 import { AppError } from "@/utils/errorUtils";
 
@@ -83,7 +83,6 @@ export const userService = {
   deleteUser: async (id: string): Promise<void> => {
     const { error } = await supabase.functions.invoke("delete-user", {
       body: { userId: id },
-      method: "DELETE",
     });
     if (error) {
       const appError = await AppError.from(error);

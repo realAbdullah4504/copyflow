@@ -23,6 +23,7 @@ import { parseISO } from "date-fns";
 type FormFieldProps = {
   type:
     | "text"
+    | "email"
     | "select"
     | "switch"
     | "textarea"

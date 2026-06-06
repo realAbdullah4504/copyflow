@@ -2,8 +2,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Loader2,
   FileText,
-  Archive,
-  AlertTriangle,
   CheckCircle,
   Clock,
 } from "lucide-react";
@@ -102,14 +100,14 @@ const SecretaryPage = () => {
       value: censoredSubmissions.length,
       icon: <Clock className="h-4 w-4 text-amber-500" />,
       trend: `${censoredSubmissions.length} pending`,
-      trendType: censoredSubmissions.length > 0 ? "down" : "neutral",
+      trendType: censoredSubmissions.length > 0 ? "down" as const : "neutral" as const,
     },
     {
       title: "Completed",
       value: archivedSubmissions.length,
       icon: <CheckCircle className="h-4 w-4 text-green-500" />,
       trend: `${archivedSubmissions.length} completed`,
-      trendType: "up",
+      trendType: "up" as const,
     },
   ];
 

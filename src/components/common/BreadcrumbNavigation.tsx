@@ -1,3 +1,4 @@
+import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { ChevronRight } from 'lucide-react';
 import {
@@ -25,20 +26,22 @@ const BreadcrumbNavigation = () => {
             .join(' ');
 
           return (
-            <BreadcrumbItem key={routeTo}>
-              {index > 0 && ( // only show separator if not the first item
+            <React.Fragment key={routeTo}>
+              {index > 0 && (
                 <BreadcrumbSeparator>
                   <ChevronRight className="h-4 w-4" />
                 </BreadcrumbSeparator>
               )}
-              {isLast ? (
-                <BreadcrumbPage>{displayName}</BreadcrumbPage>
-              ) : (
-                <BreadcrumbLink asChild>
-                  <Link to={routeTo}>{displayName}</Link>
-                </BreadcrumbLink>
-              )}
-            </BreadcrumbItem>
+              <BreadcrumbItem>
+                {isLast ? (
+                  <BreadcrumbPage>{displayName}</BreadcrumbPage>
+                ) : (
+                  <BreadcrumbLink asChild>
+                    <Link to={routeTo}>{displayName}</Link>
+                  </BreadcrumbLink>
+                )}
+              </BreadcrumbItem>
+            </React.Fragment>
           );
         })}
       </BreadcrumbList>

@@ -1,0 +1,7 @@
+project_id = "jvsznbfikbayixqlgwft"
+
+[functions.delete-user]
+verify_jwt = false
+
+[functions.import-students]
+verify_jwt = false

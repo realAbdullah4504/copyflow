@@ -37,6 +37,9 @@ export const getDayLabel = (key: WeekDay) =>
 
 export const grades = ["9", "10", "11", "12"];
 
+export const sections = ["B", "R", "D", "S"] as const;
+export type Section = typeof sections[number];
+
 export const filterTypes = [
   "Worksheet",
   "Exam",

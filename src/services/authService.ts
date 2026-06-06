@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "@/integrations/supabase/client";
 import type {
   User,
   LoginResponse,
@@ -7,37 +7,6 @@ import type {
   SignupResponse,
 } from "@/types";
 import { AppError } from "@/utils";
-
-const mockUsers: User[] = [
-  {
-    id: "1",
-    name: "Sarah Johnson",
-    email: "sarah.johnson@school.edu",
-    role: "teacher",
-    active: true,
-  },
-  {
-    id: "2",
-    name: "Michael Chen",
-    email: "michael.chen@school.edu",
-    role: "teacher",
-    active: true,
-  },
-  {
-    id: "3",
-    name: "Emily Rodriguez",
-    email: "emily.rodriguez@school.edu",
-    role: "secretary",
-    active: true,
-  },
-  {
-    id: "4",
-    name: "David Thompson",
-    email: "david.thompson@school.edu",
-    role: "admin",
-    active: true,
-  },
-];
 
 export const authService = {
   signUp: async (credentials: SignupFormFields): Promise<SignupResponse> => {
@@ -163,6 +132,107 @@ export const authService = {
     }
   },
 
+  loginWithGoogle: async (): Promise<LoginResponse> => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${globalThis.location.origin}/auth/callback`,
+      },
+    });
+
+    if (error) {
+      const appError = await AppError.from(error);
+      throw appError;
+    }
+
+    // For OAuth, the user data will be handled by the callback
+    // This method primarily initiates the OAuth flow
+    return { user: null as unknown as User };
+  },
+
+  handleOAuthCallback: async (): Promise<LoginResponse> => {
+    // Add retry mechanism for session availability
+    let attempts = 0;
+    const maxAttempts = 3;
+    
+    while (attempts < maxAttempts) {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      
+      if (error) {
+        const appError = await AppError.from(error);
+        throw appError;
+      }
+
+      if (!session?.user) {
+        attempts++;
+        if (attempts >= maxAttempts) {
+          const appError = await AppError.from(new Error("No session found after retries"));
+          throw appError;
+        }
+        // Wait briefly before retry
+        await new Promise(resolve => setTimeout(resolve, 500));
+        continue;
+      }
+
+      // Verify the session was created via OAuth for security
+      if (!session.user.app_metadata?.provider) {
+        const appError = await AppError.from(new Error("Invalid OAuth session"));
+        throw appError;
+      }
+
+      // Check if profile already exists before creating
+      const defaultRole = import.meta.env?.VITE_OAUTH_DEFAULT_ROLE || "admin";
+      const { data: existingProfile, error: checkError } = await supabase
+        .from("profiles")
+        .select()
+        .eq("id", session.user.id)
+        .single();
+
+      let profile;
+      if (checkError && checkError.code === 'PGRST116') {
+        // Profile doesn't exist, create new one
+        const { data: newProfile, error: insertError } = await supabase
+          .from("profiles")
+          .insert({
+            id: session.user.id,
+            email: session.user.email,
+            name: session.user.user_metadata?.full_name || session.user.email?.split('@')[0],
+            role: defaultRole,
+            active: true,
+            admin_id: session.user.id,
+          })
+          .select()
+          .single();
+
+        if (insertError) {
+          const appError = await AppError.from(insertError);
+          throw appError;
+        }
+        profile = newProfile;
+      } else if (checkError) {
+        const appError = await AppError.from(checkError);
+        throw appError;
+      } else {
+        // Profile already exists, use it
+        profile = existingProfile;
+      }
+
+      const user: User = {
+        id: session.user.id,
+        email: session.user.email || profile.email,
+        name: profile.name,
+        role: profile.role,
+        active: profile.active,
+        adminId: profile.admin_id,
+      };
+
+      return { user };
+    }
+
+    const appError = await AppError.from(new Error("Failed to process OAuth callback"));
+    throw appError;
+  },
+
   getCurrentUser: async (): Promise<LoginResponse> => {
     const { data } = await supabase.auth.getUser();
     if (!data.user) {
@@ -193,7 +263,7 @@ export const authService = {
   },
 
   setCurrentUser: (data: { user: User; token: string }): void => {
-    if (typeof globalThis.window === "undefined") return;
+    if (globalThis.window === undefined) return;
     localStorage.setItem("currentUser", JSON.stringify(data.user));
     localStorage.setItem("token", data.token);
   },

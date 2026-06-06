@@ -9,3 +9,5 @@ export * from './submission';
 export * from './class';
 export * from './notification';
 export * from './schedule';
+export * from './student';
+export * from './term';

@@ -1,4 +1,3 @@
-import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Loader2,
@@ -123,14 +122,14 @@ export default function AdminDashboardPage() {
       value: censoredSubmissions.length,
       icon: <Clock className="h-4 w-4 text-amber-500" />,
       trend: `${censoredSubmissions.length} pending`,
-      trendType: censoredSubmissions.length > 0 ? "down" : "neutral",
+      trendType: censoredSubmissions.length > 0 ? "down" as const : "neutral" as const,
     },
     {
       title: "Completed",
       value: archivedSubmissions.length,
       icon: <CheckCircle className="h-4 w-4 text-green-500" />,
       trend: `${archivedSubmissions.length} completed`,
-      trendType: archivedSubmissions.length > 0 ? "up" : "neutral",
+      trendType: archivedSubmissions.length > 0 ? "up" as const : "neutral" as const,
     },
   ];
 

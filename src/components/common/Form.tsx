@@ -3,15 +3,15 @@ import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
-import type { SubmissionFormValues } from "../submissions/fields";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 interface FormProps {
   children: ReactNode;
-  onSubmit: (data: SubmissionFormValues) => void | Promise<void>;
+  onSubmit: (data: any) => void | Promise<void>;
   submitText?: string;
   isSubmitting?: boolean;
   className?: string;
-  form: UseFormReturn<SubmissionFormValues>;
+  form: UseFormReturn<any>;
 }
 
 const Form = ({

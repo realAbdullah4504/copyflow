@@ -93,9 +93,8 @@ export const filterData = (data: Submission[], filters?: SubmissionFilters) => {
   if (!filters) return data;
 
   let filtered = [...data];
-  const { grade, fileType, status, timeFrame } = filters;
+  const { fileType, status, timeFrame } = filters;
 
-  if (grade) filtered = filtered.filter((s) => s.grade === grade);
   if (fileType) filtered = filtered.filter((s) => s.fileType === fileType);
   if (status) filtered = filtered.filter((s) => s.status === status);
 

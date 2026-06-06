@@ -1,11 +1,11 @@
 import { AUTH_FIELDS, AuthPageHeader } from "@/components/auth";
 import AuthForm from "@/components/auth/forms/AuthForm";
 import { DemoAccountButton } from "@/components/auth/ui/DemoAccountButton";
+import { GoogleLoginButton } from "@/components/auth/ui/GoogleLoginButton";
 import { CardContent } from "@/components/ui/card";
 import { Divider } from "@/components/ui/divider";
 import { useAuth } from "@/hooks/useAuth";
 import { useForm } from "react-hook-form";
-import { toast } from "sonner";
 import { Link, useNavigate } from "react-router-dom";
 
 type LoginInputs = {
@@ -40,7 +40,14 @@ const demoAccounts = [
   },
 ];
 const LoginPage = () => {
-  const { login, isLoggingIn, loginError } = useAuth();
+  const { 
+    login, 
+    isLoggingIn, 
+    loginError,
+    loginWithGoogle,
+    isLoggingInWithGoogle,
+    googleLoginError
+  } = useAuth();
   const config = AUTH_FIELDS.LOGIN;
   const navigate = useNavigate();
 
@@ -62,11 +69,19 @@ const LoginPage = () => {
     );
   };
 
+  const handleGoogleLogin = () => {
+    loginWithGoogle(undefined, {
+      onSuccess: () => {
+        // OAuth flow will redirect, so we don't need to navigate here
+      },
+    });
+  };
+
   const quickLogin = (userEmail: string) => {
     setValue("email", userEmail, { shouldValidate: true });
     setValue(
       "password",
-      demoAccounts.find((acc) => acc.email === userEmail)?.password,
+      demoAccounts.find((acc) => acc.email === userEmail)?.password || "",
       { shouldValidate: true }
     );
   };
@@ -83,6 +98,19 @@ const LoginPage = () => {
         isSubmitting={isLoggingIn}
         error={loginError?.message}
       />
+
+      <Divider label="Or continue with" />
+
+      <GoogleLoginButton
+        onClick={handleGoogleLogin}
+        isLoading={isLoggingInWithGoogle}
+      />
+
+      {googleLoginError && (
+        <p className="text-sm text-destructive text-center">
+          {googleLoginError.message}
+        </p>
+      )}
 
       <Divider label="Demo Accounts" />
 

@@ -41,10 +41,10 @@ export const createAuthSlice: StateCreator<
   [['zustand/devtools', never]],
   [],
   AuthSlice
-> = (set, get) => ({
+> = (set, _get) => ({
   ...initialState,
   
-  login: async (email: string, password: string) => {
+  login: async (_email: string, _password: string) => {
     set({ isLoading: true, error: null });
     try {
       // Replace with your actual API call
@@ -63,7 +63,7 @@ export const createAuthSlice: StateCreator<
     }
   },
 
-  register: async (userData) => {
+  register: async (_userData) => {
     set({ isLoading: true, error: null });
     try {
       // Replace with your actual API call

@@ -16,6 +16,8 @@ export * from "./useTeachersByGrade"
 
 export * from "./useGetNotifications";
 
-
-
+export * from "./useStudents";
+export * from "./useActiveTerm";
+export * from "./useTermAttendance";
+export * from "./useAbsenceAlerts";
 
